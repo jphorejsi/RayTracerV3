@@ -1,5 +1,5 @@
 #include "kdtree.h"
-#include <algorithm> // For std::min and std::max
+
 
 // Constructor to build the KD-Tree from a list of shapes
 KDTreeNode::KDTreeNode(const std::vector<ShapeType*>& shapes, int depth) {

@@ -67,7 +67,7 @@ void FileReaderType::processImageSize(std::istringstream& iss, ImageSizeType& im
 }
 
 
-MaterialType* FileReaderType::processMaterial(std::istringstream& iss) {
+void FileReaderType::processMaterial(std::istringstream& iss, SceneType& scene) {
     float odr, odg, odb, osr, osg, osb, ka, kd, ks, n;
     if (!(iss >> odr >> odg >> odb >> osr >> osg >> osb >> ka >> kd >> ks >> n)) {
         throw std::runtime_error("Error: Invalid or missing material parameters.");
@@ -81,11 +81,12 @@ MaterialType* FileReaderType::processMaterial(std::istringstream& iss) {
     if (osr < 0 || osg < 0 || osb < 0 || osr > 1 || osg > 1 || osb > 1) {
         throw std::runtime_error("Error: Specular color values must be between 0 and 1.");
     }
-    return new MaterialType(ColorType(odr, odg, odb), ColorType(osr, osg, osb), ka, kd, ks, n);
+    MaterialType* newMaterial = new MaterialType(ColorType(odr, odg, odb), ColorType(osr, osg, osb), ka, kd, ks, n);
+    scene.addMaterial(newMaterial);
 }
 
 
-void FileReaderType::processSphere(std::istringstream& iss, MaterialType* currentMaterial, TextureType* currentTexture, SceneType& scene) {
+void FileReaderType::processSphere(std::istringstream& iss, SceneType& scene) {
     float x, y, z, r;
     if (!(iss >> x >> y >> z >> r)) {
         throw std::runtime_error("Error: Invalid or missing sphere parameters.");
@@ -93,10 +94,11 @@ void FileReaderType::processSphere(std::istringstream& iss, MaterialType* curren
     if (r <= 0) {
         throw std::runtime_error("Error: Sphere radius must be positive.");
     }
+    MaterialType* currentMaterial = scene.getMaterials().back();
     if (!currentMaterial) {
         throw std::runtime_error("Error: No material available for the sphere.");
     }
-
+    TextureType* currentTexture = scene.getTextures().back();
     if (currentTexture) {
         TexturedSphereType* sphere = new TexturedSphereType(Vec3(x, y, z), r, currentMaterial, currentTexture);
         scene.addShape(sphere);
@@ -152,7 +154,7 @@ void FileReaderType::processAttLight(std::istringstream& iss, SceneType& scene) 
 }
 
 
-TextureType* FileReaderType::processTexture(std::istringstream& iss) {
+void FileReaderType::processTexture(std::istringstream& iss, SceneType& scene) {
     std::string filename;
     if (!(iss >> filename) || filename.empty()) {
         throw std::runtime_error("Error: Invalid or missing filename for texture.");
@@ -160,10 +162,12 @@ TextureType* FileReaderType::processTexture(std::istringstream& iss) {
     if (filename.size() < 4 || filename.substr(filename.size() - 4) != ".ppm") {
         throw std::runtime_error("Error: Invalid file format. Expected a .ppm file.");
     }
+
     std::ifstream textureFile(filename, std::ios::in | std::ios::binary);
     if (!textureFile.is_open()) {
         throw std::runtime_error("Error: Unable to open texture file: " + filename);
     }
+
     std::string name;
     int width, height, maxValue;
     if (!(textureFile >> name >> width >> height >> maxValue)) {
@@ -172,6 +176,7 @@ TextureType* FileReaderType::processTexture(std::istringstream& iss) {
     if (width <= 0 || height <= 0) {
         throw std::runtime_error("Error: Texture dimensions must be greater than zero.");
     }
+
     TextureType* texture = new TextureType(width, height, maxValue);
     for (int j = 0; j < height; ++j) {
         for (int i = 0; i < width; ++i) {
@@ -187,38 +192,38 @@ TextureType* FileReaderType::processTexture(std::istringstream& iss) {
             texture->setPixel(i, j, color);
         }
     }
-    return texture;
+    scene.addTexture(texture);
 }
 
 
-void FileReaderType::processVertex(std::istringstream& iss, std::vector<Vec3*>& vertices) {
+void FileReaderType::processVertex(std::istringstream& iss, SceneType& scene) {
     float x, y, z;
     if (!(iss >> x >> y >> z)) {
         throw std::runtime_error("Error: Invalid or missing vertex coordinates.");
     }
-    vertices.push_back(new Vec3(x, y, z));
+    scene.addVertex(new Vec3(x, y, z));
 }
 
 
-void FileReaderType::processVertexNormal(std::istringstream& iss, std::vector<Vec3*>& normalVectors) {
+void FileReaderType::processNormalVector(std::istringstream& iss, SceneType& scene) {
     float x, y, z;
     if (!(iss >> x >> y >> z)) {
         throw std::runtime_error("Error: Invalid or missing vertex normal coordinates.");
     }
-    normalVectors.push_back(new Vec3(x, y, z));
+    scene.addNormalVector(new Vec3(x, y, z));
 }
 
 
-void FileReaderType::processTextureCoordinate(std::istringstream& iss, std::vector<Vec2*>& textureCoordinates) {
+void FileReaderType::processTextureCoordinate(std::istringstream& iss, SceneType& scene) {
     float u, v;
     if (!(iss >> u >> v)) {
         throw std::runtime_error("Error: Invalid or missing texture coordinates.");
     }
-    textureCoordinates.push_back(new Vec2(u, v));
+    scene.addTextureCoordinate(new Vec2(u, v));
 }
 
 
-void FileReaderType::processFace(const std::string& line, MaterialType* currentMaterial, TextureType* currentTexture, const std::vector<Vec3*>& vertices, const std::vector<Vec3*>& normalVectors, const std::vector<Vec2*>& textureCoordinates, SceneType& scene) {
+void FileReaderType::processFace(const std::string& line, SceneType& scene) {
     int int_var[10];  // For holding vertex and normal indices
     TriangleType* triangle = nullptr;
     if (!currentMaterial) {
@@ -243,15 +248,6 @@ int FileReaderType::readFile(const std::string& filename, CameraType& camera, Sc
     if (!inputFile.is_open()) {
         throw std::runtime_error("Unable to open file: " + filename);
     }
-
-    // Track the current material/texture
-    MaterialType* currentMaterial = nullptr;
-    TextureType* currentTexture = nullptr;
-
-    // Use local storage for vertices, normals, and texture coordinates
-    std::vector<Vec3*> vertices;
-    std::vector<Vec3*> normalVectors;
-    std::vector<Vec2*> textureCoordinates;
 
     std::unordered_map<std::string, bool> requiredParams = {
         {"eye", false}, {"viewdir", false}, {"updir", false},
@@ -281,12 +277,12 @@ int FileReaderType::readFile(const std::string& filename, CameraType& camera, Sc
             requiredParams["bkgcolor"] = true;
         }},
         {"imsize", [&](std::istringstream& iss) { this->processImageSize(iss, imageSize); }},
-        {"mtlcolor", [&](std::istringstream& iss) { currentMaterial = this->processMaterial(iss); }},
-        {"sphere", [&](std::istringstream& iss) { this->processSphere(iss, currentMaterial, currentTexture, scene); }},
+        {"mtlcolor", [&](std::istringstream& iss) { this->processMaterial(iss, scene); }},
+        {"sphere", [&](std::istringstream& iss) { this->processSphere(iss, scene.getMaterials().back(), scene.getTextures().back(), scene); }},
         {"light", [&](std::istringstream& iss) { this->processLight(iss, scene); }},
         {"attlight", [&](std::istringstream& iss) { this->processAttLight(iss, scene); }},
-        {"texture", [&](std::istringstream& iss) { currentTexture = this->processTexture(iss); }},
-        {"v", [&](std::istringstream& iss) { this->processVertex(iss, vertices); }},
+        {"texture", [&](std::istringstream& iss) { this->processTexture(iss, scene); }},
+        {"v", [&](std::istringstream& iss) { this->processVertex(iss, scene); }},
         {"vn", [&](std::istringstream& iss) { this->processVertexNormal(iss, normalVectors); }},
         {"vt", [&](std::istringstream& iss) { this->processTextureCoordinate(iss, textureCoordinates); }}
     };
@@ -301,7 +297,7 @@ int FileReaderType::readFile(const std::string& filename, CameraType& camera, Sc
             keywordHandlers[keyword](iss);
         }
         else if (keyword == "f") {
-            this->processFace(line, currentMaterial, currentTexture, vertices, normalVectors, textureCoordinates, scene);
+            this->processFace(line, scene.getMaterials().back(), scene.getTextures().back(), scene.getVertices(), scene.getNormalVectors(), scene.getTextureCoordinates(), scene);
         }
         else if (keyword == "") {
             continue;
@@ -322,9 +318,9 @@ int FileReaderType::readFile(const std::string& filename, CameraType& camera, Sc
     }
 
     // Clean up dynamic memory allocations
-    for (Vec3* vertex : vertices) delete vertex;
-    for (Vec3* normal : normalVectors) delete normal;
-    for (Vec2* texCoord : textureCoordinates) delete texCoord;
+    //for (Vec3* vertex : vertices) delete vertex;
+    //for (Vec3* normal : normalVectors) delete normal;
+    //for (Vec2* texCoord : textureCoordinates) delete texCoord;
 
     return 0;
 }

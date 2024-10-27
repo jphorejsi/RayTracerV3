@@ -7,6 +7,7 @@
 
 
 class FileReaderType {
+
 	//readFile helpers
 	void processEye(std::istringstream& iss, CameraType& camera);
 	void processViewDir(std::istringstream& iss, CameraType& camera);
@@ -14,12 +15,12 @@ class FileReaderType {
 	void processHfov(std::istringstream& iss, CameraType& camera);
 	void processBackgroundColor(std::istringstream& iss, SceneType& scene);
 	void processImageSize(std::istringstream& iss, ImageSizeType& imageSize);
-	MaterialType* processMaterial(std::istringstream& iss);
-	void processSphere(std::istringstream& iss, MaterialType* currentMaterial, TextureType* currentTexture, SceneType& scene);
+	void processMaterial(std::istringstream& iss, SceneType& scene);
+	void processSphere(std::istringstream& iss, SceneType& scene);
 	void processLight(std::istringstream& iss, SceneType& scene);
 	void processAttLight(std::istringstream& iss, SceneType& scene);
-	TextureType* processTexture(std::istringstream& iss);
-	void processVertex(std::istringstream& iss, std::vector<Vec3*>& vertices);
+	void processTexture(std::istringstream& iss, SceneType& scene);
+	void processVertex(std::istringstream& iss, SceneType& scene);
 	void processVertexNormal(std::istringstream& iss, std::vector<Vec3*>& normalVectors);
 	void processTextureCoordinate(std::istringstream& iss, std::vector<Vec2*>& textureCoordinates);
 	void processFace(const std::string& line, MaterialType* currentMaterial, TextureType* currentTexture, const std::vector<Vec3*>& vertices, const std::vector<Vec3*>& normalVectors, const std::vector<Vec2*>& textureCoordinates, SceneType& scene);

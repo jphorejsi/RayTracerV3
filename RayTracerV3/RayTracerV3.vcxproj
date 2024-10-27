@@ -130,12 +130,14 @@
     <ClInclude Include="bump.h" />
     <ClInclude Include="camera.h" />
     <ClInclude Include="color.h" />
+    <ClInclude Include="containers.h" />
     <ClInclude Include="depthcue.h" />
     <ClInclude Include="kdtree.h" />
     <ClInclude Include="lights.h" />
     <ClInclude Include="material.h" />
     <ClInclude Include="fileManager.h" />
     <ClInclude Include="ray.h" />
+    <ClInclude Include="rendering.h" />
     <ClInclude Include="scene.h" />
     <ClInclude Include="shapes.h" />
     <ClInclude Include="texture.h" />

@@ -66,6 +66,12 @@
     <ClInclude Include="kdtree.h">
       <Filter>Header Files\advancedFeatures</Filter>
     </ClInclude>
+    <ClInclude Include="containers.h">
+      <Filter>Header Files\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="rendering.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">

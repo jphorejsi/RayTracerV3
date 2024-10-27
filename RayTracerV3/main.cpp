@@ -5,6 +5,7 @@
 #include "imageSize.h"
 #include "fileManager.h"
 #include "viewFrustrum.h"
+#include "kdtree.h"
 
 int main() {
     CameraType camera;
@@ -20,8 +21,8 @@ int main() {
     fReader.readFile(filename, camera, scene, imageSize);
 
     // Step 3: Build spatial structure (KDTree)
-    //KDTreeNode* kdTreeRoot = new KDTreeNode(scene.getShapes(), 0); // Use the new constructor to build the KDTree
-    //scene.setKDRoot(kdTreeRoot);  // Set the root node in the scene
+    KDTreeNode* kdTreeRoot = new KDTreeNode(scene.getShapes(), 0); // Use the new constructor to build the KDTree
+    scene.setKDRoot(kdTreeRoot);  // Set the root node in the scene
 
     //// Step 4: Prepare viewing window
     //ViewFrustrumType viewFrustrum(camera, imageSize); // Build viewing window

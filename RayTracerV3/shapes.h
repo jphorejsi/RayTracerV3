@@ -1,4 +1,6 @@
 #pragma once
+
+#include <string>
 #include "vec.h"
 #include "material.h"
 #include "texture.h"
@@ -177,3 +179,5 @@ public:
 
     // Other methods
 };
+
+class ShapeFactory
