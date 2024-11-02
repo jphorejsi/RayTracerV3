@@ -1,13 +1,13 @@
 #pragma once
 
-class ImageSizeType {
-protected:
+class ImageSize {
+private:
 	int width, height;
 
 public:
 	// Constructor
-	ImageSizeType() = default;
-	ImageSizeType(int width, int height) : width(width), height(height) {}
+	ImageSize() = default;
+	ImageSize(int width, int height) : width(width), height(height) {}
 
 	// Getters
 	int getWidth() const { return width; }

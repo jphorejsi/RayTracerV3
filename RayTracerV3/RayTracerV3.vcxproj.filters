@@ -13,71 +13,77 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="Header Files\Scene">
-      <UniqueIdentifier>{7a1ea5fe-3965-4331-a46f-1e31e82c7322}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Header Files\utility">
       <UniqueIdentifier>{3179fdfb-3d06-4c13-90e7-c1f929213667}</UniqueIdentifier>
     </Filter>
     <Filter Include="Header Files\advancedFeatures">
       <UniqueIdentifier>{e48edb2c-bd8c-4632-8d02-ce8979f70b41}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\scene">
+      <UniqueIdentifier>{7a1ea5fe-3965-4331-a46f-1e31e82c7322}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\old">
+      <UniqueIdentifier>{c59414ae-8788-4252-a3f1-1487366e9142}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\old">
+      <UniqueIdentifier>{35a638e6-2e9e-42a4-a5b5-076326c61f20}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\scene\shapes">
+      <UniqueIdentifier>{e3fde7bf-0e70-4708-845c-7678d17b7081}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="camera.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="shapes.h">
-      <Filter>Header Files\Scene</Filter>
-    </ClInclude>
-    <ClInclude Include="lights.h">
-      <Filter>Header Files\Scene</Filter>
-    </ClInclude>
-    <ClInclude Include="bump.h">
-      <Filter>Header Files\Scene</Filter>
-    </ClInclude>
-    <ClInclude Include="texture.h">
-      <Filter>Header Files\Scene</Filter>
-    </ClInclude>
-    <ClInclude Include="material.h">
-      <Filter>Header Files\Scene</Filter>
-    </ClInclude>
-    <ClInclude Include="color.h">
-      <Filter>Header Files\utility</Filter>
-    </ClInclude>
     <ClInclude Include="ray.h">
       <Filter>Header Files\utility</Filter>
     </ClInclude>
     <ClInclude Include="vec.h">
       <Filter>Header Files\utility</Filter>
     </ClInclude>
-    <ClInclude Include="scene.h">
-      <Filter>Header Files\Scene</Filter>
-    </ClInclude>
-    <ClInclude Include="depthcue.h">
-      <Filter>Header Files\advancedFeatures</Filter>
-    </ClInclude>
-    <ClInclude Include="fileManager.h">
-      <Filter>Header Files\utility</Filter>
-    </ClInclude>
-    <ClInclude Include="viewFrustrum.h">
-      <Filter>Header Files\utility</Filter>
-    </ClInclude>
     <ClInclude Include="kdtree.h">
       <Filter>Header Files\advancedFeatures</Filter>
-    </ClInclude>
-    <ClInclude Include="containers.h">
-      <Filter>Header Files\Scene</Filter>
     </ClInclude>
     <ClInclude Include="rendering.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="scene.h">
+      <Filter>Header Files\scene</Filter>
+    </ClInclude>
+    <ClInclude Include="texture.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="color.h">
+      <Filter>Header Files\utility</Filter>
+    </ClInclude>
+    <ClInclude Include="lights.h">
+      <Filter>Header Files\scene</Filter>
+    </ClInclude>
+    <ClInclude Include="material.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="camera.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="viewFrustrum.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="fileManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="fileManagerold.h">
+      <Filter>Header Files\old</Filter>
+    </ClInclude>
+    <ClInclude Include="oldscene.h">
+      <Filter>Header Files\old</Filter>
+    </ClInclude>
+    <ClInclude Include="shapes.h">
+      <Filter>Header Files\scene\shapes</Filter>
+    </ClInclude>
+    <ClInclude Include="vecFactory.h">
+      <Filter>Header Files\utility</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="fileManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="imageSize.h">
@@ -89,11 +95,20 @@
     <ClCompile Include="kdtree.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="intersections.cpp">
+    <ClCompile Include="shapes.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ray.cpp">
+    <ClCompile Include="material.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="lights.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="fileManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="fileManagerold.cpp">
+      <Filter>Source Files\old</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -3,15 +3,15 @@
 #include "camera.h"
 #include "imageSize.h"
 
-class ViewFrustrumType {
+class ViewFrustrum {
 private:
     float width, height;
     Vec3 upperLeft, upperRight, lowerLeft, lowerRight;
 
 public:
     // Constructor
-    ViewFrustrumType() = default;
-    ViewFrustrumType(const CameraType& camera, const ImageSizeType& imageSize);
+    ViewFrustrum() = default;
+    ViewFrustrum(const Camera& camera, const ImageSize& imageSize);
 
     // Getters
     float getWidth() const { return width; }

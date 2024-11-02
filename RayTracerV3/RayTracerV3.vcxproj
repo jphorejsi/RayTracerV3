@@ -127,30 +127,32 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="bump.h" />
     <ClInclude Include="camera.h" />
     <ClInclude Include="color.h" />
-    <ClInclude Include="containers.h" />
-    <ClInclude Include="depthcue.h" />
+    <ClInclude Include="fileManager.h" />
     <ClInclude Include="kdtree.h" />
     <ClInclude Include="lights.h" />
     <ClInclude Include="material.h" />
-    <ClInclude Include="fileManager.h" />
+    <ClInclude Include="fileManagerold.h" />
     <ClInclude Include="ray.h" />
     <ClInclude Include="rendering.h" />
+    <ClInclude Include="oldscene.h" />
     <ClInclude Include="scene.h" />
     <ClInclude Include="shapes.h" />
     <ClInclude Include="texture.h" />
     <ClInclude Include="vec.h" />
+    <ClInclude Include="vecFactory.h" />
     <ClInclude Include="viewFrustrum.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="fileManager.cpp" />
+    <ClCompile Include="fileManagerold.cpp" />
     <ClCompile Include="imageSize.h" />
     <ClCompile Include="kdtree.cpp" />
+    <ClCompile Include="lights.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="intersections.cpp" />
-    <ClCompile Include="ray.cpp" />
+    <ClCompile Include="material.cpp" />
+    <ClCompile Include="shapes.cpp" />
     <ClCompile Include="viewFrustrum.cpp" />
   </ItemGroup>
   <ItemGroup>

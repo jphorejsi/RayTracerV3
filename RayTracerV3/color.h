@@ -1,20 +1,27 @@
 #pragma once
-class ColorType {
-	float r, g, b;
+
+// Color class to represent RGB color values
+class Color {
+private:
+    float r, g, b;  // RGB components
 
 public:
-	// Constructor
-	ColorType(float r = 0, float g = 0, float b = 0) : r(r), g(g), b(b) {}
+    // Constructor
+    Color(float r = 0.0f, float g = 0.0f, float b = 0.0f) : r(r), g(g), b(b) {}
 
-	// Getters
-	float getR() const { return r; }
-	float getG() const { return g; }
-	float getB() const { return b; }
+    // Getters
+    float getR() const { return this->r; }
+    float getG() const { return this->g; }
+    float getB() const { return this->b; }
 
-	// Setters
-	void setR(float r) { this->r = r; }
-	void setG(float g) { this->g = g; }
-	void setB(float b) { this->b = b; }
+    // Setters
+    void setR(float red) { this->r = red; }
+    void setG(float green) { this->g = green; }
+    void setB(float blue) { this->b = blue; }
 
-	// Other methods
+    // Operator overloads
+    Color operator+(const Color& color) const { return Color(this->r + color.r, this->g + color.g, this->b + color.b); }
+    Color operator*(float scalar) const { return Color(this->r * scalar, this->g * scalar, this->b * scalar); }
+    Color operator*(const Color& color) const { return Color(this->r * color.r, this->g * color.g, this->b * color.b); }
 };
+

@@ -18,5 +18,4 @@ public:
     void setDirection(const Vec3& direction) { this->direction = direction; }
 
     // Other methods
-    //ColorType traceRay(const SceneType& scene);
 };

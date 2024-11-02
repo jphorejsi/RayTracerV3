@@ -1,6 +1,6 @@
 #include "viewFrustrum.h"
 
-ViewFrustrumType::ViewFrustrumType(const CameraType& camera, const ImageSizeType& imageSize) {
+ViewFrustrum::ViewFrustrum(const Camera& camera, const ImageSize& imageSize) {
     // Calculate the aspect ratio (width/height) to ensure the window matches the image's proportions.
     float aspectRatio = (float)imageSize.getWidth() / (float)imageSize.getHeight();
 

@@ -1,53 +1,43 @@
 #pragma once
+
 #include <fstream>
 #include <sstream>
 #include "camera.h"
 #include "scene.h"
 #include "ImageSize.h"
 
+class FileReader {
+    IMaterial* currentMaterial = nullptr;
+    Texture* currentTexture = nullptr;
+    NormalMap* currentNormalMap = nullptr;
+    std::vector<Vec3*> vertices;
+    std::vector<Vec3*> vertexNormals;
+    std::vector<Vec2*> textureCoordinates;
 
-class FileReaderType {
-
-	//readFile helpers
-	void processEye(std::istringstream& iss, CameraType& camera);
-	void processViewDir(std::istringstream& iss, CameraType& camera);
-	void processUpDir(std::istringstream& iss, CameraType& camera);
-	void processHfov(std::istringstream& iss, CameraType& camera);
-	void processBackgroundColor(std::istringstream& iss, SceneType& scene);
-	void processImageSize(std::istringstream& iss, ImageSizeType& imageSize);
-	void processMaterial(std::istringstream& iss, SceneType& scene);
-	void processSphere(std::istringstream& iss, SceneType& scene);
-	void processLight(std::istringstream& iss, SceneType& scene);
-	void processAttLight(std::istringstream& iss, SceneType& scene);
-	void processTexture(std::istringstream& iss, SceneType& scene);
-	void processVertex(std::istringstream& iss, SceneType& scene);
-	void processVertexNormal(std::istringstream& iss, std::vector<Vec3*>& normalVectors);
-	void processTextureCoordinate(std::istringstream& iss, std::vector<Vec2*>& textureCoordinates);
-	void processFace(const std::string& line, MaterialType* currentMaterial, TextureType* currentTexture, const std::vector<Vec3*>& vertices, const std::vector<Vec3*>& normalVectors, const std::vector<Vec2*>& textureCoordinates, SceneType& scene);
+    void processEye(std::istringstream& iss, CameraBuilder& cameraBuilder);
+    void processViewDir(std::istringstream& iss, CameraBuilder& cameraBuilder);
+    void processUpDir(std::istringstream& iss, CameraBuilder& cameraBuilder);
+    void processHfov(std::istringstream& iss, CameraBuilder& cameraBuilder);
+    void processBackgroundColor(std::istringstream& iss, SceneBuilder& sceneBuilder);
+    void processImageSize(std::istringstream& iss, ImageSize& imageSize);
+    void processMaterial(std::istringstream& iss);
+    //void processTexture(std::istringstream& iss, Texture*& currentTexture);
+    //void processNormalMap(std::istringstream& iss, NormalMap*& currentNormalMap);
+    void processSphere(std::istringstream& iss, SceneBuilder& sceneBuilder);
+    void processLight(std::istringstream& iss, SceneBuilder& sceneBuilder);
+    void processVertex(std::istringstream& iss);
+    void processVertexNormal(std::istringstream& iss);
+    void processTextureCoordinate(std::istringstream& iss);
+    //void processTriangle(std::string& line, SceneBuilder& sceneBuilder);
 
 public:
-	// Constructor
-	FileReaderType() = default;
-
-	// Getters
-
-	// Setters
-
-	// Other methods
-	int readFile(const std::string& filename, CameraType& camera, SceneType& scene, ImageSizeType& imageSize);
+    int readFile(const std::string& filename, CameraBuilder& cameraBuilder, SceneBuilder& sceneBuilder, ImageSize& imageSize);
 };
 
 
-class FileWriterType {
+class FileWriter {
 public:
-	// Constructor
-	FileWriterType() = default;
+    FileWriter() = default;
 
-	// Getters
-
-	// Setters
-
-	// Other methods
-	std::string createPPMFile(std::string filename, const ImageSizeType& imageSize);
-	//void RenderToPPM(const std::string& filename, const ImageSizeType& imageSize, const ViewFrustrumType& viewFrustrum, const CameraType& camera, const SceneType& scene);
+    static std::string createPPMFile(const std::string& filename, const ImageSize& imageSize);
 };
