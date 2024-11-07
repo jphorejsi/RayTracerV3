@@ -5,11 +5,19 @@
 #include "fileManager.h"
 #include "viewFrustrum.h"
 #include "kdtree.h"
+#include "rendering.h"
+
+#include <string>
+
+#define _CRTDBG_MAP_ALLOC
+#include <cstdlib>
+#include <crtdbg.h>
 
 int main() {
+    _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
     CameraBuilder cameraBuilder;
     SceneBuilder sceneBuilder;
-
+    Rendering renderer;
     ImageSize imageSize;
 
     std::string inputFilename = "test.txt";
@@ -47,10 +55,10 @@ int main() {
             // Create a ray from the camera's eye position to the pixel position
             Ray ray(camera.getEyePosition(), (pixelPosition - camera.getEyePosition()).normal());
             // The ray is now set up for this pixel; proceed with intersection tests and shading as needed
+            Color color = renderer.traceRay(ray, scene, 0);
         }
     }
 
     // Cleanup
-
     return 0;
 }

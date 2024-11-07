@@ -19,24 +19,30 @@
     <Filter Include="Header Files\advancedFeatures">
       <UniqueIdentifier>{e48edb2c-bd8c-4632-8d02-ce8979f70b41}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\scene">
+    <Filter Include="Header Files\utility\vec">
+      <UniqueIdentifier>{c3ac9626-15ca-47cf-a280-47efa3550398}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Factory">
+      <UniqueIdentifier>{4b623fc1-c97e-46d1-be4c-67ab2bc2dd05}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\materials">
+      <UniqueIdentifier>{5066f27d-2c94-4081-894f-dd46ad9c4a75}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\objects">
       <UniqueIdentifier>{7a1ea5fe-3965-4331-a46f-1e31e82c7322}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\old">
-      <UniqueIdentifier>{c59414ae-8788-4252-a3f1-1487366e9142}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\old">
-      <UniqueIdentifier>{35a638e6-2e9e-42a4-a5b5-076326c61f20}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\scene\shapes">
+    <Filter Include="Header Files\objects\shapes">
       <UniqueIdentifier>{e3fde7bf-0e70-4708-845c-7678d17b7081}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\objects\lights">
+      <UniqueIdentifier>{89c38496-c3ec-4bb8-bd2f-7f3ca27138aa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\core">
+      <UniqueIdentifier>{d6cbed82-d046-400b-ad09-0f3622e1caf5}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ray.h">
-      <Filter>Header Files\utility</Filter>
-    </ClInclude>
-    <ClInclude Include="vec.h">
       <Filter>Header Files\utility</Filter>
     </ClInclude>
     <ClInclude Include="kdtree.h">
@@ -45,41 +51,47 @@
     <ClInclude Include="rendering.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="scene.h">
-      <Filter>Header Files\scene</Filter>
-    </ClInclude>
-    <ClInclude Include="texture.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="color.h">
       <Filter>Header Files\utility</Filter>
-    </ClInclude>
-    <ClInclude Include="lights.h">
-      <Filter>Header Files\scene</Filter>
-    </ClInclude>
-    <ClInclude Include="material.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="camera.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="viewFrustrum.h">
-      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="fileManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="fileManagerold.h">
-      <Filter>Header Files\old</Filter>
-    </ClInclude>
-    <ClInclude Include="oldscene.h">
-      <Filter>Header Files\old</Filter>
-    </ClInclude>
     <ClInclude Include="shapes.h">
-      <Filter>Header Files\scene\shapes</Filter>
+      <Filter>Header Files\objects\shapes</Filter>
+    </ClInclude>
+    <ClInclude Include="vec.h">
+      <Filter>Header Files\utility\vec</Filter>
     </ClInclude>
     <ClInclude Include="vecFactory.h">
-      <Filter>Header Files\utility</Filter>
+      <Filter>Header Files\utility\vec</Filter>
+    </ClInclude>
+    <ClInclude Include="shapeFactory.h">
+      <Filter>Header Files\objects\shapes</Filter>
+    </ClInclude>
+    <ClInclude Include="lights.h">
+      <Filter>Header Files\objects\lights</Filter>
+    </ClInclude>
+    <ClInclude Include="lightFactory.h">
+      <Filter>Header Files\objects\lights</Filter>
+    </ClInclude>
+    <ClInclude Include="materials.h">
+      <Filter>Header Files\materials</Filter>
+    </ClInclude>
+    <ClInclude Include="materialFactory.h">
+      <Filter>Header Files\materials</Filter>
+    </ClInclude>
+    <ClInclude Include="texture.h">
+      <Filter>Header Files\advancedFeatures</Filter>
+    </ClInclude>
+    <ClInclude Include="viewFrustrum.h">
+      <Filter>Header Files\core</Filter>
+    </ClInclude>
+    <ClInclude Include="camera.h">
+      <Filter>Header Files\core</Filter>
+    </ClInclude>
+    <ClInclude Include="scene.h">
+      <Filter>Header Files\core</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -95,24 +107,33 @@
     <ClCompile Include="kdtree.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="shapeFactory.cpp">
+      <Filter>Source Files\Factory</Filter>
+    </ClCompile>
     <ClCompile Include="shapes.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="material.cpp">
+    <ClCompile Include="lightFactory.cpp">
+      <Filter>Source Files\Factory</Filter>
+    </ClCompile>
+    <ClCompile Include="rayTracing.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="lights.cpp">
+    <ClCompile Include="materialFactory.cpp">
+      <Filter>Source Files\Factory</Filter>
+    </ClCompile>
+    <ClCompile Include="texture.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="fileManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="fileManagerold.cpp">
-      <Filter>Source Files\old</Filter>
+    <ClCompile Include="material.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="test.txt" />
+    <ClCompile Include="ray.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="earthtexture.ppm" />

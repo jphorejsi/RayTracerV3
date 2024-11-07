@@ -1,28 +1,37 @@
 #include "fileManager.h"
 
 #include "vecFactory.h"
+#include "shapeFactory.h"
+#include "lightFactory.h"
+#include "materialFactory.h"
+#include "shapes.h"
+#include "materials.h"
+#include "lights.h"
+#include "vec.h"
 
 #include <unordered_map>
-#include <functional>
+#include <stdexcept>
 
 
 int FileReader::readFile(const std::string& filename, CameraBuilder& cameraBuilder, SceneBuilder& sceneBuilder, ImageSize& imageSize) {
+    // Open input file
     std::ifstream inputFile(filename);
     if (!inputFile.is_open()) {
         throw std::runtime_error("Unable to open file: " + filename);
     }
-
+    // Create unorded map of required parameters
     std::unordered_map<std::string, bool> requiredParams = {
         {"eye", false}, {"viewdir", false}, {"updir", false},
         {"hfov", false}, {"bkgcolor", false}
     };
-
+    // Read file line by line
     std::string line;
     while (std::getline(inputFile, line)) {
+        // Retrieve keyword as first word in line
         std::istringstream iss(line);
         std::string keyword;
         iss >> keyword;
-
+        // Check for keyword and process based on this keyword
         if (keyword == "eye") {
             processEye(iss, cameraBuilder);
             requiredParams["eye"] = true;
@@ -47,10 +56,10 @@ int FileReader::readFile(const std::string& filename, CameraBuilder& cameraBuild
             processImageSize(iss, imageSize);
         }
         else if (keyword == "mtlcolor") {
-            processMaterial(iss);
+            processMaterial(iss, sceneBuilder);
         }
         else if (keyword == "texture") {
-            //processTexture(iss, currentTexture);
+            processTexture(iss, sceneBuilder);
         }
         else if (keyword == "sphere") {
             processSphere(iss, sceneBuilder);
@@ -58,29 +67,29 @@ int FileReader::readFile(const std::string& filename, CameraBuilder& cameraBuild
         else if (keyword == "light") {
             processLight(iss, sceneBuilder);
         }
-        else if (keyword == "vertex") {
-            processVertex(iss);
+        else if (keyword == "v") {
+            processVertex(iss, sceneBuilder);
         }
-        else if (keyword == "vertexNormal") {
-            processVertexNormal(iss);
+        else if (keyword == "vn") {
+            processVertexNormal(iss, sceneBuilder);
         }
-        else if (keyword == "textureCoordinate") {
-            processTextureCoordinate(iss);
+        else if (keyword == "vt") {
+            processTextureCoordinate(iss, sceneBuilder);
         }
         else if (keyword == "f") {
-            //processTriangle(line, sceneBuilder, currentMaterial, currentTexture, currentNormalMap);
+            processTriangle(line, sceneBuilder);
         }
     }
-
+    // Check required parameters were provided
     for (const auto& param : requiredParams) {
         if (!param.second) {
             throw std::runtime_error("Missing required parameter: " + param.first);
         }
     }
-
     return 0;
 }
 
+// Read eye into cameraBuilder
 void FileReader::processEye(std::istringstream& iss, CameraBuilder& cameraBuilder) {
     float x, y, z;
     if (!(iss >> x >> y >> z)) {
@@ -89,22 +98,25 @@ void FileReader::processEye(std::istringstream& iss, CameraBuilder& cameraBuilde
     cameraBuilder.setEyePosition(Vec3(x, y, z));
 }
 
+// read view direction into cameraBuilder
 void FileReader::processViewDir(std::istringstream& iss, CameraBuilder& cameraBuilder) {
     float x, y, z;
     if (!(iss >> x >> y >> z)) {
         throw std::runtime_error("Error: Invalid or missing view direction coordinates.");
     }
-    cameraBuilder.setViewDirection(Vec3(x, y, z).normal());
+    cameraBuilder.setViewDirection(Vec3(x, y, z));
 }
 
+// Read up direction into cameraBuilder
 void FileReader::processUpDir(std::istringstream& iss, CameraBuilder& cameraBuilder) {
     float x, y, z;
     if (!(iss >> x >> y >> z)) {
         throw std::runtime_error("Error: Invalid or missing up direction coordinates.");
     }
-    cameraBuilder.setUpDirection(Vec3(x, y, z).normal());
+    cameraBuilder.setUpDirection(Vec3(x, y, z));
 }
 
+// Read horizontal fov into cameraBuilder
 void FileReader::processHfov(std::istringstream& iss, CameraBuilder& cameraBuilder) {
     float fov;
     if (!(iss >> fov)) {
@@ -113,6 +125,7 @@ void FileReader::processHfov(std::istringstream& iss, CameraBuilder& cameraBuild
     cameraBuilder.setHorizontalFOV(fov);
 }
 
+// Read background color into sceneBuilder
 void FileReader::processBackgroundColor(std::istringstream& iss, SceneBuilder& sceneBuilder) {
     float r, g, b;
     if (!(iss >> r >> g >> b)) {
@@ -121,6 +134,7 @@ void FileReader::processBackgroundColor(std::istringstream& iss, SceneBuilder& s
     sceneBuilder.setBackgroundColor(Color(r, g, b));
 }
 
+// Read image size into imageSize
 void FileReader::processImageSize(std::istringstream& iss, ImageSize& imageSize) {
     int width, height;
     if (!(iss >> width >> height)) {
@@ -129,22 +143,26 @@ void FileReader::processImageSize(std::istringstream& iss, ImageSize& imageSize)
     imageSize.setSize(width, height);
 }
 
-void FileReader::processMaterial(std::istringstream& iss) {
+// Read material into sceneBuilder
+void FileReader::processMaterial(std::istringstream& iss, SceneBuilder& sceneBuilder) {
     float odr, odg, odb, osr, osg, osb, ka, kd, ks, n;
     if (!(iss >> odr >> odg >> odb >> osr >> osg >> osb >> ka >> kd >> ks >> n)) {
         throw std::runtime_error("Error: Invalid or missing material parameters.");
     }
-    currentMaterial = MaterialFactory::createPhongMaterial(Color(odr, odg, odb), Color(osr, osg, osb), ka, kd, ks, n);
+    IMaterial* material = MaterialFactory::createPhongMaterial(Color(odr, odg, odb), Color(osr, osg, osb), ka, kd, ks, n);
+    sceneBuilder.addMaterial(material);  // Add material to SceneBuilder's vector
 }
 
-void FileReader::processTexture(std::istringstream& iss) {
+// Read texture into currentTexture
+void FileReader::processTexture(std::istringstream& iss, SceneBuilder& sceneBuilder) {
     std::string filename;
     if (!(iss >> filename) || filename.empty()) {
         throw std::runtime_error("Error: Invalid or missing filename for texture.");
     }
-    currentTexture = new Texture(filename);  // Assuming constructor handles file reading
+    sceneBuilder.addTexture(new Texture(filename));
 }
 
+// Read sphere into sceneBuilder
 void FileReader::processSphere(std::istringstream& iss, SceneBuilder& sceneBuilder) {
     float x, y, z, r;
     if (!(iss >> x >> y >> z >> r)) {
@@ -152,14 +170,28 @@ void FileReader::processSphere(std::istringstream& iss, SceneBuilder& sceneBuild
     }
     Vec3 position(x, y, z);
     IShape* sphere = nullptr;
+
+    IMaterial* currentMaterial = nullptr;
+    if (!sceneBuilder.getMaterials().empty()) {
+        currentMaterial = sceneBuilder.getMaterials().back();
+    }
+    Texture* currentTexture = nullptr;
+    if (!sceneBuilder.getTextures().empty()) {
+        currentTexture = sceneBuilder.getTextures().back();
+    }
+    NormalMap* currentNormalMap = nullptr;
+    if (!sceneBuilder.getNormalMaps().empty()) {
+        currentNormalMap = sceneBuilder.getNormalMaps().back();
+    }
+
     if (currentMaterial && currentTexture && currentNormalMap) {
-        sphere = SphereFactory::createNormalMappedShape(position, r, currentMaterial, currentTexture, currentNormalMap);
+        sphere = SphereFactory::createNormalMappedSphere(position, r, currentMaterial, currentTexture, currentNormalMap);
     }
     else if (currentMaterial && currentTexture) {
-        sphere = SphereFactory::createTexturedShape(position, r, currentMaterial, currentTexture);
+        sphere = SphereFactory::createTexturedSphere(position, r, currentMaterial, currentTexture);
     }
     else if (currentMaterial) {
-        sphere = SphereFactory::createShape(position, r, currentMaterial);
+        sphere = SphereFactory::createSphere(position, r, currentMaterial);
     }
     else {
         throw std::runtime_error("Error: Material is required to create a sphere.");
@@ -167,6 +199,7 @@ void FileReader::processSphere(std::istringstream& iss, SceneBuilder& sceneBuild
     sceneBuilder.addShape(sphere);
 }
 
+// Read light into sceneBuilder
 void FileReader::processLight(std::istringstream& iss, SceneBuilder& sceneBuilder) {
     float x, y, z, r, g, b;
     int type;
@@ -188,44 +221,75 @@ void FileReader::processLight(std::istringstream& iss, SceneBuilder& sceneBuilde
     sceneBuilder.addLight(light);
 }
 
-void FileReader::processVertex(std::istringstream& iss) {
+// Read vertex into verticies
+void FileReader::processVertex(std::istringstream& iss, SceneBuilder& sceneBuilder) {
     float x, y, z;
     if (!(iss >> x >> y >> z)) {
         throw std::runtime_error("Error: Invalid or missing vertex coordinates.");
     }
     Vec3* vertex = VertexFactory::createVertex(x, y, z);
-    vertices.push_back(vertex);
+    sceneBuilder.addVertex(vertex);
 }
 
-void FileReader::processVertexNormal(std::istringstream& iss) {
+// Read vertex normal into vertexNormals
+void FileReader::processVertexNormal(std::istringstream& iss, SceneBuilder& sceneBuilder) {
     float x, y, z;
     if (!(iss >> x >> y >> z)) {
         throw std::runtime_error("Error: Invalid or missing vertex normal coordinates.");
     }
     Vec3* vertexNormal = VertexFactory::createVertexNormal(x, y, z);
-    vertexNormals.push_back(vertexNormal);
+    sceneBuilder.addVertexNormal(vertexNormal);
 }
 
-void FileReader::processTextureCoordinate(std::istringstream& iss) {
+// Read texture coordinate into textureCoordinates
+void FileReader::processTextureCoordinate(std::istringstream& iss, SceneBuilder& sceneBuilder) {
     float u, v;
     if (!(iss >> u >> v)) {
         throw std::runtime_error("Error: Invalid or missing texture coordinates.");
     }
     Vec2* textureCoordinate = VertexFactory::createTextureCoordinate(u, v);
-    textureCoordinates.push_back(textureCoordinate);
+    sceneBuilder.addTextureCoordinate(textureCoordinate);
 }
 
-//void FileReader::processTriangle(std::string& line, SceneBuilder& sceneBuilder, IMaterial* currentMaterial, Texture* currentTexture, NormalMap* currentNormalMap) {
-//    int indices[3];
-//    if (sscanf(line.c_str(), "f %d %d %d", &indices[0], &indices[1], &indices[2]) == 3) {
-//        Triangle* triangle = new Triangle(new Vec3(indices[0]), new Vec3(indices[1]), new Vec3(indices[2]));
-//        triangle->setMaterial(currentMaterial);
-//        triangle->setTexture(currentTexture);
-//        triangle->setNormalMap(currentNormalMap);
-//        sceneBuilder.addShape(triangle);
-//    }
-//}
+// Read triangle into sceneBuilder
+void FileReader::processTriangle(std::string& line, SceneBuilder& sceneBuilder) {
+    int vertexAIndex, vertexBIndex, vertexCIndex;
+    int vertexANormalIndex, vertexBNormalIndex, vertexCNormalIndex;
+    int textureCoordinateAIndex, textureCoordinateBIndex, textureCoordinateCIndex;
+    IShape* triangle = nullptr;
 
+    IMaterial* currentMaterial = nullptr;
+    if (!sceneBuilder.getMaterials().empty()) {
+        currentMaterial = sceneBuilder.getMaterials().back();
+    }
+    Texture* currentTexture = nullptr;
+    if (!sceneBuilder.getTextures().empty()) {
+        currentTexture = sceneBuilder.getTextures().back();
+    }
+    NormalMap* currentNormalMap = nullptr;
+    if (!sceneBuilder.getNormalMaps().empty()) {
+        currentNormalMap = sceneBuilder.getNormalMaps().back();
+    }
+
+    if (sscanf_s(line.c_str(), "f %d %d %d", &vertexAIndex, &vertexBIndex, &vertexCIndex) == 3) {
+        triangle = TriangleFactory::createTriangle(sceneBuilder.getVertices()[vertexAIndex], sceneBuilder.getVertices()[vertexBIndex], sceneBuilder.getVertices()[vertexCIndex], currentMaterial);
+    }
+    else if (sscanf_s(line.c_str(), "f %d//%d %d//%d %d//%d", &vertexAIndex, &vertexANormalIndex, &vertexBIndex, &vertexBNormalIndex, &vertexCIndex, &vertexCNormalIndex) == 6) {
+        triangle = TriangleFactory::createSmoothShadedTriangle(sceneBuilder.getVertices()[vertexAIndex], sceneBuilder.getVertexNormals()[vertexANormalIndex], sceneBuilder.getVertices()[vertexBIndex], sceneBuilder.getVertexNormals()[vertexBNormalIndex], sceneBuilder.getVertices()[vertexCIndex], sceneBuilder.getVertexNormals()[vertexCNormalIndex], currentMaterial);
+    }
+    else if (sscanf_s(line.c_str(), "f %d/%d %d/%d %d/%d", &vertexAIndex, &textureCoordinateAIndex, &vertexBIndex, &textureCoordinateBIndex, &vertexCIndex, &textureCoordinateCIndex) == 6) {
+        triangle = TriangleFactory::createTexturedTriangle(sceneBuilder.getVertices()[vertexAIndex], sceneBuilder.getTextureCoordinates()[textureCoordinateAIndex], sceneBuilder.getVertices()[vertexBIndex], sceneBuilder.getTextureCoordinates()[textureCoordinateBIndex], sceneBuilder.getVertices()[vertexCIndex], sceneBuilder.getTextureCoordinates()[textureCoordinateCIndex], currentMaterial, currentTexture);
+    }
+    else if (sscanf_s(line.c_str(), "f %d/%d/%d %d/%d/%d %d/%d/%d", &vertexAIndex, &textureCoordinateAIndex, &vertexANormalIndex, &vertexBIndex, &textureCoordinateBIndex, &vertexBNormalIndex, &vertexCIndex, &textureCoordinateCIndex, &vertexCNormalIndex) == 9) {
+        triangle = TriangleFactory::createSmoothShadedTexturedTriangle(sceneBuilder.getVertices()[vertexAIndex], sceneBuilder.getTextureCoordinates()[textureCoordinateAIndex], sceneBuilder.getVertexNormals()[vertexANormalIndex], sceneBuilder.getVertices()[vertexBIndex], sceneBuilder.getTextureCoordinates()[textureCoordinateBIndex], sceneBuilder.getVertexNormals()[vertexBNormalIndex], sceneBuilder.getVertices()[vertexCIndex], sceneBuilder.getTextureCoordinates()[textureCoordinateCIndex], sceneBuilder.getVertexNormals()[vertexCNormalIndex], currentMaterial, currentTexture);
+    }
+    else {
+        throw std::runtime_error("Error: Triangle parameters are invalid.");
+    }
+    sceneBuilder.addShape(triangle);
+}
+
+// Create output ppm file based on input file name
 std::string FileWriter::createPPMFile(const std::string& filename, const ImageSize& imageSize) {
     std::string ppmFilename = filename.substr(0, filename.find_last_of('.')) + ".ppm";
     std::ofstream outfile(ppmFilename);

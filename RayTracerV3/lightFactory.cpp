@@ -1,4 +1,5 @@
-#include "lights.h"
+#include "lightFactory.h"
+
 #include <stdexcept>
 
 // Factory method to create a PointLight with position

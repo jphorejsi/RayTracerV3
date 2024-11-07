@@ -1,4 +1,6 @@
 #pragma once
+
+#include <fstream>
 #include "vec.h"
 #include "color.h"
 #include "ImageSize.h"
@@ -19,12 +21,7 @@ class Texture : public ITexture {
 
 public:
     // Constructor
-    Texture(int width, int height, int maxVal) : imageSize(width, height), maxValue(maxVal) {
-        this->textureArray = new Color * [width];
-        for (int i = 0; i < width; i++) {
-            this->textureArray[i] = new Color[height];
-        }
-    }
+    Texture(const std::string& filename);
 
     // Destructor
     ~Texture() {
@@ -47,34 +44,4 @@ public:
 
 // Concrete class for Normal maps
 class NormalMap : public ITexture {
-    ImageSize imageSize;
-    int maxValue;
-    Vec3** textureArray;
-
-public:
-    // Constructor
-    NormalMap(int width, int height, int maxVal) : imageSize(width, height), maxValue(maxVal) {
-        this->textureArray = new Vec3 * [width];
-        for (int i = 0; i < width; i++) {
-            this->textureArray[i] = new Vec3[height];
-        }
-    }
-
-    // Destructor
-    ~NormalMap() {
-        for (int i = 0; i < this->imageSize.getWidth(); i++) {
-            delete[] this->textureArray[i];
-        }
-        delete[] this->textureArray;
-    }
-
-    // Getters
-    const Vec3& getPixel(int x, int y) const { return this->textureArray[x][y]; }
-
-    // Setters
-    void setPixel(int x, int y, const Vec3& normal) { this->textureArray[x][y] = normal; }
-
-    // Override methods
-    const ImageSize& getImageSize() const override { return this->imageSize; }
-    int getMaxValue() const override { return this->maxValue; }
 };

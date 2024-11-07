@@ -29,12 +29,12 @@ private:
     float horizontalFOV;
 
 public:
-    // Setter methods in a one-line format
-    CameraBuilder& setEyePosition(const Vec3& eyePos) { this->eyePosition = eyePos; return *this; }
-    CameraBuilder& setUpDirection(const Vec3& upDir) { this->upDirection = upDir; return *this; }
-    CameraBuilder& setViewDirection(const Vec3& viewDir) { this->viewDirection = viewDir; return *this; }
-    CameraBuilder& setHorizontalFOV(float fov) { this->horizontalFOV = fov; return *this; }
+    // Setters
+    void setEyePosition(const Vec3& eyePos) { this->eyePosition = eyePos; }
+    void setUpDirection(const Vec3& upDir) { this->upDirection = upDir.normal(); }
+    void setViewDirection(const Vec3& viewDir) { this->viewDirection = viewDir.normal(); }
+    void setHorizontalFOV(float fov) { this->horizontalFOV = fov; }
 
-    // Final build method to create a Camera object
+    // Build method
     Camera build() { return Camera(eyePosition, upDirection, viewDirection, horizontalFOV); }
 };

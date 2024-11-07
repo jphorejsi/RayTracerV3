@@ -1,9 +1,10 @@
 #include "shapes.h"
-#include <cmath>  // For sqrt and pow
+
+#include <cmath>
 #include <stdexcept>
 
-// Deternube if ray intersects sphere
-bool Sphere::intersects(const Ray& ray) const {
+// Determine if ray intersects sphere
+bool Sphere::intersects(const Ray& ray, Vec3& intersectionPoint) const {
     Vec3 oc = ray.getOrigin() - this->position;
     float a = ray.getDirection().dot(ray.getDirection());
     float b = 2.0f * oc.dot(ray.getDirection());
@@ -19,7 +20,11 @@ bool Sphere::intersects(const Ray& ray) const {
     float min = 0.0001f;
     float max = FLT_MAX;
 
-    return (t1 >= min && t1 <= max) || (t2 >= min && t2 <= max);
+    float t = (t1 >= min && t1 <= max) ? t1 : (t2 >= min && t2 <= max) ? t2 : FLT_MAX;
+    if (t == FLT_MAX) return false;
+
+    intersectionPoint = ray.getOrigin() + ray.getDirection() * t;
+    return true;
 }
 
 // Sphere bounding box implementation
@@ -31,8 +36,16 @@ Vec3 Sphere::getBoundingBoxMax() const {
     return this->position + Vec3(this->radius, this->radius, this->radius);
 }
 
+// calcuate Sphere TC at intersectionPoint
+Vec2 Sphere::calculateTextureCoordinate(const Vec3& intersectionPoint) const {
+    Vec3 localPoint = (intersectionPoint - position).normal();
+    float u = 0.5f + (atan2(localPoint.getZ(), localPoint.getX()) / (2 * 3.1415927));
+    float v = 0.5f - (asin(localPoint.getY()) / 3.1415927);
+    return Vec2(u, v);
+}
+
 // Determine if ray intersects triangle
-bool Triangle::intersects(const Ray& ray) const {
+bool Triangle::intersects(const Ray& ray, Vec3& intersectionPoint) const {
     Vec3 edgeAB = *this->vertexB - *this->vertexA;
     Vec3 edgeAC = *this->vertexC - *this->vertexA;
     Vec3 normal = edgeAB.cross(edgeAC).normal();
@@ -44,8 +57,9 @@ bool Triangle::intersects(const Ray& ray) const {
     float ray_t = -(normal.dot(ray.getOrigin()) + D) / discriminant;
     if (ray_t < 1e-5f) return false;
 
-    Vec3 intersectionPoint = ray.getOrigin() + ray.getDirection() * ray_t;
+    intersectionPoint = ray.getOrigin() + ray.getDirection() * ray_t;
 
+    // Barycentric coordinates for the intersection point
     Vec3 v0 = *this->vertexB - *this->vertexA;
     Vec3 v1 = *this->vertexC - *this->vertexA;
     Vec3 v2 = intersectionPoint - *this->vertexA;
@@ -80,82 +94,32 @@ Vec3 Triangle::getBoundingBoxMax() const {
     );
 }
 
-// SphereFactory method implementations
-IShape* SphereFactory::createShape(const Vec3& position, float radius, IMaterial* material) {
-    if (radius <= 0) {
-        throw std::runtime_error("Error: Radius must be positive.");
-    }
-    Sphere* sphere = new Sphere(position, radius);  // Initialize with only position and radius
-    sphere->setMaterial(material ? material : new RGBMaterial(Color(1, 1, 1)));  // Set material, defaulting to white if null
-    return sphere;
+
+Vec2 Triangle::calculateTextureCoordinate(const Vec3& intersectionPoint) const {
+    Vec3 barycentricCoordinates = calculateBarycentricCoordinates(intersectionPoint);
+    float u = barycentricCoordinates.getX() * textureCoordinateA->getX() + barycentricCoordinates.getY() * textureCoordinateB->getX() + barycentricCoordinates.getZ() * textureCoordinateC->getX();
+    float v = barycentricCoordinates.getX() * textureCoordinateA->getY() + barycentricCoordinates.getY() * textureCoordinateB->getY() + barycentricCoordinates.getZ() * textureCoordinateC->getY();
+    return Vec2(u, v);
 }
 
-IShape* SphereFactory::createTexturedShape(const Vec3& position, float radius, IMaterial* material, Texture* texture) {
-    if (radius <= 0) {
-        throw std::runtime_error("Error: Radius must be positive.");
-    }
-    if (!texture) {
-        throw std::runtime_error("Error: Texture must be provided for a textured shape.");
-    }
-    Sphere* sphere = new Sphere(position, radius);  // Initialize with only position and radius
-    sphere->setMaterial(material ? material : new RGBMaterial(Color(1, 1, 1)));
-    sphere->setTexture(texture);  // Set texture after construction
-    return sphere;
-}
 
-IShape* SphereFactory::createNormalMappedShape(const Vec3& position, float radius, IMaterial* material, Texture* texture, NormalMap* normalMap) {
-    if (radius <= 0) {
-        throw std::runtime_error("Error: Radius must be positive.");
+Vec3 Triangle::calculateBarycentricCoordinates(const Vec3& intersectionPoint) const {
+    Vec3 v0 = vertexB - vertexA;
+    Vec3 v1 = vertexC - vertexA;
+    Vec3 v2 = intersectionPoint - *vertexA;
+    float d00 = v0.dot(v0);
+    float d01 = v0.dot(v1);
+    float d11 = v1.dot(v1);
+    float d20 = v2.dot(v0);
+    float d21 = v2.dot(v1);
+    // Calculate the denominator
+    float denom = d00 * d11 - d01 * d01;
+    if (denom == 0) {
+        throw std::runtime_error("Error: Degenerate triangle with zero area.");
     }
-    if (!texture) {
-        throw std::runtime_error("Error: Texture must be provided for a normal mapped shape.");
-    }
-    if (!normalMap) {
-        throw std::runtime_error("Error: Normal map must be provided for a normal mapped shape.");
-    }
-    Sphere* sphere = new Sphere(position, radius);  // Initialize with only position and radius
-    sphere->setMaterial(material ? material : new RGBMaterial(Color(1, 1, 1)));
-    sphere->setTexture(texture);
-    sphere->setNormalMap(normalMap);  // Set normal map after construction
-    return sphere;
-}
-
-// TriangleFactory method implementations
-IShape* TriangleFactory::createShape(Vec3* vertexA, Vec3* vertexB, Vec3* vertexC, IMaterial* material) {
-    if (!material) {
-        material = new RGBMaterial(Color(1, 1, 1));  // Default to white if no material provided
-    }
-    Triangle* triangle = new Triangle(vertexA, vertexB, vertexC);  // Initialize vertices
-    triangle->setMaterial(material);
-    return triangle;
-}
-
-IShape* TriangleFactory::createTexturedShape(Vec3* vertexA, Vec3* vertexB, Vec3* vertexC, IMaterial* material, Texture* texture) {
-    if (!material) {
-        material = new RGBMaterial(Color(1, 1, 1));
-    }
-    if (!texture) {
-        throw std::runtime_error("Error: Texture must be provided for a textured shape.");
-    }
-    Triangle* triangle = new Triangle(vertexA, vertexB, vertexC);
-    triangle->setMaterial(material);
-    triangle->setTexture(texture);
-    return triangle;
-}
-
-IShape* TriangleFactory::createNormalMappedShape(Vec3* vertexA, Vec3* vertexB, Vec3* vertexC, IMaterial* material, Texture* texture, NormalMap* normalMap) {
-    if (!material) {
-        material = new RGBMaterial(Color(1, 1, 1));
-    }
-    if (!texture) {
-        throw std::runtime_error("Error: Texture must be provided for a normal mapped shape.");
-    }
-    if (!normalMap) {
-        throw std::runtime_error("Error: Normal map must be provided for a normal mapped shape.");
-    }
-    Triangle* triangle = new Triangle(vertexA, vertexB, vertexC);
-    triangle->setMaterial(material);
-    triangle->setTexture(texture);
-    triangle->setNormalMap(normalMap);
-    return triangle;
+    // Calculate barycentric coordinates
+    float v = (d11 * d20 - d01 * d21) / denom;
+    float w = (d00 * d21 - d01 * d20) / denom;
+    float u = 1.0f - v - w;
+    return Vec3(u, v, w);
 }
