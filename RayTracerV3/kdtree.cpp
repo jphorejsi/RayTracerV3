@@ -32,7 +32,7 @@ bool AABB::intersects(const Ray& ray) const {
 }
 
 // Constructor to build the KD-Tree from a list of shapes
-KDTreeNode::KDTreeNode(const std::vector<IShape*>& shapes, int depth) {
+KDTreeNode::KDTreeNode(const std::vector<AbstractShape*>& shapes, int depth) {
     if (shapes.empty()) {
         this->left = this->right = nullptr;
         return;
@@ -63,8 +63,8 @@ KDTreeNode::KDTreeNode(const std::vector<IShape*>& shapes, int depth) {
         midpoint = (this->aabb.getBoundingBoxMin().getZ() + this->aabb.getBoundingBoxMax().getZ()) / 2.0f;
 
     // Partition shapes into left and right children based on the midpoint
-    std::vector<IShape*> leftShapes;
-    std::vector<IShape*> rightShapes;
+    std::vector<AbstractShape*> leftShapes;
+    std::vector<AbstractShape*> rightShapes;
 
     for (auto shape : shapes) {
         Vec3 shapeMin = shape->getBoundingBoxMin();
@@ -95,7 +95,7 @@ KDTreeNode::KDTreeNode(const std::vector<IShape*>& shapes, int depth) {
 }
 
 // Compute minimum bounds for the given shapes
-Vec3 KDTreeNode::computeMinBounds(const std::vector<IShape*>& shapes) {
+Vec3 KDTreeNode::computeMinBounds(const std::vector<AbstractShape*>& shapes) {
     Vec3 minBounds = shapes[0]->getBoundingBoxMin();
     for (auto shape : shapes) {
         Vec3 shapeMin = shape->getBoundingBoxMin();
@@ -109,7 +109,7 @@ Vec3 KDTreeNode::computeMinBounds(const std::vector<IShape*>& shapes) {
 }
 
 // Compute maximum bounds for the given shapes
-Vec3 KDTreeNode::computeMaxBounds(const std::vector<IShape*>& shapes) {
+Vec3 KDTreeNode::computeMaxBounds(const std::vector<AbstractShape*>& shapes) {
     Vec3 maxBounds = shapes[0]->getBoundingBoxMax();
     for (auto shape : shapes) {
         Vec3 shapeMax = shape->getBoundingBoxMax();

@@ -57,9 +57,6 @@
     <ClInclude Include="fileManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="shapes.h">
-      <Filter>Header Files\objects\shapes</Filter>
-    </ClInclude>
     <ClInclude Include="vec.h">
       <Filter>Header Files\utility\vec</Filter>
     </ClInclude>
@@ -93,6 +90,12 @@
     <ClInclude Include="scene.h">
       <Filter>Header Files\core</Filter>
     </ClInclude>
+    <ClInclude Include="depthCue.h">
+      <Filter>Header Files\advancedFeatures</Filter>
+    </ClInclude>
+    <ClInclude Include="shapes.h">
+      <Filter>Header Files\objects\shapes</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -116,9 +119,6 @@
     <ClCompile Include="lightFactory.cpp">
       <Filter>Source Files\Factory</Filter>
     </ClCompile>
-    <ClCompile Include="rayTracing.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="materialFactory.cpp">
       <Filter>Source Files\Factory</Filter>
     </ClCompile>
@@ -128,10 +128,7 @@
     <ClCompile Include="fileManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="material.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ray.cpp">
+    <ClCompile Include="rendering.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

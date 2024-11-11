@@ -29,14 +29,14 @@ public:
 
 // KD Tree for faster intersection detection
 class KDTreeNode {
-    std::vector<IShape*> shapes; // Shapes for leaf nodes
+    std::vector<AbstractShape*> shapes; // Shapes for leaf nodes
     AABB aabb; // Bounding box
     KDTreeNode* left; // Left branch
     KDTreeNode* right; // Right branch
 
 public:
     // Constructors
-    KDTreeNode(const std::vector<IShape*>& shapes, int depth = 0);
+    KDTreeNode(const std::vector<AbstractShape*>& shapes, int depth = 0);
     KDTreeNode() : left(nullptr), right(nullptr) {}
 
     // Destructor
@@ -49,7 +49,7 @@ public:
     const AABB& getAABB() const { return this->aabb; }
     KDTreeNode* getLeft() const { return this->left; }
     KDTreeNode* getRight() const { return this->right; }
-    const std::vector<IShape*>& getShapes() const { return this->shapes; }
+    const std::vector<AbstractShape*>& getShapes() const { return this->shapes; }
 
     // Setters
 
@@ -57,6 +57,6 @@ public:
     KDTreeNode* findLastIntersectedNode(const Ray& ray) const;
     std::vector<KDTreeNode*> findAllIntersectedLeafNodes(const Ray& ray) const;
     void findIntersectedLeafNodesRecursive(const Ray& ray, std::vector<KDTreeNode*>& intersectedLeafNodes) const;
-    static Vec3 computeMinBounds(const std::vector<IShape*>& shapes);
-    static Vec3 computeMaxBounds(const std::vector<IShape*>& shapes);
+    static Vec3 computeMinBounds(const std::vector<AbstractShape*>& shapes);
+    static Vec3 computeMaxBounds(const std::vector<AbstractShape*>& shapes);
 };

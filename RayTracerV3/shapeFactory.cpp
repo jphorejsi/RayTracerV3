@@ -1,7 +1,9 @@
 #include "shapeFactory.h"
 
+#include <stdexcept>
+
 // SphereFactory method implementations
-IShape* SphereFactory::createSphere(const Vec3& position, float radius, IMaterial* material) {
+AbstractShape* SphereFactory::createSphere(const Vec3& position, float radius, IMaterial* material) {
     if (radius <= 0) {
         throw std::runtime_error("Error: Radius must be positive.");
     }
@@ -10,7 +12,7 @@ IShape* SphereFactory::createSphere(const Vec3& position, float radius, IMateria
     return sphere;
 }
 
-IShape* SphereFactory::createTexturedSphere(const Vec3& position, float radius, IMaterial* material, Texture* texture) {
+AbstractShape* SphereFactory::createTexturedSphere(const Vec3& position, float radius, IMaterial* material, Texture* texture) {
     if (radius <= 0) {
         throw std::runtime_error("Error: Radius must be positive.");
     }
@@ -23,7 +25,7 @@ IShape* SphereFactory::createTexturedSphere(const Vec3& position, float radius, 
     return sphere;
 }
 
-IShape* SphereFactory::createNormalMappedSphere(const Vec3& position, float radius, IMaterial* material, Texture* texture, NormalMap* normalMap) {
+AbstractShape* SphereFactory::createNormalMappedSphere(const Vec3& position, float radius, IMaterial* material, Texture* texture, NormalMap* normalMap) {
     if (radius <= 0) {
         throw std::runtime_error("Error: Radius must be positive.");
     }
@@ -41,7 +43,7 @@ IShape* SphereFactory::createNormalMappedSphere(const Vec3& position, float radi
 }
 
 // TriangleFactory method implementations
-IShape* TriangleFactory::createTriangle(Vec3* vertexA, Vec3* vertexB, Vec3* vertexC, IMaterial* material) {
+AbstractShape* TriangleFactory::createTriangle(Vec3* vertexA, Vec3* vertexB, Vec3* vertexC, IMaterial* material) {
     if (!material) {
         material = new RGBMaterial(Color(1, 1, 1));  // Default to white if no material provided
     }
@@ -50,7 +52,7 @@ IShape* TriangleFactory::createTriangle(Vec3* vertexA, Vec3* vertexB, Vec3* vert
     return triangle;
 }
 
-IShape* TriangleFactory::createTexturedTriangle(Vec3* vertexA, Vec2* textureCoordinateA, Vec3* vertexB, Vec2* textureCoordinateB, Vec3* vertexC, Vec2* textureCoordinateC, IMaterial* material, Texture* texture) {
+AbstractShape* TriangleFactory::createTexturedTriangle(Vec3* vertexA, Vec2* textureCoordinateA, Vec3* vertexB, Vec2* textureCoordinateB, Vec3* vertexC, Vec2* textureCoordinateC, IMaterial* material, Texture* texture) {
     if (!material) {
         material = new RGBMaterial(Color(1, 1, 1));
     }
@@ -66,7 +68,7 @@ IShape* TriangleFactory::createTexturedTriangle(Vec3* vertexA, Vec2* textureCoor
     return triangle;
 }
 
-IShape* TriangleFactory::createNormalMappedTriangle(Vec3* vertexA, Vec3* vertexB, Vec3* vertexC, IMaterial* material, Texture* texture, NormalMap* normalMap) {
+AbstractShape* TriangleFactory::createNormalMappedTriangle(Vec3* vertexA, Vec3* vertexB, Vec3* vertexC, IMaterial* material, Texture* texture, NormalMap* normalMap) {
     if (!material) {
         material = new RGBMaterial(Color(1, 1, 1));
     }
@@ -83,7 +85,7 @@ IShape* TriangleFactory::createNormalMappedTriangle(Vec3* vertexA, Vec3* vertexB
     return triangle;
 }
 
-IShape* TriangleFactory::createSmoothShadedTriangle(Vec3* vertexA, Vec3* vertexANormal, Vec3* vertexB, Vec3* vertexBNormal, Vec3* vertexC, Vec3* vertexCNormal, IMaterial* material) {
+AbstractShape* TriangleFactory::createSmoothShadedTriangle(Vec3* vertexA, Vec3* vertexANormal, Vec3* vertexB, Vec3* vertexBNormal, Vec3* vertexC, Vec3* vertexCNormal, IMaterial* material) {
     if (!material) {
         material = new RGBMaterial(Color(1, 1, 1));
     }
@@ -95,7 +97,7 @@ IShape* TriangleFactory::createSmoothShadedTriangle(Vec3* vertexA, Vec3* vertexA
     return triangle;
 }
 
-IShape* TriangleFactory::createSmoothShadedTexturedTriangle(Vec3* vertexA, Vec2* textureCoordinateA, Vec3* vertexANormal, Vec3* vertexB, Vec2* textureCoordinateB, Vec3* vertexBNormal, Vec3* vertexC, Vec2* textureCoordinateC, Vec3* vertexCNormal, IMaterial* material, Texture* texture) {
+AbstractShape* TriangleFactory::createSmoothShadedTexturedTriangle(Vec3* vertexA, Vec2* textureCoordinateA, Vec3* vertexANormal, Vec3* vertexB, Vec2* textureCoordinateB, Vec3* vertexBNormal, Vec3* vertexC, Vec2* textureCoordinateC, Vec3* vertexCNormal, IMaterial* material, Texture* texture) {
     if (!material) {
         material = new RGBMaterial(Color(1, 1, 1));
     }

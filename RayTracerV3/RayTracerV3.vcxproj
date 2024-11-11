@@ -129,6 +129,7 @@
   <ItemGroup>
     <ClInclude Include="camera.h" />
     <ClInclude Include="color.h" />
+    <ClInclude Include="depthCue.h" />
     <ClInclude Include="fileManager.h" />
     <ClInclude Include="kdtree.h" />
     <ClInclude Include="lightFactory.h" />
@@ -151,10 +152,8 @@
     <ClCompile Include="kdtree.cpp" />
     <ClCompile Include="lightFactory.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="material.cpp" />
     <ClCompile Include="materialFactory.cpp" />
-    <ClCompile Include="ray.cpp" />
-    <ClCompile Include="rayTracing.cpp" />
+    <ClCompile Include="rendering.cpp" />
     <ClCompile Include="shapeFactory.cpp" />
     <ClCompile Include="shapes.cpp" />
     <ClCompile Include="texture.cpp" />

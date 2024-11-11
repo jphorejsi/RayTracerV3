@@ -1,5 +1,7 @@
 #pragma once
+
 #include "vec.h"
+#include <limits>
 
 class Ray {
 private:
@@ -16,6 +18,4 @@ public:
     // Setters
     void setOrigin(const Vec3& origin) { this->origin = origin; }
     void setDirection(const Vec3& direction) { this->direction = direction; }
-
-    // Other methods
 };

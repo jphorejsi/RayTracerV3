@@ -1,4 +1,5 @@
 #include "materialFactory.h"
+
 #include <stdexcept>
 
 // Factory method to create an RGBMaterial with a specified color

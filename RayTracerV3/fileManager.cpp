@@ -169,7 +169,7 @@ void FileReader::processSphere(std::istringstream& iss, SceneBuilder& sceneBuild
         throw std::runtime_error("Error: Invalid or missing sphere parameters.");
     }
     Vec3 position(x, y, z);
-    IShape* sphere = nullptr;
+    AbstractShape* sphere = nullptr;
 
     IMaterial* currentMaterial = nullptr;
     if (!sceneBuilder.getMaterials().empty()) {
@@ -256,7 +256,7 @@ void FileReader::processTriangle(std::string& line, SceneBuilder& sceneBuilder) 
     int vertexAIndex, vertexBIndex, vertexCIndex;
     int vertexANormalIndex, vertexBNormalIndex, vertexCNormalIndex;
     int textureCoordinateAIndex, textureCoordinateBIndex, textureCoordinateCIndex;
-    IShape* triangle = nullptr;
+    AbstractShape* triangle = nullptr;
 
     IMaterial* currentMaterial = nullptr;
     if (!sceneBuilder.getMaterials().empty()) {
