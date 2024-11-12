@@ -151,9 +151,12 @@
     <ClCompile Include="imageSize.h" />
     <ClCompile Include="kdtree.cpp" />
     <ClCompile Include="lightFactory.cpp" />
+    <ClCompile Include="lights.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="material.cpp" />
     <ClCompile Include="materialFactory.cpp" />
     <ClCompile Include="rendering.cpp" />
+    <ClCompile Include="scene.cpp" />
     <ClCompile Include="shapeFactory.cpp" />
     <ClCompile Include="shapes.cpp" />
     <ClCompile Include="texture.cpp" />

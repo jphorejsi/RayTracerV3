@@ -10,7 +10,7 @@ class Scene {
 private:
     Color backgroundColor;
     std::vector<AbstractShape*> shapes;  // Shapes are stored here directly
-    std::vector<ILight*> lights;
+    std::vector<AbstractLight*> lights;
     KDTreeNode* root;
 
     std::vector<IMaterial*> materials;
@@ -22,7 +22,7 @@ private:
 public:
     // Constructors
     Scene() = default;
-    Scene(Color backgroundColor, const std::vector<AbstractShape*>& shapes, const std::vector<ILight*>& lights, KDTreeNode* root, const std::vector<IMaterial*>& materials, const std::vector<Texture*>& textures, const std::vector<NormalMap*>& normalMaps, const std::vector<Vec3*>& vertices, const std::vector<Vec3*>& vertexNormals, const std::vector<Vec2*>& textureCoordinates)
+    Scene(Color backgroundColor, const std::vector<AbstractShape*>& shapes, const std::vector<AbstractLight*>& lights, KDTreeNode* root, const std::vector<IMaterial*>& materials, const std::vector<Texture*>& textures, const std::vector<NormalMap*>& normalMaps, const std::vector<Vec3*>& vertices, const std::vector<Vec3*>& vertexNormals, const std::vector<Vec2*>& textureCoordinates)
         : backgroundColor(backgroundColor), shapes(shapes), lights(lights), root(root), materials(materials), textures(textures), normalMaps(normalMaps), vertices(vertices), vertexNormals(vertexNormals), textureCoordinates(textureCoordinates) {}
 
     // Destructor
@@ -41,9 +41,12 @@ public:
 
     // Getters
     const Color& getBackgroundColor() const { return backgroundColor; }
-    const std::vector<ILight*>& getLights() const { return lights; }
+    const std::vector<AbstractLight*>& getLights() const { return lights; }
     const std::vector<AbstractShape*>& getShapes() const { return shapes; }
     const KDTreeNode* getKDRoot() const { return root; }
+
+    // Other methods
+    const AbstractShape* findClosestIntersectedShape(const Ray& ray, Vec3& intersectionPoint) const;
 };
 
 
@@ -51,7 +54,7 @@ class SceneBuilder {
 private:
     Color backgroundColor;
     std::vector<AbstractShape*> shapes;
-    std::vector<ILight*> lights;
+    std::vector<AbstractLight*> lights;
     KDTreeNode* root = nullptr;
 
     std::vector<IMaterial*> materials;
@@ -63,7 +66,7 @@ private:
 public:
     // Getters
     const Color& getBackgroundColor() const { return backgroundColor; }
-    const std::vector<ILight*>& getLights() const { return lights; }
+    const std::vector<AbstractLight*>& getLights() const { return lights; }
     const std::vector<AbstractShape*>& getShapes() const { return shapes; }
     const KDTreeNode* getKDRoot() const { return root; }
 
@@ -86,7 +89,7 @@ public:
     }
 
     void addShape(AbstractShape* shape) { this->shapes.push_back(shape); }
-    void addLight(ILight* light) { this->lights.push_back(light); }
+    void addLight(AbstractLight* light) { this->lights.push_back(light); }
     void setKDRoot(KDTreeNode* root) { this->root = root; }
     void addMaterial(IMaterial* material) { this->materials.push_back(material); }
     void addTexture(Texture* texture) { this->textures.push_back(texture); }

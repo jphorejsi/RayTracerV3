@@ -16,21 +16,22 @@ protected:
 public:
     virtual ~AbstractShape() = default;
 
-    // Getters for shared properties
+    // Getters
     IMaterial* getMaterial() const { return material; }
     Texture* getTexture() const { return texture; }
     NormalMap* getNormalMap() const { return normalMap; }
 
-    // Setters for shared properties
+    // Setters
     void setMaterial(IMaterial* mat) { material = mat; }
     void setTexture(Texture* tex) { texture = tex; }
     void setNormalMap(NormalMap* nMap) { normalMap = nMap; }
 
-    // Pure virtual methods for shape-specific operations
+    // Pure virtual methods
     virtual bool intersects(const Ray& ray, Vec3& intersectionPoint) const = 0;
     virtual Vec3 getBoundingBoxMin() const = 0;
     virtual Vec3 getBoundingBoxMax() const = 0;
-    virtual Vec2 calculateTextureCoordinate(const Vec3& intersectionPoint) const = 0;
+    virtual Vec2 getTextureCoordinate(const Vec3& intersectionPoint) const = 0;
+    virtual Vec3 getNormal(const Vec3& intersectionPoint) const = 0;
 };
 
 // Concrete Sphere class derived from AbstractShape
@@ -47,7 +48,8 @@ public:
     bool intersects(const Ray& ray, Vec3& intersectionPoint) const override;
     Vec3 getBoundingBoxMin() const override;
     Vec3 getBoundingBoxMax() const override;
-    Vec2 calculateTextureCoordinate(const Vec3& intersectionPoint) const override;
+    Vec2 getTextureCoordinate(const Vec3& intersectionPoint) const override;
+    Vec3 getNormal(const Vec3& intersectionPoint) const override;
 };
 
 // Concrete Triangle class derived from AbstractShape
@@ -76,11 +78,12 @@ public:
     void setTextureCoordinateC(Vec2* coord) { textureCoordinateC = coord; }
 
     // Other methods
-    Vec3 calculateBarycentricCoordinates(const Vec3& intersectionPoint) const;
+    Vec3 getBarycentricCoordinates(const Vec3& intersectionPoint) const;
 
     // Override methods
     bool intersects(const Ray& ray, Vec3& intersectionPoint) const override;
     Vec3 getBoundingBoxMin() const override;
     Vec3 getBoundingBoxMax() const override;
-    Vec2 calculateTextureCoordinate(const Vec3& intersectionPoint) const override;
+    Vec2 getTextureCoordinate(const Vec3& intersectionPoint) const override;
+    Vec3 getNormal(const Vec3& intersectionPoint) const override;
 };

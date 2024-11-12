@@ -54,7 +54,7 @@ KDTreeNode::KDTreeNode(const std::vector<AbstractShape*>& shapes, int depth) {
     int axis = depth % 3;
     float midpoint;
 
-    // Calculate midpoint based on the chosen axis
+    // get midpoint based on the chosen axis
     if (axis == 0)
         midpoint = (this->aabb.getBoundingBoxMin().getX() + this->aabb.getBoundingBoxMax().getX()) / 2.0f;
     else if (axis == 1)

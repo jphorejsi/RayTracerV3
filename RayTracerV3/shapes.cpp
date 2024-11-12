@@ -36,12 +36,18 @@ Vec3 Sphere::getBoundingBoxMax() const {
     return this->position + Vec3(this->radius, this->radius, this->radius);
 }
 
-// calcuate Sphere TC at intersectionPoint
-Vec2 Sphere::calculateTextureCoordinate(const Vec3& intersectionPoint) const {
+// calculate Sphere TC at intersectionPoint
+Vec2 Sphere::getTextureCoordinate(const Vec3& intersectionPoint) const {
     Vec3 localPoint = (intersectionPoint - position).normal();
     float u = 0.5f + (atan2(localPoint.getZ(), localPoint.getX()) / (2 * 3.1415927));
     float v = 0.5f - (asin(localPoint.getY()) / 3.1415927);
     return Vec2(u, v);
+}
+
+// calculate normal at intersectionPoint
+Vec3 Sphere::getNormal(const Vec3& intersectionPoint) const {
+    // add if for normalMap
+    return (intersectionPoint - this->position).normal();
 }
 
 // Determine if ray intersects triangle
@@ -95,15 +101,25 @@ Vec3 Triangle::getBoundingBoxMax() const {
 }
 
 
-Vec2 Triangle::calculateTextureCoordinate(const Vec3& intersectionPoint) const {
-    Vec3 barycentricCoordinates = calculateBarycentricCoordinates(intersectionPoint);
+Vec2 Triangle::getTextureCoordinate(const Vec3& intersectionPoint) const {
+    Vec3 barycentricCoordinates = getBarycentricCoordinates(intersectionPoint);
     float u = barycentricCoordinates.getX() * textureCoordinateA->getX() + barycentricCoordinates.getY() * textureCoordinateB->getX() + barycentricCoordinates.getZ() * textureCoordinateC->getX();
     float v = barycentricCoordinates.getX() * textureCoordinateA->getY() + barycentricCoordinates.getY() * textureCoordinateB->getY() + barycentricCoordinates.getZ() * textureCoordinateC->getY();
     return Vec2(u, v);
 }
 
+// calculate normal at intersectionPoint
+Vec3 Triangle::getNormal(const Vec3& intersectionPoint) const {
+    // add if for normalMap
+    if (vertexANormal && vertexBNormal && vertexCNormal) {
+        Vec3 barycentric = getBarycentricCoordinates(intersectionPoint);
+        return (*vertexANormal * barycentric.getX() + *vertexBNormal * barycentric.getY() + *vertexCNormal * barycentric.getZ()).normal();
+    }
+    return ((*vertexB - *vertexA).cross(*vertexC - *vertexA)).normal();
+}
 
-Vec3 Triangle::calculateBarycentricCoordinates(const Vec3& intersectionPoint) const {
+
+Vec3 Triangle::getBarycentricCoordinates(const Vec3& intersectionPoint) const {
     Vec3 v0 = vertexB - vertexA;
     Vec3 v1 = vertexC - vertexA;
     Vec3 v2 = intersectionPoint - *vertexA;
@@ -112,12 +128,12 @@ Vec3 Triangle::calculateBarycentricCoordinates(const Vec3& intersectionPoint) co
     float d11 = v1.dot(v1);
     float d20 = v2.dot(v0);
     float d21 = v2.dot(v1);
-    // Calculate the denominator
+    // get the denominator
     float denom = d00 * d11 - d01 * d01;
     if (denom == 0) {
         throw std::runtime_error("Error: Degenerate triangle with zero area.");
     }
-    // Calculate barycentric coordinates
+    // get barycentric coordinates
     float v = (d11 * d20 - d01 * d21) / denom;
     float w = (d00 * d21 - d01 * d20) / denom;
     float u = 1.0f - v - w;

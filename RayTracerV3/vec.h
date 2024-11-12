@@ -74,3 +74,7 @@ public:
         return *this; // Return the current object by reference
     }
 };
+
+Vec3 operator*(float c, const Vec3& v) {
+    return Vec3(v.getX() * c, v.getY() * c, v.getZ() * c);
+}

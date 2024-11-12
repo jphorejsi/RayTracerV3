@@ -1,12 +1,21 @@
 #pragma once
+
 #include "vec.h"
 #include "color.h"
 #include "ray.h"
 
-// Abstract Base Class for Materials
+// Forward declarations
+class Scene;
+class AbstractShape;
+
+// Abstract base class for materials
 class IMaterial {
 public:
-    virtual ~IMaterial() = default;
+    // Constructor
+    IMaterial() = default;
+
+    // Virtual methods
+    virtual Color shade(const Ray& ray, const Vec3& intersectionPoint, const Scene& scene, const AbstractShape* shape) const = 0;
 };
 
 // RGBMaterial class with default white color
@@ -18,8 +27,8 @@ public:
     // Constructor with default color white
     RGBMaterial(Color color) : color(color) {}
 
-    // Getters
-    Color getColor() const { return color; }
+    // Overrides
+    Color shade(const Ray& ray, const Vec3& intersectionPoint, const Scene& scene, const AbstractShape* shape) const override { return color; }
 };
 
 // PhongMaterial class for Phong shading
@@ -30,7 +39,7 @@ private:
     float ka;  // Ambient coefficient
     float kd;  // Diffuse coefficient
     float ks;  // Specular coefficient
-    float n;   // Phong exponent
+    float n;   // Shininess exponent
 
 public:
     // Constructor
@@ -51,4 +60,7 @@ public:
     void setKd(float kd) { this->kd = kd; }
     void setKs(float ks) { this->ks = ks; }
     void setN(float n) { this->n = n; }
+
+    // overrides
+    Color shade(const Ray& ray, const Vec3& intersectionPoint, const Scene& scene, const AbstractShape* shape) const override;
 };

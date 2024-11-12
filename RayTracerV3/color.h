@@ -23,5 +23,12 @@ public:
     Color operator+(const Color& color) const { return Color(this->r + color.r, this->g + color.g, this->b + color.b); }
     Color operator*(float scalar) const { return Color(this->r * scalar, this->g * scalar, this->b * scalar); }
     Color operator*(const Color& color) const { return Color(this->r * color.r, this->g * color.g, this->b * color.b); }
+
+    Color& operator+=(const Color& color) {
+        this->r += color.r;
+        this->g += color.g;
+        this->b += color.b;
+        return *this;
+    }
 };
 

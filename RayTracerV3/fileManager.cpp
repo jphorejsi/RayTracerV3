@@ -95,7 +95,8 @@ void FileReader::processEye(std::istringstream& iss, CameraBuilder& cameraBuilde
     if (!(iss >> x >> y >> z)) {
         throw std::runtime_error("Error: Invalid or missing eye position coordinates.");
     }
-    cameraBuilder.setEyePosition(Vec3(x, y, z));
+    Vec3 eyePosition(x, y, z);
+    cameraBuilder.setEyePosition(eyePosition);
 }
 
 // read view direction into cameraBuilder
@@ -104,7 +105,8 @@ void FileReader::processViewDir(std::istringstream& iss, CameraBuilder& cameraBu
     if (!(iss >> x >> y >> z)) {
         throw std::runtime_error("Error: Invalid or missing view direction coordinates.");
     }
-    cameraBuilder.setViewDirection(Vec3(x, y, z));
+    Vec3 viewDirection(x, y, z);
+    cameraBuilder.setViewDirection(viewDirection);
 }
 
 // Read up direction into cameraBuilder
@@ -113,7 +115,8 @@ void FileReader::processUpDir(std::istringstream& iss, CameraBuilder& cameraBuil
     if (!(iss >> x >> y >> z)) {
         throw std::runtime_error("Error: Invalid or missing up direction coordinates.");
     }
-    cameraBuilder.setUpDirection(Vec3(x, y, z));
+    Vec3 upDirection(x, y, z);
+    cameraBuilder.setUpDirection(upDirection);
 }
 
 // Read horizontal fov into cameraBuilder
@@ -131,7 +134,8 @@ void FileReader::processBackgroundColor(std::istringstream& iss, SceneBuilder& s
     if (!(iss >> r >> g >> b)) {
         throw std::runtime_error("Error: Invalid or missing background color values.");
     }
-    sceneBuilder.setBackgroundColor(Color(r, g, b));
+    Color backgroundColor(r, g, b);
+    sceneBuilder.setBackgroundColor(backgroundColor);
 }
 
 // Read image size into imageSize
@@ -149,7 +153,9 @@ void FileReader::processMaterial(std::istringstream& iss, SceneBuilder& sceneBui
     if (!(iss >> odr >> odg >> odb >> osr >> osg >> osb >> ka >> kd >> ks >> n)) {
         throw std::runtime_error("Error: Invalid or missing material parameters.");
     }
-    IMaterial* material = MaterialFactory::createPhongMaterial(Color(odr, odg, odb), Color(osr, osg, osb), ka, kd, ks, n);
+    Color diffuse(odr, odg, odb);
+    Color specular(osr, osg, osb);
+    IMaterial* material = MaterialFactory::createPhongMaterial(diffuse, specular, ka, kd, ks, n);
     sceneBuilder.addMaterial(material);  // Add material to SceneBuilder's vector
 }
 
@@ -208,7 +214,7 @@ void FileReader::processLight(std::istringstream& iss, SceneBuilder& sceneBuilde
     }
     Color color(r, g, b);
     Vec3 position(x, y, z);
-    ILight* light = nullptr;
+    AbstractLight* light = nullptr;
     if (type == 1) {
         light = LightFactory::createPointLight(position, color);
     }

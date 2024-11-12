@@ -2,112 +2,115 @@
 
 #include "vec.h"
 #include "color.h"
+#include "materials.h"
 
-// Abstract base class for lights and illumination sources
-class ILight {
+// Abstract base class for lights and illumination sources with color attribute
+class AbstractLight {
+protected:
+    Color color;
+
 public:
-    virtual ~ILight() = default;
+    // Constructor
+    AbstractLight(const Color& color) : color(color) {}
+
+    // Getters
+    Color getColor() const { return this->color; }
+
+    // Setters
+    void setColor(const Color& color) { this->color = color; }
+
+    // Virtual functions for illumination
     virtual bool illuminates(const Vec3& position) const = 0;
+    virtual Color calculateDiffuse(const PhongMaterial* material, const Vec3& intersectionPoint, const Vec3& normal) const = 0;
+    virtual Color calculateSpecular(const PhongMaterial* material, const Vec3& intersectionPoint, const Vec3& normal, const Vec3& viewDirection) const = 0;
 };
 
-// Concrete class for DirectionalLight with color and direction
-class DirectionalLight : public ILight {
+// Concrete class for DirectionalLight with direction
+class DirectionalLight : public AbstractLight {
 protected:
     Vec3 direction;
-    Color color;
 
 public:
     // Constructor
-    DirectionalLight(const Vec3& direction, const Color& color) : direction(direction), color(color) {}
-
-    // Getters
-    Vec3 getDirection() const { return direction; }
-    Color getColor() const { return this->color; }
-
-    // Setters
-    void setDirection(const Vec3& direction) { this->direction = direction; }
-    void setColor(const Color& color) { this->color = color; }
-
-    // Overrides
-    bool illuminates(const Vec3& position) const override { return true; }
-};
-
-// Concrete class for PointLight with color and position
-class PointLight : public ILight {
-protected:
-    Vec3 position;
-    Color color;
-
-public:
-    // Constructor
-    PointLight(const Vec3& position, const Color& color) : position(position), color(color) {}
-
-    // Getters
-    Vec3 getPosition() const { return position; }
-    Color getColor() const { return this->color; }
-
-    // Setters
-    void setPosition(const Vec3& position) { this->position = position; }
-    void setColor(const Color& color) { this->color = color; }
-
-    // Overrides
-    bool illuminates(const Vec3& position) const override { return true; }
-};
-
-// Concrete class for AttributeDirectionalLight with color, direction, and attenuation factors
-class AttributeDirectionalLight : public ILight {
-protected:
-    Vec3 direction;
-    Color color;
-    float c1, c2, c3;
-
-public:
-    // Constructor
-    AttributeDirectionalLight(const Vec3& direction, const Color& color, float c1, float c2, float c3) : direction(direction), color(color), c1(c1), c2(c2), c3(c3) {}
+    DirectionalLight(const Vec3& direction, const Color& color) : AbstractLight(color), direction(direction) {}
 
     // Getters
     Vec3 getDirection() const { return this->direction; }
-    Color getColor() const { return this->color; }
-    float getC1() const { return this->c1; }
-    float getC2() const { return this->c2; }
-    float getC3() const { return this->c3; }
 
     // Setters
     void setDirection(const Vec3& direction) { this->direction = direction; }
-    void setColor(const Color& color) { this->color = color; }
-    void setC1(float value) { this->c1 = value; }
-    void setC2(float value) { this->c2 = value; }
-    void setC3(float value) { this->c3 = value; }
 
     // Overrides
-    bool illuminates(const Vec3& targetPosition) const override { return true; }
+    bool illuminates(const Vec3& position) const override;
+    Color calculateDiffuse(const PhongMaterial* material, const Vec3& intersectionPoint, const Vec3& normal) const override;
+    Color calculateSpecular(const PhongMaterial* material, const Vec3& intersectionPoint, const Vec3& normal, const Vec3& viewDirection) const override;
 };
 
-// Concrete class for AttributePointLight with color, position, and attenuation factors
-class AttributePointLight : public ILight {
+// Concrete class for attenuating directional light
+class AttributeDirectionalLight : public DirectionalLight {
 protected:
-    Vec3 position;
-    Color color;
     float c1, c2, c3;
 
 public:
     // Constructor
-    AttributePointLight(const Vec3& position, const Color& color, float c1, float c2, float c3) : position(position), color(color), c1(c1), c2(c2), c3(c3) {}
+    AttributeDirectionalLight(const Vec3& direction, const Color& color, float c1, float c2, float c3) : DirectionalLight(direction, color), c1(c1), c2(c2), c3(c3) {}
 
     // Getters
-    Vec3 getPosition() const { return this->position; }
-    Color getColor() const { return this->color; }
     float getC1() const { return this->c1; }
     float getC2() const { return this->c2; }
     float getC3() const { return this->c3; }
 
     // Setters
-    void setPosition(const Vec3& position) { this->position = position; }
-    void setColor(const Color& color) { this->color = color; }
     void setC1(float value) { this->c1 = value; }
     void setC2(float value) { this->c2 = value; }
     void setC3(float value) { this->c3 = value; }
 
     // Overrides
-    bool illuminates(const Vec3& targetPosition) const override { return true; }
+    Color calculateDiffuse(const PhongMaterial* material, const Vec3& intersectionPoint, const Vec3& normal) const override;
+    Color calculateSpecular(const PhongMaterial* material, const Vec3& intersectionPoint, const Vec3& normal, const Vec3& viewDirection) const override;
+};
+
+// Concrete class for PointLight with position
+class PointLight : public AbstractLight {
+protected:
+    Vec3 position;
+
+public:
+    // Constructor
+    PointLight(const Vec3& position, const Color& color) : AbstractLight(color), position(position) {}
+
+    // Getters
+    Vec3 getPosition() const { return this->position; }
+
+    // Setters
+    void setPosition(const Vec3& position) { this->position = position; }
+
+    // Overrides
+    bool illuminates(const Vec3& targetPosition) const override;
+    Color calculateDiffuse(const PhongMaterial* material, const Vec3& intersectionPoint, const Vec3& normal) const override;
+    Color calculateSpecular(const PhongMaterial* material, const Vec3& intersectionPoint, const Vec3& normal, const Vec3& viewDirection) const override;
+};
+
+// Concrete class for attenuating point light
+class AttributePointLight : public PointLight {
+protected:
+    float c1, c2, c3;
+
+public:
+    // Constructor
+    AttributePointLight(const Vec3& position, const Color& color, float c1, float c2, float c3) : PointLight(position, color), c1(c1), c2(c2), c3(c3) {}
+
+    // Getters
+    float getC1() const { return this->c1; }
+    float getC2() const { return this->c2; }
+    float getC3() const { return this->c3; }
+
+    // Setters
+    void setC1(float value) { this->c1 = value; }
+    void setC2(float value) { this->c2 = value; }
+    void setC3(float value) { this->c3 = value; }
+
+    // Overrides
+    Color calculateDiffuse(const PhongMaterial* material, const Vec3& intersectionPoint, const Vec3& normal) const override;
+    Color calculateSpecular(const PhongMaterial* material, const Vec3& intersectionPoint, const Vec3& normal, const Vec3& viewDirection) const override;
 };

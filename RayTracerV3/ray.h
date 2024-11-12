@@ -1,7 +1,6 @@
 #pragma once
 
 #include "vec.h"
-#include <limits>
 
 class Ray {
 private:
