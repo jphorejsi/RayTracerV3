@@ -10,7 +10,7 @@ Color PhongMaterial::shade(const Ray& ray, const Vec3& intersectionPoint, const 
 	Vec3 N = shape->getNormal(intersectionPoint);
 
 	for (AbstractLight* light : scene.getLights()) {
-		if (light->illuminates(intersectionPoint)) {
+		if (light->illuminates(intersectionPoint, scene)) {
 			diffuse += light->calculateDiffuse(this, intersectionPoint, N);
 			specular += light->calculateSpecular(this, intersectionPoint, N, ray.getDirection());
 		}

@@ -8,35 +8,29 @@
 
 class Scene {
 private:
-    Color backgroundColor;
-    std::vector<AbstractShape*> shapes;  // Shapes are stored here directly
+    std::vector<AbstractShape*> shapes;
     std::vector<AbstractLight*> lights;
-    KDTreeNode* root;
-
     std::vector<IMaterial*> materials;
     std::vector<Texture*> textures;
     std::vector<NormalMap*> normalMaps;
-    std::vector<Vec3*> vertices;
-    std::vector<Vec3*> vertexNormals;
-    std::vector<Vec2*> textureCoordinates;
+    KDTreeNode* root;
+
+    Color backgroundColor;
+    std::vector<Vec3> vertices;
+    std::vector<Vec3> vertexNormals;
+    std::vector<Vec2> textureCoordinates;
 public:
     // Constructors
     Scene() = default;
-    Scene(Color backgroundColor, const std::vector<AbstractShape*>& shapes, const std::vector<AbstractLight*>& lights, KDTreeNode* root, const std::vector<IMaterial*>& materials, const std::vector<Texture*>& textures, const std::vector<NormalMap*>& normalMaps, const std::vector<Vec3*>& vertices, const std::vector<Vec3*>& vertexNormals, const std::vector<Vec2*>& textureCoordinates)
+    Scene(Color backgroundColor, const std::vector<AbstractShape*>& shapes, const std::vector<AbstractLight*>& lights, KDTreeNode* root, const std::vector<IMaterial*>& materials, const std::vector<Texture*>& textures, const std::vector<NormalMap*>& normalMaps, const std::vector<Vec3>& vertices, const std::vector<Vec3>& vertexNormals, const std::vector<Vec2>& textureCoordinates)
         : backgroundColor(backgroundColor), shapes(shapes), lights(lights), root(root), materials(materials), textures(textures), normalMaps(normalMaps), vertices(vertices), vertexNormals(vertexNormals), textureCoordinates(textureCoordinates) {}
 
     // Destructor
     ~Scene() {
         for (auto shape : shapes) delete shape;
         for (auto light : lights) delete light;
-        delete root;
-
         for (auto material : materials) delete material;
-        for (auto texture : textures) delete texture;
-        for (auto normalMap : normalMaps) delete normalMap;
-        for (auto vertex : vertices) delete vertex;
-        for (auto vertexNormal : vertexNormals) delete vertexNormal;
-        for (auto textureCoordinate : textureCoordinates) delete textureCoordinate;
+        delete root;
     }
 
     // Getters
@@ -52,17 +46,17 @@ public:
 
 class SceneBuilder {
 private:
-    Color backgroundColor;
     std::vector<AbstractShape*> shapes;
     std::vector<AbstractLight*> lights;
-    KDTreeNode* root = nullptr;
-
     std::vector<IMaterial*> materials;
     std::vector<Texture*> textures;
     std::vector<NormalMap*> normalMaps;
-    std::vector<Vec3*> vertices;
-    std::vector<Vec3*> vertexNormals;
-    std::vector<Vec2*> textureCoordinates;
+    KDTreeNode* root = nullptr;
+
+    Color backgroundColor;
+    std::vector<Vec3> vertices;
+    std::vector<Vec3> vertexNormals;
+    std::vector<Vec2> textureCoordinates;
 public:
     // Getters
     const Color& getBackgroundColor() const { return backgroundColor; }
@@ -73,9 +67,9 @@ public:
     const std::vector<IMaterial*>& getMaterials() const { return materials; }
     const std::vector<Texture*>& getTextures() const { return textures; }
     const std::vector<NormalMap*>& getNormalMaps() const { return normalMaps; }
-    const std::vector<Vec3*>& getVertices() const { return vertices; }
-    const std::vector<Vec3*>& getVertexNormals() const { return vertexNormals; }
-    const std::vector<Vec2*>& getTextureCoordinates() const { return textureCoordinates; }
+    const std::vector<Vec3>& getVertices() const { return vertices; }
+    const std::vector<Vec3>& getVertexNormals() const { return vertexNormals; }
+    const std::vector<Vec2>& getTextureCoordinates() const { return textureCoordinates; }
 
     // Setters
     void setBackgroundColor(const Color& color) {
@@ -93,9 +87,9 @@ public:
     void setKDRoot(KDTreeNode* root) { this->root = root; }
     void addMaterial(IMaterial* material) { this->materials.push_back(material); }
     void addTexture(Texture* texture) { this->textures.push_back(texture); }
-    void addVertex(Vec3* vertex) { this->vertices.push_back(vertex); }
-    void addVertexNormal(Vec3* vertexNormal) { this->vertexNormals.push_back(vertexNormal); }
-    void addTextureCoordinate(Vec2* textureCoordinate) { this->textureCoordinates.push_back(textureCoordinate); }
+    void addVertex(Vec3 vertex) { this->vertices.push_back(vertex); }
+    void addVertexNormal(Vec3 vertexNormal) { this->vertexNormals.push_back(vertexNormal); }
+    void addTextureCoordinate(Vec2 textureCoordinate) { this->textureCoordinates.push_back(textureCoordinate); }
 
     // Build method
     Scene build() const {

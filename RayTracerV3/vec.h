@@ -75,6 +75,6 @@ public:
     }
 };
 
-Vec3 operator*(float c, const Vec3& v) {
+inline Vec3 operator*(float c, const Vec3& v) {
     return Vec3(v.getX() * c, v.getY() * c, v.getZ() * c);
 }

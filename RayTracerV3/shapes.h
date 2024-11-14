@@ -55,27 +55,27 @@ public:
 // Concrete Triangle class derived from AbstractShape
 class Triangle : public AbstractShape {
 private:
-    Vec3* vertexA = nullptr;
-    Vec3* vertexB = nullptr;
-    Vec3* vertexC = nullptr;
-    Vec3* vertexANormal = nullptr;
-    Vec3* vertexBNormal = nullptr;
-    Vec3* vertexCNormal = nullptr;
-    Vec2* textureCoordinateA = nullptr;
-    Vec2* textureCoordinateB = nullptr;
-    Vec2* textureCoordinateC = nullptr;
+    const Vec3* vertexA = nullptr;
+    const Vec3* vertexB = nullptr;
+    const Vec3* vertexC = nullptr;
+    const Vec3* vertexANormal = nullptr;
+    const Vec3* vertexBNormal = nullptr;
+    const Vec3* vertexCNormal = nullptr;
+    const Vec2* textureCoordinateA = nullptr;
+    const Vec2* textureCoordinateB = nullptr;
+    const Vec2* textureCoordinateC = nullptr;
 
 public:
     // Constructor
-    Triangle(Vec3* vertexA, Vec3* vertexB, Vec3* vertexC) : vertexA(vertexA), vertexB(vertexB), vertexC(vertexC) {}
+    Triangle(const Vec3* vertexA, const Vec3* vertexB, const Vec3* vertexC) : vertexA(vertexA), vertexB(vertexB), vertexC(vertexC) {}
 
     // Setters
-    void setVertexANormal(Vec3* normal) { vertexANormal = normal; }
-    void setVertexBNormal(Vec3* normal) { vertexBNormal = normal; }
-    void setVertexCNormal(Vec3* normal) { vertexCNormal = normal; }
-    void setTextureCoordinateA(Vec2* coord) { textureCoordinateA = coord; }
-    void setTextureCoordinateB(Vec2* coord) { textureCoordinateB = coord; }
-    void setTextureCoordinateC(Vec2* coord) { textureCoordinateC = coord; }
+    void setVertexANormal(const Vec3* normal) { vertexANormal = normal; }
+    void setVertexBNormal(const Vec3* normal) { vertexBNormal = normal; }
+    void setVertexCNormal(const Vec3* normal) { vertexCNormal = normal; }
+    void setTextureCoordinateA(const Vec2* coord) { textureCoordinateA = coord; }
+    void setTextureCoordinateB(const Vec2* coord) { textureCoordinateB = coord; }
+    void setTextureCoordinateC(const Vec2* coord) { textureCoordinateC = coord; }
 
     // Other methods
     Vec3 getBarycentricCoordinates(const Vec3& intersectionPoint) const;

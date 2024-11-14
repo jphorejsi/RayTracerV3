@@ -1,4 +1,6 @@
 #include "lights.h"
+
+#include "scene.h"
 #include <algorithm>
 #include <cmath>
 
@@ -10,10 +12,20 @@ Color DirectionalLight::calculateDiffuse(const PhongMaterial* material, const Ve
 }
 
 Color DirectionalLight::calculateSpecular(const PhongMaterial* material, const Vec3& intersectionPoint, const Vec3& normal, const Vec3& viewDirection) const {
-    Vec3 L = this->direction.normal() * -1.0f;  // Reverse the direction vector
-    Vec3 R = (2 * normal.dot(L) * normal - L).normal();
-    float R_dot_V = std::max(R.dot(viewDirection), 0.0f);
-    return material->getOs() * material->getKs() * std::pow(R_dot_V, material->getN()) * this->color;
+    // Reverse the direction vector to point from the intersection towards the light source
+    Vec3 L = this->direction.normal() * -1.0f;
+
+    // Calculate the halfway vector
+    Vec3 H = (L + viewDirection * -1.0f).normal();
+
+    // Calculate N dot H, clamped to a minimum of 0
+    float N_dot_H = std::max(normal.dot(H), 0.0f);
+
+    // Apply the Blinn-Phong specular formula
+    float specularFactor = std::pow(N_dot_H, material->getN());
+
+    // Return the calculated specular color
+    return material->getOs() * material->getKs() * specularFactor * this->color;
 }
 
 // AttributeDirectionalLight methods with attenuation
@@ -66,48 +78,62 @@ Color AttributePointLight::calculateSpecular(const PhongMaterial* material, cons
     return material->getOs() * material->getKs() * std::pow(R_dot_V, material->getN()) * this->color * attenuation;
 }
 
+// Illuminates method for PointLight using KD-tree
 bool PointLight::illuminates(const Vec3& position, const Scene& scene) const {
-    // Create a shadow ray from the position towards the light source
+    // Create a shadow ray from the position to the light
     Vec3 directionToLight = (this->position - position).normal();
     Ray shadowRay(position, directionToLight);
 
-    // Calculate distance to the light source
+    // Calculate the maximum distance to the light source
     float maxDistance = (this->position - position).length();
 
-    // Traverse KDTree to find if any object intersects with this shadow ray
-    KDTreeNode* intersectedNode = scene.getKDTree().findLastIntersectedNode(shadowRay);
+    // Retrieve intersected leaf nodes along the shadow ray path using the KD-tree
+    std::vector<KDTreeNode*> intersectedNodes = scene.getKDRoot()->findAllIntersectedLeafNodes(shadowRay);
 
-    if (!intersectedNode) return true;  // No intersection means the light illuminates the point
+    // Check if any shape in the intersected nodes blocks the light
+    for (const KDTreeNode* node : intersectedNodes) {
+        const std::vector<AbstractShape*>& shapes = node->getShapes();
+        for (const AbstractShape* shape : shapes) {
+            float t;
+            Vec3 currentIntersection;
+            if (shape->intersects(shadowRay, currentIntersection)) {
+                // Calculate distance to the intersection
+                float distanceToIntersection = (currentIntersection - shadowRay.getOrigin()).length();
 
-    // Check if any shape in the intersected leaf node blocks the light
-    for (const auto& shape : intersectedNode->getShapes()) {
-        float t;
-        if (shape->intersects(shadowRay, t) && t < maxDistance) {
-            return false;  // Intersection with an object before reaching the light source
+                // If the intersection is closer than the light source, the light is blocked
+                if (distanceToIntersection < maxDistance) {
+                    return false;
+                }
+            }
         }
     }
 
-    return true;  // No obstruction found, light illuminates the position
+    // No obstruction found; the light illuminates the position
+    return true;
 }
 
-// Illuminates method for DirectionalLight
-bool DirectionalLight::illuminates(const Vec3& position) const {
-    // Create a shadow ray in the opposite direction of the light
+// Illuminates method for DirectionalLight using KD-tree
+bool DirectionalLight::illuminates(const Vec3& position, const Scene& scene) const {
+    // Create a shadow ray in the opposite direction of the light source
     Vec3 directionToLight = this->direction.normal() * -1.0f;
     Ray shadowRay(position, directionToLight);
 
-    // Since directional lights are infinitely far away, we don’t set a max distance
-    KDTreeNode* intersectedNode = scene.getKDTree().findLastIntersectedNode(shadowRay);
+    // No maximum distance for directional lights as they are infinitely far
+    std::vector<KDTreeNode*> intersectedNodes = scene.getKDRoot()->findAllIntersectedLeafNodes(shadowRay);
 
-    if (!intersectedNode) return true;  // No intersection means the light illuminates the point
-
-    // Check if any shape in the intersected leaf node blocks the light
-    for (const auto& shape : intersectedNode->getShapes()) {
-        float t;
-        if (shape->intersects(shadowRay, t)) {
-            return false;  // Intersection with an object, blocking the directional light
+    // Check if any shape in the intersected nodes blocks the light
+    for (const KDTreeNode* node : intersectedNodes) {
+        const std::vector<AbstractShape*>& shapes = node->getShapes();
+        for (const AbstractShape* shape : shapes) {
+            float t;
+            Vec3 currentIntersection;
+            if (shape->intersects(shadowRay, currentIntersection)) {
+                // If any intersection occurs, the light is blocked
+                return false;
+            }
         }
     }
 
-    return true;  // No obstruction found, light illuminates the position
+    // No obstruction found; the light illuminates the position
+    return true;
 }

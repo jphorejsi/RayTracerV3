@@ -233,8 +233,8 @@ void FileReader::processVertex(std::istringstream& iss, SceneBuilder& sceneBuild
     if (!(iss >> x >> y >> z)) {
         throw std::runtime_error("Error: Invalid or missing vertex coordinates.");
     }
-    Vec3* vertex = VertexFactory::createVertex(x, y, z);
-    sceneBuilder.addVertex(vertex);
+    //Vec3* vertex = VertexFactory::createVertex(x, y, z);
+    sceneBuilder.addVertex(Vec3(x, y, z));
 }
 
 // Read vertex normal into vertexNormals
@@ -243,8 +243,8 @@ void FileReader::processVertexNormal(std::istringstream& iss, SceneBuilder& scen
     if (!(iss >> x >> y >> z)) {
         throw std::runtime_error("Error: Invalid or missing vertex normal coordinates.");
     }
-    Vec3* vertexNormal = VertexFactory::createVertexNormal(x, y, z);
-    sceneBuilder.addVertexNormal(vertexNormal);
+    //Vec3* vertexNormal = VertexFactory::createVertexNormal(x, y, z);
+    sceneBuilder.addVertexNormal(Vec3(x, y, z).normal());
 }
 
 // Read texture coordinate into textureCoordinates
@@ -253,8 +253,8 @@ void FileReader::processTextureCoordinate(std::istringstream& iss, SceneBuilder&
     if (!(iss >> u >> v)) {
         throw std::runtime_error("Error: Invalid or missing texture coordinates.");
     }
-    Vec2* textureCoordinate = VertexFactory::createTextureCoordinate(u, v);
-    sceneBuilder.addTextureCoordinate(textureCoordinate);
+    //Vec2* textureCoordinate = VertexFactory::createTextureCoordinate(u, v);
+    sceneBuilder.addTextureCoordinate(Vec2(u, v));
 }
 
 // Read triangle into sceneBuilder
@@ -278,21 +278,22 @@ void FileReader::processTriangle(std::string& line, SceneBuilder& sceneBuilder) 
     }
 
     if (sscanf_s(line.c_str(), "f %d %d %d", &vertexAIndex, &vertexBIndex, &vertexCIndex) == 3) {
-        triangle = TriangleFactory::createTriangle(sceneBuilder.getVertices()[vertexAIndex], sceneBuilder.getVertices()[vertexBIndex], sceneBuilder.getVertices()[vertexCIndex], currentMaterial);
+        triangle = TriangleFactory::createTriangle(&sceneBuilder.getVertices()[vertexAIndex - 1], &sceneBuilder.getVertices()[vertexBIndex - 1], &sceneBuilder.getVertices()[vertexCIndex - 1], currentMaterial);
     }
     else if (sscanf_s(line.c_str(), "f %d//%d %d//%d %d//%d", &vertexAIndex, &vertexANormalIndex, &vertexBIndex, &vertexBNormalIndex, &vertexCIndex, &vertexCNormalIndex) == 6) {
-        triangle = TriangleFactory::createSmoothShadedTriangle(sceneBuilder.getVertices()[vertexAIndex], sceneBuilder.getVertexNormals()[vertexANormalIndex], sceneBuilder.getVertices()[vertexBIndex], sceneBuilder.getVertexNormals()[vertexBNormalIndex], sceneBuilder.getVertices()[vertexCIndex], sceneBuilder.getVertexNormals()[vertexCNormalIndex], currentMaterial);
+        triangle = TriangleFactory::createSmoothShadedTriangle(&sceneBuilder.getVertices()[vertexAIndex - 1], &sceneBuilder.getVertexNormals()[vertexANormalIndex - 1], &sceneBuilder.getVertices()[vertexBIndex - 1], &sceneBuilder.getVertexNormals()[vertexBNormalIndex - 1], &sceneBuilder.getVertices()[vertexCIndex - 1], &sceneBuilder.getVertexNormals()[vertexCNormalIndex - 1], currentMaterial);
     }
     else if (sscanf_s(line.c_str(), "f %d/%d %d/%d %d/%d", &vertexAIndex, &textureCoordinateAIndex, &vertexBIndex, &textureCoordinateBIndex, &vertexCIndex, &textureCoordinateCIndex) == 6) {
-        triangle = TriangleFactory::createTexturedTriangle(sceneBuilder.getVertices()[vertexAIndex], sceneBuilder.getTextureCoordinates()[textureCoordinateAIndex], sceneBuilder.getVertices()[vertexBIndex], sceneBuilder.getTextureCoordinates()[textureCoordinateBIndex], sceneBuilder.getVertices()[vertexCIndex], sceneBuilder.getTextureCoordinates()[textureCoordinateCIndex], currentMaterial, currentTexture);
+        triangle = TriangleFactory::createTexturedTriangle(&sceneBuilder.getVertices()[vertexAIndex - 1], &sceneBuilder.getTextureCoordinates()[textureCoordinateAIndex - 1], &sceneBuilder.getVertices()[vertexBIndex - 1], &sceneBuilder.getTextureCoordinates()[textureCoordinateBIndex - 1], &sceneBuilder.getVertices()[vertexCIndex - 1], &sceneBuilder.getTextureCoordinates()[textureCoordinateCIndex - 1], currentMaterial, currentTexture);
     }
     else if (sscanf_s(line.c_str(), "f %d/%d/%d %d/%d/%d %d/%d/%d", &vertexAIndex, &textureCoordinateAIndex, &vertexANormalIndex, &vertexBIndex, &textureCoordinateBIndex, &vertexBNormalIndex, &vertexCIndex, &textureCoordinateCIndex, &vertexCNormalIndex) == 9) {
-        triangle = TriangleFactory::createSmoothShadedTexturedTriangle(sceneBuilder.getVertices()[vertexAIndex], sceneBuilder.getTextureCoordinates()[textureCoordinateAIndex], sceneBuilder.getVertexNormals()[vertexANormalIndex], sceneBuilder.getVertices()[vertexBIndex], sceneBuilder.getTextureCoordinates()[textureCoordinateBIndex], sceneBuilder.getVertexNormals()[vertexBNormalIndex], sceneBuilder.getVertices()[vertexCIndex], sceneBuilder.getTextureCoordinates()[textureCoordinateCIndex], sceneBuilder.getVertexNormals()[vertexCNormalIndex], currentMaterial, currentTexture);
+        triangle = TriangleFactory::createSmoothShadedTexturedTriangle(&sceneBuilder.getVertices()[vertexAIndex - 1], &sceneBuilder.getTextureCoordinates()[textureCoordinateAIndex - 1], &sceneBuilder.getVertexNormals()[vertexANormalIndex - 1], &sceneBuilder.getVertices()[vertexBIndex - 1], &sceneBuilder.getTextureCoordinates()[textureCoordinateBIndex - 1], &sceneBuilder.getVertexNormals()[vertexBNormalIndex - 1], &sceneBuilder.getVertices()[vertexCIndex - 1], &sceneBuilder.getTextureCoordinates()[textureCoordinateCIndex - 1], &sceneBuilder.getVertexNormals()[vertexCNormalIndex - 1], currentMaterial, currentTexture);
     }
     else {
         throw std::runtime_error("Error: Triangle parameters are invalid.");
     }
     sceneBuilder.addShape(triangle);
+
 }
 
 // Create output ppm file based on input file name

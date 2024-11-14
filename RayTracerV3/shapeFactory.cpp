@@ -42,17 +42,93 @@ AbstractShape* SphereFactory::createNormalMappedSphere(const Vec3& position, flo
     return sphere;
 }
 
-// TriangleFactory method implementations
-AbstractShape* TriangleFactory::createTriangle(Vec3* vertexA, Vec3* vertexB, Vec3* vertexC, IMaterial* material) {
+//// TriangleFactory method implementations
+//AbstractShape* TriangleFactory::createTriangle(Vec3& vertexA, Vec3& vertexB, Vec3& vertexC, IMaterial* material) {
+//    if (!material) {
+//        material = new RGBMaterial(Color(1, 1, 1));  // Default to white if no material provided
+//    }
+//    Triangle* triangle = new Triangle(vertexA, vertexB, vertexC);  // Initialize vertices
+//    triangle->setMaterial(material);
+//    return triangle;
+//}
+//
+//AbstractShape* TriangleFactory::createTexturedTriangle(Vec3& vertexA, Vec2& textureCoordinateA, Vec3& vertexB, Vec2& textureCoordinateB, Vec3& vertexC, Vec2& textureCoordinateC, IMaterial* material, Texture* texture) {
+//    if (!material) {
+//        material = new RGBMaterial(Color(1, 1, 1));
+//    }
+//    if (!texture) {
+//        throw std::runtime_error("Error: Texture must be provided for a textured shape.");
+//    }
+//    Triangle* triangle = new Triangle(vertexA, vertexB, vertexC);
+//    triangle->setMaterial(material);
+//    triangle->setTexture(texture);
+//    triangle->setTextureCoordinateA(textureCoordinateA);
+//    triangle->setTextureCoordinateB(textureCoordinateB);
+//    triangle->setTextureCoordinateC(textureCoordinateC);
+//    return triangle;
+//}
+//
+//AbstractShape* TriangleFactory::createNormalMappedTriangle(Vec3* vertexA, Vec3* vertexB, Vec3* vertexC, IMaterial* material, Texture* texture, NormalMap* normalMap) {
+//    if (!material) {
+//        material = new RGBMaterial(Color(1, 1, 1));
+//    }
+//    if (!texture) {
+//        throw std::runtime_error("Error: Texture must be provided for a normal mapped shape.");
+//    }
+//    if (!normalMap) {
+//        throw std::runtime_error("Error: Normal map must be provided for a normal mapped shape.");
+//    }
+//    Triangle* triangle = new Triangle(vertexA, vertexB, vertexC);
+//    triangle->setMaterial(material);
+//    triangle->setTexture(texture);
+//    triangle->setNormalMap(normalMap);
+//    return triangle;
+//}
+//
+//AbstractShape* TriangleFactory::createSmoothShadedTriangle(Vec3* vertexA, Vec3* vertexANormal, Vec3* vertexB, Vec3* vertexBNormal, Vec3* vertexC, Vec3* vertexCNormal, IMaterial* material) {
+//    if (!material) {
+//        material = new RGBMaterial(Color(1, 1, 1));
+//    }
+//    Triangle* triangle = new Triangle(vertexA, vertexB, vertexC);
+//    triangle->setMaterial(material);
+//    triangle->setVertexANormal(vertexANormal);
+//    triangle->setVertexBNormal(vertexBNormal);
+//    triangle->setVertexCNormal(vertexCNormal);
+//    return triangle;
+//}
+//
+//AbstractShape* TriangleFactory::createSmoothShadedTexturedTriangle(Vec3* vertexA, Vec2* textureCoordinateA, Vec3* vertexANormal, Vec3* vertexB, Vec2* textureCoordinateB, Vec3* vertexBNormal, Vec3* vertexC, Vec2* textureCoordinateC, Vec3* vertexCNormal, IMaterial* material, Texture* texture) {
+//    if (!material) {
+//        material = new RGBMaterial(Color(1, 1, 1));
+//    }
+//    if (!texture) {
+//        throw std::runtime_error("Error: Texture must be provided for a normal mapped shape.");
+//    }
+//    Triangle* triangle = new Triangle(vertexA, vertexB, vertexC);
+//    triangle->setMaterial(material);
+//    triangle->setTexture(texture);
+//    triangle->setTextureCoordinateA(textureCoordinateA);
+//    triangle->setTextureCoordinateA(textureCoordinateB);
+//    triangle->setTextureCoordinateA(textureCoordinateC);
+//    triangle->setVertexANormal(vertexANormal);
+//    triangle->setVertexBNormal(vertexBNormal);
+//    triangle->setVertexCNormal(vertexCNormal);
+//    return triangle;
+//}
+
+AbstractShape* TriangleFactory::createTriangle(const Vec3* vertexA, const Vec3* vertexB, const Vec3* vertexC, IMaterial* material) {
     if (!material) {
         material = new RGBMaterial(Color(1, 1, 1));  // Default to white if no material provided
     }
-    Triangle* triangle = new Triangle(vertexA, vertexB, vertexC);  // Initialize vertices
+    Triangle* triangle = new Triangle(vertexA, vertexB, vertexC);
     triangle->setMaterial(material);
     return triangle;
 }
 
-AbstractShape* TriangleFactory::createTexturedTriangle(Vec3* vertexA, Vec2* textureCoordinateA, Vec3* vertexB, Vec2* textureCoordinateB, Vec3* vertexC, Vec2* textureCoordinateC, IMaterial* material, Texture* texture) {
+AbstractShape* TriangleFactory::createTexturedTriangle(const Vec3* vertexA, const Vec2* textureCoordinateA,
+    const Vec3* vertexB, const Vec2* textureCoordinateB,
+    const Vec3* vertexC, const Vec2* textureCoordinateC,
+    IMaterial* material, Texture* texture) {
     if (!material) {
         material = new RGBMaterial(Color(1, 1, 1));
     }
@@ -68,24 +144,10 @@ AbstractShape* TriangleFactory::createTexturedTriangle(Vec3* vertexA, Vec2* text
     return triangle;
 }
 
-AbstractShape* TriangleFactory::createNormalMappedTriangle(Vec3* vertexA, Vec3* vertexB, Vec3* vertexC, IMaterial* material, Texture* texture, NormalMap* normalMap) {
-    if (!material) {
-        material = new RGBMaterial(Color(1, 1, 1));
-    }
-    if (!texture) {
-        throw std::runtime_error("Error: Texture must be provided for a normal mapped shape.");
-    }
-    if (!normalMap) {
-        throw std::runtime_error("Error: Normal map must be provided for a normal mapped shape.");
-    }
-    Triangle* triangle = new Triangle(vertexA, vertexB, vertexC);
-    triangle->setMaterial(material);
-    triangle->setTexture(texture);
-    triangle->setNormalMap(normalMap);
-    return triangle;
-}
-
-AbstractShape* TriangleFactory::createSmoothShadedTriangle(Vec3* vertexA, Vec3* vertexANormal, Vec3* vertexB, Vec3* vertexBNormal, Vec3* vertexC, Vec3* vertexCNormal, IMaterial* material) {
+AbstractShape* TriangleFactory::createSmoothShadedTriangle(const Vec3* vertexA, const Vec3* vertexANormal,
+    const Vec3* vertexB, const Vec3* vertexBNormal,
+    const Vec3* vertexC, const Vec3* vertexCNormal,
+    IMaterial* material) {
     if (!material) {
         material = new RGBMaterial(Color(1, 1, 1));
     }
@@ -97,19 +159,22 @@ AbstractShape* TriangleFactory::createSmoothShadedTriangle(Vec3* vertexA, Vec3* 
     return triangle;
 }
 
-AbstractShape* TriangleFactory::createSmoothShadedTexturedTriangle(Vec3* vertexA, Vec2* textureCoordinateA, Vec3* vertexANormal, Vec3* vertexB, Vec2* textureCoordinateB, Vec3* vertexBNormal, Vec3* vertexC, Vec2* textureCoordinateC, Vec3* vertexCNormal, IMaterial* material, Texture* texture) {
+AbstractShape* TriangleFactory::createSmoothShadedTexturedTriangle(const Vec3* vertexA, const Vec2* textureCoordinateA, const Vec3* vertexANormal,
+    const Vec3* vertexB, const Vec2* textureCoordinateB, const Vec3* vertexBNormal,
+    const Vec3* vertexC, const Vec2* textureCoordinateC, const Vec3* vertexCNormal,
+    IMaterial* material, Texture* texture) {
     if (!material) {
         material = new RGBMaterial(Color(1, 1, 1));
     }
     if (!texture) {
-        throw std::runtime_error("Error: Texture must be provided for a normal mapped shape.");
+        throw std::runtime_error("Error: Texture must be provided for a textured shape.");
     }
     Triangle* triangle = new Triangle(vertexA, vertexB, vertexC);
     triangle->setMaterial(material);
     triangle->setTexture(texture);
     triangle->setTextureCoordinateA(textureCoordinateA);
-    triangle->setTextureCoordinateA(textureCoordinateB);
-    triangle->setTextureCoordinateA(textureCoordinateC);
+    triangle->setTextureCoordinateB(textureCoordinateB);
+    triangle->setTextureCoordinateC(textureCoordinateC);
     triangle->setVertexANormal(vertexANormal);
     triangle->setVertexBNormal(vertexBNormal);
     triangle->setVertexCNormal(vertexCNormal);

@@ -4,6 +4,8 @@
 #include "color.h"
 #include "materials.h"
 
+class Scene;
+
 // Abstract base class for lights and illumination sources with color attribute
 class AbstractLight {
 protected:
@@ -20,7 +22,7 @@ public:
     void setColor(const Color& color) { this->color = color; }
 
     // Virtual functions for illumination
-    virtual bool illuminates(const Vec3& position) const = 0;
+    virtual bool illuminates(const Vec3& position, const Scene& scene) const = 0;
     virtual Color calculateDiffuse(const PhongMaterial* material, const Vec3& intersectionPoint, const Vec3& normal) const = 0;
     virtual Color calculateSpecular(const PhongMaterial* material, const Vec3& intersectionPoint, const Vec3& normal, const Vec3& viewDirection) const = 0;
 };
@@ -41,7 +43,7 @@ public:
     void setDirection(const Vec3& direction) { this->direction = direction; }
 
     // Overrides
-    bool illuminates(const Vec3& position) const override;
+    bool illuminates(const Vec3& position, const Scene& scene) const override;
     Color calculateDiffuse(const PhongMaterial* material, const Vec3& intersectionPoint, const Vec3& normal) const override;
     Color calculateSpecular(const PhongMaterial* material, const Vec3& intersectionPoint, const Vec3& normal, const Vec3& viewDirection) const override;
 };
@@ -86,7 +88,7 @@ public:
     void setPosition(const Vec3& position) { this->position = position; }
 
     // Overrides
-    bool illuminates(const Vec3& targetPosition) const override;
+    bool illuminates(const Vec3& targetPosition, const Scene& scene) const override;
     Color calculateDiffuse(const PhongMaterial* material, const Vec3& intersectionPoint, const Vec3& normal) const override;
     Color calculateSpecular(const PhongMaterial* material, const Vec3& intersectionPoint, const Vec3& normal, const Vec3& viewDirection) const override;
 };

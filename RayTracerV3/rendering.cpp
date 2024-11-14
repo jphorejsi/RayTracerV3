@@ -10,8 +10,10 @@
 
 // Ray tracing function that traverses the KDTreeNode
 Color Rendering::traceRay(const Ray& ray, const Scene& scene, int depth) {
-    Vec3 intersectionPoint;
-    return Color(1, 1, 1);   
+    Vec3 intersectionPoint; 
+
+    // cull faces in the scene
+
     const AbstractShape* closestShape = scene.findClosestIntersectedShape(ray, intersectionPoint);
 
     // If no intersection found, return the background color
@@ -19,6 +21,6 @@ Color Rendering::traceRay(const Ray& ray, const Scene& scene, int depth) {
         return scene.getBackgroundColor();
     }
 
-    return closestShape->shade(ray, intersectionPoint);
+    return closestShape->getMaterial()->shade(ray, intersectionPoint, scene, closestShape);
 }
 
