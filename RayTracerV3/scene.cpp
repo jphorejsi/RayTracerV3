@@ -7,10 +7,10 @@ const AbstractShape* Scene::findClosestIntersectedShape(const Ray& ray, Vec3& in
     float closestDistance = std::numeric_limits<float>::max();
 
     // Get all intersected leaf nodes using the KDTree's method
-    std::vector<KDTreeNode*> intersectedNodes = this->getKDRoot()->findAllIntersectedLeafNodes(ray);
+    std::vector<BVHNode*> intersectedNodes = this->getBVHRoot()->findAllIntersectedLeafNodes(ray);
 
     // Iterate through all intersected nodes and check for ray-shape intersections
-    for (const KDTreeNode* node : intersectedNodes) {
+    for (const BVHNode* node : intersectedNodes) {
         for (const AbstractShape* shape : node->getShapes()) {  // Explicit type for shape
             Vec3 currentIntersection;
             if (shape->intersects(ray, currentIntersection)) {
@@ -30,7 +30,7 @@ const AbstractShape* Scene::findClosestIntersectedShape(const Ray& ray, Vec3& in
 
 //ColorType Ray::traceRay(const SceneType& scene) {
 //    // Get all intersected leaf nodes using the KDTree's method
-//    std::vector<KDTreeNode*> intersectedNodes = scene.getKDRoot()->findAllIntersectedLeafNodes(*this);
+//    std::vector<BVHNode*> intersectedNodes = scene.getBVHRoot()->findAllIntersectedLeafNodes(*this);
 //
 //    // If no nodes are intersected, return the background color
 //    if (intersectedNodes.empty()) {

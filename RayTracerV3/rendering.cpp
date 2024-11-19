@@ -3,12 +3,12 @@
 #include "color.h"
 #include "scene.h"
 #include "shapes.h"
-#include "kdtree.h"
+#include "bvh.h"
 #include <vector>
 #include <limits>
 #include <algorithm>
 
-// Ray tracing function that traverses the KDTreeNode
+// Ray tracing function that traverses the BVHNode
 Color Rendering::traceRay(const Ray& ray, const Scene& scene, int depth) {
     Vec3 intersectionPoint; 
 

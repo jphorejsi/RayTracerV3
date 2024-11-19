@@ -88,10 +88,10 @@ bool PointLight::illuminates(const Vec3& position, const Scene& scene) const {
     float maxDistance = (this->position - position).length();
 
     // Retrieve intersected leaf nodes along the shadow ray path using the KD-tree
-    std::vector<KDTreeNode*> intersectedNodes = scene.getKDRoot()->findAllIntersectedLeafNodes(shadowRay);
+    std::vector<BVHNode*> intersectedNodes = scene.getBVHRoot()->findAllIntersectedLeafNodes(shadowRay);
 
     // Check if any shape in the intersected nodes blocks the light
-    for (const KDTreeNode* node : intersectedNodes) {
+    for (const BVHNode* node : intersectedNodes) {
         const std::vector<AbstractShape*>& shapes = node->getShapes();
         for (const AbstractShape* shape : shapes) {
             float t;
@@ -119,10 +119,10 @@ bool DirectionalLight::illuminates(const Vec3& position, const Scene& scene) con
     Ray shadowRay(position, directionToLight);
 
     // No maximum distance for directional lights as they are infinitely far
-    std::vector<KDTreeNode*> intersectedNodes = scene.getKDRoot()->findAllIntersectedLeafNodes(shadowRay);
+    std::vector<BVHNode*> intersectedNodes = scene.getBVHRoot()->findAllIntersectedLeafNodes(shadowRay);
 
     // Check if any shape in the intersected nodes blocks the light
-    for (const KDTreeNode* node : intersectedNodes) {
+    for (const BVHNode* node : intersectedNodes) {
         const std::vector<AbstractShape*>& shapes = node->getShapes();
         for (const AbstractShape* shape : shapes) {
             float t;

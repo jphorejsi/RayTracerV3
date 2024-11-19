@@ -2,7 +2,7 @@ eye  6 6 6
 viewdir  -1 -1 -1
 updir  -1 2 -1
 hfov  45
-imsize 300 300
+imsize 512 512
 bkgcolor 0 0 0
 light 0 -0.75 1 0 1 1 1
 

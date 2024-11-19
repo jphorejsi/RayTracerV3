@@ -57,7 +57,7 @@
     <ClInclude Include="ray.h">
       <Filter>Header Files\utility</Filter>
     </ClInclude>
-    <ClInclude Include="kdtree.h">
+    <ClInclude Include="bvh.h">
       <Filter>Header Files\advancedFeatures</Filter>
     </ClInclude>
     <ClInclude Include="color.h">
@@ -108,6 +108,9 @@
     <ClInclude Include="rendering.h">
       <Filter>Header Files\rendering</Filter>
     </ClInclude>
+    <ClInclude Include="aabb.h">
+      <Filter>Header Files\utility</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -137,7 +140,7 @@
     <ClCompile Include="scene.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="kdtree.cpp">
+    <ClCompile Include="bvh.cpp">
       <Filter>Source Files\advancedFeatures</Filter>
     </ClCompile>
     <ClCompile Include="texture.cpp">
@@ -155,5 +158,8 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="earthtexture.ppm" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="test.txt" />
   </ItemGroup>
 </Project>

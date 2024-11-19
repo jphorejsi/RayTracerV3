@@ -4,7 +4,7 @@
 //#include "imageSize.h"
 //#include "fileManager.h"
 //#include "viewFrustrum.h"
-//#include "kdtree.h"
+//#include "bvh.h"
 //#include "rendering.h"
 //
 //#include <string>
@@ -37,8 +37,8 @@
 //    fw.readFile(inputFilename, cameraBuilder, sceneBuilder, imageSize);
 //
 //    // Step 2: Build spatial structure (KDTree)
-//    KDTreeNode* kdTreeRoot = new KDTreeNode(sceneBuilder.getShapes(), 0); // Use the new constructor to build the KDTree
-//    sceneBuilder.setKDRoot(kdTreeRoot);  // Set the root node in the scene
+//    BVHNode* kdTreeRoot = new BVHNode(sceneBuilder.getShapes(), 0); // Use the new constructor to build the KDTree
+//    sceneBuilder.setBVHRoot(kdTreeRoot);  // Set the root node in the scene
 //
 //    // Complete scene
 //    Scene scene = sceneBuilder.build();
@@ -91,12 +91,13 @@
 #include <string>
 #include <vector>
 #include <thread>
+#include <chrono> // Include chrono for timing
 #include "camera.h"
 #include "scene.h"
 #include "imageSize.h"
 #include "fileManager.h"
 #include "viewFrustrum.h"
-#include "kdtree.h"
+#include "bvh.h"
 #include "rendering.h"
 
 #define _CRTDBG_MAP_ALLOC
@@ -150,8 +151,10 @@ int main() {
     fw.readFile(inputFilename, cameraBuilder, sceneBuilder, imageSize);
 
     // Step 2: Build spatial structure (KDTree)
-    KDTreeNode* kdTreeRoot = new KDTreeNode(sceneBuilder.getShapes(), 0);
-    sceneBuilder.setKDRoot(kdTreeRoot);
+    BVHNode* BVHRoot = new BVHNode();
+    BVHRoot->buildBVH(sceneBuilder.getShapes(), 2);
+
+    sceneBuilder.setBVHRoot(BVHRoot);
 
     // Complete scene and camera
     Scene scene = sceneBuilder.build();
@@ -168,8 +171,10 @@ int main() {
     int rowsPerThread = imageSize.getHeight() / numThreads;
     int remainingRows = imageSize.getHeight() % numThreads;
 
-    std::cout << "go\n";
+    std::cout << "Starting rendering...\n";
 
+    // Start timing
+    auto startTime = std::chrono::high_resolution_clock::now();
 
     // Launch threads
     std::vector<std::thread> threads;
@@ -186,6 +191,12 @@ int main() {
     for (auto& thread : threads) {
         thread.join();
     }
+
+    // Stop timing
+    auto endTime = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> elapsedSeconds = endTime - startTime;
+
+    std::cout << "Rendering completed in " << elapsedSeconds.count() << " seconds.\n";
 
     // Write the image rows to the output file in correct order
     std::ofstream outputFile(outputFilename, std::ios::out | std::ios::binary);

@@ -127,11 +127,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="aabb.h" />
     <ClInclude Include="camera.h" />
     <ClInclude Include="color.h" />
     <ClInclude Include="depthCue.h" />
     <ClInclude Include="fileManager.h" />
-    <ClInclude Include="kdtree.h" />
+    <ClInclude Include="bvh.h" />
     <ClInclude Include="lightFactory.h" />
     <ClInclude Include="lights.h" />
     <ClInclude Include="materialFactory.h" />
@@ -149,7 +150,7 @@
   <ItemGroup>
     <ClCompile Include="fileManager.cpp" />
     <ClCompile Include="imageSize.h" />
-    <ClCompile Include="kdtree.cpp" />
+    <ClCompile Include="bvh.cpp" />
     <ClCompile Include="lightFactory.cpp" />
     <ClCompile Include="lights.cpp" />
     <ClCompile Include="main.cpp" />
