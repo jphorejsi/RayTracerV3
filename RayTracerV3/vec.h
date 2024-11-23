@@ -4,24 +4,24 @@
 
 class Vec2 {
 private:
-	float x, y;
+	double x, y;
 
 public:
 	//constructor
-	Vec2(float x = 0.0, float y = 0.0) : x(x), y(y) {}
+	Vec2(double x = 0.0, double y = 0.0) : x(x), y(y) {}
 
 	// Getters
-	float getX() const { return x; }
-	float getY() const { return y; }
+	double getX() const { return x; }
+	double getY() const { return y; }
 
     // Setters
-    void setX(float x) { this->x = x; }
-	void setY(float y) { this->y = y; }
+    void setX(double x) { this->x = x; }
+	void setY(double y) { this->y = y; }
 
     // Other methods
 
     // operator overloads
-    float& operator[](int index) {
+    double& operator[](int index) {
         if (index == 0) return x;
         else if (index == 1) return y;
         else throw std::out_of_range("Index out of range for Vec2");
@@ -30,29 +30,29 @@ public:
 
 class Vec3 {
 private:
-	float x, y, z;
+	double x, y, z;
 
 public:
 	//constructor
-	Vec3(float x = 0, float y = 0, float z = 0) : x(x), y(y), z(z) {}
+	Vec3(double x = 0, double y = 0, double z = 0) : x(x), y(y), z(z) {}
 
 	// Getters
-	float getX() const { return x; }
-	float getY() const { return y; }
-    float getZ() const { return z; }
+	double getX() const { return x; }
+	double getY() const { return y; }
+    double getZ() const { return z; }
 
     // Setters
-    void setX(float x) { this->x = x; }
-	void setY(float y) { this->y = y; }
-	void setZ(float z) { this->z = z; }
+    void setX(double x) { this->x = x; }
+	void setY(double y) { this->y = y; }
+	void setZ(double z) { this->z = z; }
 
     // Other member functions
-    float length() const { return std::sqrt(x * x + y * y + z * z); }
+    double length() const { return std::sqrt(x * x + y * y + z * z); }
     Vec3 cross(const Vec3& v) const { return Vec3(this->y * v.z - this->z * v.y, this->z * v.x - this->x * v.z, this->x * v.y - this->y * v.x); }
-    float dot(const Vec3& v) const { return (this->x * v.x + this->y * v.y + this->z * v.z); }
+    double dot(const Vec3& v) const { return (this->x * v.x + this->y * v.y + this->z * v.z); }
 
     Vec3 normal() const {
-        float norm = std::sqrt(this->x * this->x + this->y * this->y + this->z * this->z);
+        double norm = std::sqrt(this->x * this->x + this->y * this->y + this->z * this->z);
         if (norm == 0) {
             return Vec3(0, 0, 0);
         }
@@ -65,8 +65,8 @@ public:
     // Operator overloads
     Vec3 operator+(const Vec3& v) const { return Vec3(this->x + v.x, this->y + v.y, this->z + v.z); }
     Vec3 operator-(const Vec3& v) const { return Vec3(this->x - v.x, this->y - v.y, this->z - v.z); }
-    Vec3 operator*(float c) const { return Vec3(this->x * c, this->y * c, this->z * c); }
-    Vec3 operator/(float c) const { return Vec3(this->x / c, this->y / c, this->z / c); }
+    Vec3 operator*(double c) const { return Vec3(this->x * c, this->y * c, this->z * c); }
+    Vec3 operator/(double c) const { return Vec3(this->x / c, this->y / c, this->z / c); }
     bool operator==(const Vec3& v) const { return this->x == v.x && this->y == v.y && this->z == v.z; }
 
     Vec3& operator+=(const Vec3& v) {
@@ -83,14 +83,14 @@ public:
         return *this; // Return the current object by reference
     }
 
-    float& operator[](int index) {
+    double& operator[](int index) {
         if (index == 0) return x;
         if (index == 1) return y;
         if (index == 2) return z;
         throw std::out_of_range("Index out of range for Vec3");
     }
 
-    const float& operator[](int index) const { // Const version for read-only access
+    const double& operator[](int index) const { // Const version for read-only access
         if (index == 0) return x;
         if (index == 1) return y;
         if (index == 2) return z;
@@ -98,4 +98,4 @@ public:
     }
 };
 
-inline Vec3 operator*(float a, const Vec3& b) { return Vec3(b.getX() * a, b.getY() * a, b.getZ() * a); }
+inline Vec3 operator*(double a, const Vec3& b) { return Vec3(b.getX() * a, b.getY() * a, b.getZ() * a); }

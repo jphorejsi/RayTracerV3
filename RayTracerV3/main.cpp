@@ -24,7 +24,7 @@
 //
 //int main() {
 //    _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
-//    CameraBuilder cameraBuilder;
+//    camera camera;
 //    SceneBuilder sceneBuilder;
 //    Rendering renderer;
 //    ImageSize imageSize;
@@ -34,17 +34,19 @@
 //
 //    // Step 1: Read scene data
 //    FileReader fw;
-//    fw.readFile(inputFilename, cameraBuilder, sceneBuilder, imageSize);
+//    fw.readFile(inputFilename, camera, sceneBuilder, imageSize);
 //
 //    // Step 2: Build spatial structure (KDTree)
-//    BVHNode* kdTreeRoot = new BVHNode(sceneBuilder.getShapes(), 0); // Use the new constructor to build the KDTree
-//    sceneBuilder.setBVHRoot(kdTreeRoot);  // Set the root node in the scene
+//    BVHNode* BVHRoot = new BVHNode();
+//    BVHRoot->buildBVH(sceneBuilder.getShapes(), 2);
+//
+//    sceneBuilder.setBVHRoot(BVHRoot);
 //
 //    // Complete scene
 //    Scene scene = sceneBuilder.build();
 //
 //    // Complete camera
-//    Camera camera = cameraBuilder.build();
+//    Camera camera = camera.build();
 //
 //    // Step 3: Prepare viewing window
 //    ViewFrustrum viewFrustrum(camera, imageSize);
@@ -55,12 +57,15 @@
 //    outputFile << "P3\n" << imageSize.getWidth() << " " << imageSize.getHeight() << "\n255\n";
 //
 //    // get deltas for stepping through the view frustum
-//    Vec3 deltaH = (viewFrustrum.getUpperRight() - viewFrustrum.getUpperLeft()) / (float)(imageSize.getWidth() - 1);
-//    Vec3 deltaV = (viewFrustrum.getLowerLeft() - viewFrustrum.getUpperLeft()) / (float)(imageSize.getHeight() - 1);
+//    Vec3 deltaH = (viewFrustrum.getUpperRight() - viewFrustrum.getUpperLeft()) / (double)(imageSize.getWidth() - 1);
+//    Vec3 deltaV = (viewFrustrum.getLowerLeft() - viewFrustrum.getUpperLeft()) / (double)(imageSize.getHeight() - 1);
 //
 //    // Iterate over each pixel to cast rays
 //    for (int j = 0; j < imageSize.getHeight(); j++) {
 //        for (int i = 0; i < imageSize.getWidth(); i++) {
+//            //if (i != 255 || j != 372) {
+//            //    continue;
+//            //}
 //            // get the pixel position on the view frustum
 //            Vec3 pixelPosition = viewFrustrum.getUpperLeft() + deltaH * i + deltaV * j;
 //            // Create a ray from the camera's eye position to the pixel position
@@ -69,9 +74,9 @@
 //            Color color = renderer.traceRay(ray, scene, 0);
 //
 //
-//            int r = static_cast<int>(clamp(color.getR() * 255, 0.0f, 255.0f));
-//            int g = static_cast<int>(clamp(color.getG() * 255, 0.0f, 255.0f));
-//            int b = static_cast<int>(clamp(color.getB() * 255, 0.0f, 255.0f));
+//            int r = static_cast<int>(clamp(color.getR() * 255, 0.0, 255.0));
+//            int g = static_cast<int>(clamp(color.getG() * 255, 0.0, 255.0));
+//            int b = static_cast<int>(clamp(color.getB() * 255, 0.0, 255.0));
 //
 //
 //            // Append the color to the output file
@@ -116,8 +121,8 @@ std::vector<std::string> imageRows;
 
 void renderSection(int startRow, int endRow, const ImageSize& imageSize, const ViewFrustrum& viewFrustrum,
     const Camera& camera, const Scene& scene, Rendering& renderer) {
-    Vec3 deltaH = (viewFrustrum.getUpperRight() - viewFrustrum.getUpperLeft()) / (float)(imageSize.getWidth() - 1);
-    Vec3 deltaV = (viewFrustrum.getLowerLeft() - viewFrustrum.getUpperLeft()) / (float)(imageSize.getHeight() - 1);
+    Vec3 deltaH = (viewFrustrum.getUpperRight() - viewFrustrum.getUpperLeft()) / (double)(imageSize.getWidth() - 1);
+    Vec3 deltaV = (viewFrustrum.getLowerLeft() - viewFrustrum.getUpperLeft()) / (double)(imageSize.getHeight() - 1);
 
     for (int j = startRow; j < endRow; j++) {
         std::string row;
@@ -126,9 +131,9 @@ void renderSection(int startRow, int endRow, const ImageSize& imageSize, const V
             Ray ray(camera.getEyePosition(), (pixelPosition - camera.getEyePosition()).normal());
             Color color = renderer.traceRay(ray, scene, 0);
 
-            int r = static_cast<int>(clamp(color.getR() * 255, 0.0f, 255.0f));
-            int g = static_cast<int>(clamp(color.getG() * 255, 0.0f, 255.0f));
-            int b = static_cast<int>(clamp(color.getB() * 255, 0.0f, 255.0f));
+            int r = static_cast<int>(clamp(color.getR() * 255, 0.0, 255.0));
+            int g = static_cast<int>(clamp(color.getG() * 255, 0.0, 255.0));
+            int b = static_cast<int>(clamp(color.getB() * 255, 0.0, 255.0));
 
             row += std::to_string(r) + " " + std::to_string(g) + " " + std::to_string(b) + " ";
         }
@@ -138,7 +143,7 @@ void renderSection(int startRow, int endRow, const ImageSize& imageSize, const V
 
 int main() {
     _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
-    CameraBuilder cameraBuilder;
+    Camera camera;
     SceneBuilder sceneBuilder;
     Rendering renderer;
     ImageSize imageSize;
@@ -148,7 +153,7 @@ int main() {
 
     // Step 1: Read scene data
     FileReader fw;
-    fw.readFile(inputFilename, cameraBuilder, sceneBuilder, imageSize);
+    fw.readFile(inputFilename, camera, sceneBuilder, imageSize);
 
     // Step 2: Build spatial structure (KDTree)
     BVHNode* BVHRoot = new BVHNode();
@@ -158,7 +163,6 @@ int main() {
 
     // Complete scene and camera
     Scene scene = sceneBuilder.build();
-    Camera camera = cameraBuilder.build();
 
     // Step 3: Prepare viewing window
     ViewFrustrum viewFrustrum(camera, imageSize);

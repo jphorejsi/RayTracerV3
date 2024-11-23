@@ -7,7 +7,7 @@
 // DirectionalLight methods
 Color DirectionalLight::calculateDiffuse(const PhongMaterial* material, const Vec3& intersectionPoint, const Vec3& normal) const {
     Vec3 L = this->direction.normal() * -1.0f;  // Reverse the direction vector
-    float N_dot_L = std::max(normal.dot(L), 0.0f);
+    double N_dot_L = std::max(normal.dot(L), 0.0);
     return material->getOd() * material->getKd() * N_dot_L * this->color;
 }
 
@@ -19,10 +19,10 @@ Color DirectionalLight::calculateSpecular(const PhongMaterial* material, const V
     Vec3 H = (L + viewDirection * -1.0f).normal();
 
     // Calculate N dot H, clamped to a minimum of 0
-    float N_dot_H = std::max(normal.dot(H), 0.0f);
+    double N_dot_H = std::max(normal.dot(H), 0.0);
 
     // Apply the Blinn-Phong specular formula
-    float specularFactor = std::pow(N_dot_H, material->getN());
+    double specularFactor = std::pow(N_dot_H, material->getN());
 
     // Return the calculated specular color
     return material->getOs() * material->getKs() * specularFactor * this->color;
@@ -31,61 +31,61 @@ Color DirectionalLight::calculateSpecular(const PhongMaterial* material, const V
 // AttributeDirectionalLight methods with attenuation
 Color AttributeDirectionalLight::calculateDiffuse(const PhongMaterial* material, const Vec3& intersectionPoint, const Vec3& normal) const {
     Vec3 L = this->direction.normal() * -1.0f;
-    float N_dot_L = std::max(normal.dot(L), 0.0f);
-    float dist = FLT_MAX;  // Infinite distance for directional light
-    float attenuation = 1.0f / (this->c1 + this->c2 * dist + this->c3 * dist * dist);
+    double N_dot_L = std::max(normal.dot(L), 0.0);
+    double dist = FLT_MAX;  // Infinite distance for directional light
+    double attenuation = 1.0f / (this->c1 + this->c2 * dist + this->c3 * dist * dist);
     return material->getOd() * material->getKd() * N_dot_L * this->color * attenuation;
 }
 
 Color AttributeDirectionalLight::calculateSpecular(const PhongMaterial* material, const Vec3& intersectionPoint, const Vec3& normal, const Vec3& viewDirection) const {
     Vec3 L = this->direction.normal() * -1.0f;
     Vec3 R = (2 * normal.dot(L) * normal - L).normal();
-    float R_dot_V = std::max(R.dot(viewDirection), 0.0f);
-    float dist = FLT_MAX;
-    float attenuation = 1.0f / (this->c1 + this->c2 * dist + this->c3 * dist * dist);
+    double R_dot_V = std::max(R.dot(viewDirection), 0.0);
+    double dist = FLT_MAX;
+    double attenuation = 1.0f / (this->c1 + this->c2 * dist + this->c3 * dist * dist);
     return material->getOs() * material->getKs() * std::pow(R_dot_V, material->getN()) * this->color * attenuation;
 }
 
 // PointLight methods
 Color PointLight::calculateDiffuse(const PhongMaterial* material, const Vec3& intersectionPoint, const Vec3& normal) const {
     Vec3 L = (this->position - intersectionPoint).normal();
-    float N_dot_L = std::max(normal.dot(L), 0.0f);
+    double N_dot_L = std::max(normal.dot(L), 0.0);
     return material->getOd() * material->getKd() * N_dot_L * this->color;
 }
 
 Color PointLight::calculateSpecular(const PhongMaterial* material, const Vec3& intersectionPoint, const Vec3& normal, const Vec3& viewDirection) const {
     Vec3 L = (this->position - intersectionPoint).normal();
     Vec3 R = (2 * normal.dot(L) * normal - L).normal();
-    float R_dot_V = std::max(R.dot(viewDirection), 0.0f);
+    double R_dot_V = std::max(R.dot(viewDirection), 0.0);
     return material->getOs() * material->getKs() * std::pow(R_dot_V, material->getN()) * this->color;
 }
 
 // AttributePointLight methods with attenuation
 Color AttributePointLight::calculateDiffuse(const PhongMaterial* material, const Vec3& intersectionPoint, const Vec3& normal) const {
     Vec3 L = (this->position - intersectionPoint).normal();
-    float N_dot_L = std::max(normal.dot(L), 0.0f);
-    float dist = (this->position - intersectionPoint).length();
-    float attenuation = 1.0f / (this->c1 + this->c2 * dist + this->c3 * dist * dist);
+    double N_dot_L = std::max(normal.dot(L), 0.0);
+    double dist = (this->position - intersectionPoint).length();
+    double attenuation = 1.0f / (this->c1 + this->c2 * dist + this->c3 * dist * dist);
     return material->getOd() * material->getKd() * N_dot_L * this->color * attenuation;
 }
 
 Color AttributePointLight::calculateSpecular(const PhongMaterial* material, const Vec3& intersectionPoint, const Vec3& normal, const Vec3& viewDirection) const {
     Vec3 L = (this->position - intersectionPoint).normal();
     Vec3 R = (2 * normal.dot(L) * normal - L).normal();
-    float R_dot_V = std::max(R.dot(viewDirection), 0.0f);
-    float dist = (this->position - intersectionPoint).length();
-    float attenuation = 1.0f / (this->c1 + this->c2 * dist + this->c3 * dist * dist);
+    double R_dot_V = std::max(R.dot(viewDirection), 0.0);
+    double dist = (this->position - intersectionPoint).length();
+    double attenuation = 1.0f / (this->c1 + this->c2 * dist + this->c3 * dist * dist);
     return material->getOs() * material->getKs() * std::pow(R_dot_V, material->getN()) * this->color * attenuation;
 }
 
-// Illuminates method for PointLight using KD-tree
-bool PointLight::illuminates(const Vec3& position, const Scene& scene) const {
+// Illuminates method for PointLight using BVH tree
+bool PointLight::illuminates(const Vec3& position, const Scene& scene) const { // ADD INTERSECTIONPOINT
     // Create a shadow ray from the position to the light
-    Vec3 directionToLight = (this->position - position).normal();
-    Ray shadowRay(position, directionToLight);
+    Vec3 L = (this->position - position).normal();
+    Ray shadowRay(position, L);
 
     // Calculate the maximum distance to the light source
-    float maxDistance = (this->position - position).length();
+    double maxDistance = (this->position - position).length();
 
     // Retrieve intersected leaf nodes along the shadow ray path using the KD-tree
     std::vector<BVHNode*> intersectedNodes = scene.getBVHRoot()->findAllIntersectedLeafNodes(shadowRay);
@@ -94,11 +94,10 @@ bool PointLight::illuminates(const Vec3& position, const Scene& scene) const {
     for (const BVHNode* node : intersectedNodes) {
         const std::vector<AbstractShape*>& shapes = node->getShapes();
         for (const AbstractShape* shape : shapes) {
-            float t;
             Vec3 currentIntersection;
             if (shape->intersects(shadowRay, currentIntersection)) {
                 // Calculate distance to the intersection
-                float distanceToIntersection = (currentIntersection - shadowRay.getOrigin()).length();
+                double distanceToIntersection = (currentIntersection - shadowRay.getOrigin()).length();
 
                 // If the intersection is closer than the light source, the light is blocked
                 if (distanceToIntersection < maxDistance) {
@@ -125,7 +124,7 @@ bool DirectionalLight::illuminates(const Vec3& position, const Scene& scene) con
     for (const BVHNode* node : intersectedNodes) {
         const std::vector<AbstractShape*>& shapes = node->getShapes();
         for (const AbstractShape* shape : shapes) {
-            float t;
+            double t;
             Vec3 currentIntersection;
             if (shape->intersects(shadowRay, currentIntersection)) {
                 // If any intersection occurs, the light is blocked

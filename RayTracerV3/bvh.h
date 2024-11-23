@@ -34,7 +34,7 @@ public:
 
     // Other methods
     void buildBVH(std::vector<AbstractShape*>& shapes, const int maxShapesPerLeaf = 2);
-    static float evaluateSAH(const AABB& parent, const AABB& left, int leftCount, const AABB& right, int rightCount);
+    static double evaluateSAH(const AABB& parent, const AABB& left, int leftCount, const AABB& right, int rightCount);
     BVHNode* findLastIntersectedNode(const Ray& ray) const;
     std::vector<BVHNode*> findAllIntersectedLeafNodes(const Ray& ray) const;
     void findIntersectedLeafNodesRecursive(const Ray& ray, std::vector<BVHNode*>& intersectedLeafNodes) const;

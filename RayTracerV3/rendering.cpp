@@ -21,6 +21,6 @@ Color Rendering::traceRay(const Ray& ray, const Scene& scene, int depth) {
         return scene.getBackgroundColor();
     }
 
-    return closestShape->getMaterial()->shade(ray, intersectionPoint, scene, closestShape);
+    return closestShape->getMaterial()->shadeRay(ray, intersectionPoint, scene, closestShape);
 }
 

@@ -3,7 +3,7 @@
 #include <stdexcept>
 
 // SphereFactory method implementations
-AbstractShape* SphereFactory::createSphere(const Vec3& position, float radius, IMaterial* material) {
+AbstractShape* SphereFactory::createSphere(const Vec3& position, double radius, IMaterial* material) {
     if (radius <= 0) {
         throw std::runtime_error("Error: Radius must be positive.");
     }
@@ -12,7 +12,7 @@ AbstractShape* SphereFactory::createSphere(const Vec3& position, float radius, I
     return sphere;
 }
 
-AbstractShape* SphereFactory::createTexturedSphere(const Vec3& position, float radius, IMaterial* material, Texture* texture) {
+AbstractShape* SphereFactory::createTexturedSphere(const Vec3& position, double radius, IMaterial* material, Texture* texture) {
     if (radius <= 0) {
         throw std::runtime_error("Error: Radius must be positive.");
     }
@@ -25,7 +25,7 @@ AbstractShape* SphereFactory::createTexturedSphere(const Vec3& position, float r
     return sphere;
 }
 
-AbstractShape* SphereFactory::createNormalMappedSphere(const Vec3& position, float radius, IMaterial* material, Texture* texture, NormalMap* normalMap) {
+AbstractShape* SphereFactory::createNormalMappedSphere(const Vec3& position, double radius, IMaterial* material, Texture* texture, NormalMap* normalMap) {
     if (radius <= 0) {
         throw std::runtime_error("Error: Radius must be positive.");
     }

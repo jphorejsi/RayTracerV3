@@ -7,9 +7,9 @@
 
 class SphereFactory {
 public:
-    static AbstractShape* createSphere(const Vec3& position, float radius, IMaterial* material);
-    static AbstractShape* createTexturedSphere(const Vec3& position, float radius, IMaterial* material, Texture* texture);
-    static AbstractShape* createNormalMappedSphere(const Vec3& position, float radius, IMaterial* material, Texture* texture, NormalMap* normalMap);
+    static AbstractShape* createSphere(const Vec3& position, double radius, IMaterial* material);
+    static AbstractShape* createTexturedSphere(const Vec3& position, double radius, IMaterial* material, Texture* texture);
+    static AbstractShape* createNormalMappedSphere(const Vec3& position, double radius, IMaterial* material, Texture* texture, NormalMap* normalMap);
 };
 
 

@@ -51,21 +51,21 @@ public:
 // Concrete class for attenuating directional light
 class AttributeDirectionalLight : public DirectionalLight {
 protected:
-    float c1, c2, c3;
+    double c1, c2, c3;
 
 public:
     // Constructor
-    AttributeDirectionalLight(const Vec3& direction, const Color& color, float c1, float c2, float c3) : DirectionalLight(direction, color), c1(c1), c2(c2), c3(c3) {}
+    AttributeDirectionalLight(const Vec3& direction, const Color& color, double c1, double c2, double c3) : DirectionalLight(direction, color), c1(c1), c2(c2), c3(c3) {}
 
     // Getters
-    float getC1() const { return this->c1; }
-    float getC2() const { return this->c2; }
-    float getC3() const { return this->c3; }
+    double getC1() const { return this->c1; }
+    double getC2() const { return this->c2; }
+    double getC3() const { return this->c3; }
 
     // Setters
-    void setC1(float value) { this->c1 = value; }
-    void setC2(float value) { this->c2 = value; }
-    void setC3(float value) { this->c3 = value; }
+    void setC1(double value) { this->c1 = value; }
+    void setC2(double value) { this->c2 = value; }
+    void setC3(double value) { this->c3 = value; }
 
     // Overrides
     Color calculateDiffuse(const PhongMaterial* material, const Vec3& intersectionPoint, const Vec3& normal) const override;
@@ -96,21 +96,21 @@ public:
 // Concrete class for attenuating point light
 class AttributePointLight : public PointLight {
 protected:
-    float c1, c2, c3;
+    double c1, c2, c3;
 
 public:
     // Constructor
-    AttributePointLight(const Vec3& position, const Color& color, float c1, float c2, float c3) : PointLight(position, color), c1(c1), c2(c2), c3(c3) {}
+    AttributePointLight(const Vec3& position, const Color& color, double c1, double c2, double c3) : PointLight(position, color), c1(c1), c2(c2), c3(c3) {}
 
     // Getters
-    float getC1() const { return this->c1; }
-    float getC2() const { return this->c2; }
-    float getC3() const { return this->c3; }
+    double getC1() const { return this->c1; }
+    double getC2() const { return this->c2; }
+    double getC3() const { return this->c3; }
 
     // Setters
-    void setC1(float value) { this->c1 = value; }
-    void setC2(float value) { this->c2 = value; }
-    void setC3(float value) { this->c3 = value; }
+    void setC1(double value) { this->c1 = value; }
+    void setC2(double value) { this->c2 = value; }
+    void setC3(double value) { this->c3 = value; }
 
     // Overrides
     Color calculateDiffuse(const PhongMaterial* material, const Vec3& intersectionPoint, const Vec3& normal) const override;

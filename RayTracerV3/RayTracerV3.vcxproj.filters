@@ -40,17 +40,14 @@
     <Filter Include="Header Files\core">
       <UniqueIdentifier>{d6cbed82-d046-400b-ad09-0f3622e1caf5}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\rendering">
-      <UniqueIdentifier>{6bde8328-4e33-4df7-a824-32dafb7a7f48}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\rendering">
-      <UniqueIdentifier>{f877ea1f-a0c9-4fea-88c6-35614ec23c87}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\advancedFeatures">
       <UniqueIdentifier>{c4b9f4fb-54b4-427d-8ec6-2ecd5194c08c}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\objects">
       <UniqueIdentifier>{b87d811c-a5e7-4c92-be81-19dfedc06cdc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\core">
+      <UniqueIdentifier>{37d78c43-781d-4977-a478-1cb05b591fa1}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -105,11 +102,11 @@
     <ClInclude Include="shapes.h">
       <Filter>Header Files\objects\shapes</Filter>
     </ClInclude>
-    <ClInclude Include="rendering.h">
-      <Filter>Header Files\rendering</Filter>
-    </ClInclude>
     <ClInclude Include="aabb.h">
       <Filter>Header Files\utility</Filter>
+    </ClInclude>
+    <ClInclude Include="rendering.h">
+      <Filter>Header Files\core</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -118,9 +115,6 @@
     </ClCompile>
     <ClCompile Include="imageSize.h">
       <Filter>Header Files\utility</Filter>
-    </ClCompile>
-    <ClCompile Include="viewFrustrum.cpp">
-      <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="shapeFactory.cpp">
       <Filter>Source Files\Factory</Filter>
@@ -134,26 +128,35 @@
     <ClCompile Include="fileManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="rendering.cpp">
-      <Filter>Source Files\rendering</Filter>
-    </ClCompile>
-    <ClCompile Include="scene.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="bvh.cpp">
       <Filter>Source Files\advancedFeatures</Filter>
     </ClCompile>
     <ClCompile Include="texture.cpp">
       <Filter>Source Files\advancedFeatures</Filter>
     </ClCompile>
-    <ClCompile Include="material.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="shapes.cpp">
       <Filter>Source Files\objects</Filter>
     </ClCompile>
     <ClCompile Include="lights.cpp">
       <Filter>Source Files\objects</Filter>
+    </ClCompile>
+    <ClCompile Include="depthCue.cpp">
+      <Filter>Source Files\advancedFeatures</Filter>
+    </ClCompile>
+    <ClCompile Include="scene.cpp">
+      <Filter>Source Files\core</Filter>
+    </ClCompile>
+    <ClCompile Include="rendering.cpp">
+      <Filter>Source Files\core</Filter>
+    </ClCompile>
+    <ClCompile Include="viewFrustrum.cpp">
+      <Filter>Source Files\core</Filter>
+    </ClCompile>
+    <ClCompile Include="material.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="camera.cpp">
+      <Filter>Source Files\core</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

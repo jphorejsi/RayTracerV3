@@ -148,6 +148,8 @@
     <ClInclude Include="viewFrustrum.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="camera.cpp" />
+    <ClCompile Include="depthCue.cpp" />
     <ClCompile Include="fileManager.cpp" />
     <ClCompile Include="imageSize.h" />
     <ClCompile Include="bvh.cpp" />

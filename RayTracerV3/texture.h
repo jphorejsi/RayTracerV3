@@ -5,17 +5,23 @@
 #include "color.h"
 #include "ImageSize.h"
 
-// Abstract base class for textures
-class ITexture {
+class AbstractTexture {
+protected:
+    ImageSize imageSize;
+    int maxValue;
+
 public:
-    virtual ~ITexture() = default;
-    virtual const ImageSize& getImageSize() const = 0;
-    virtual int getMaxValue() const = 0;
+    // Virtual destructor
+    virtual ~AbstractTexture() = default;
+
+    // Getters
+    int getMaxValue() const { return this->maxValue; }
+    virtual const ImageSize& getImageSize() const { return imageSize; }
 };
 
-// Concrete class for Color textures
-class Texture : public ITexture {
-    ImageSize imageSize;
+
+class Texture : public AbstractTexture {
+private:
     int maxValue;
     Color** textureArray;
 
@@ -32,16 +38,30 @@ public:
     }
 
     // Getters
-    const Color& getPixel(int x, int y) const { return this->textureArray[x][y]; }
+    const Color& getPixel(int u, int v) const;
 
     // Setters
-    void setPixel(int x, int y, const Color& color) { this->textureArray[x][y] = color; }
-
-    // Override methods
-    const ImageSize& getImageSize() const override { return this->imageSize; }
-    int getMaxValue() const override { return this->maxValue; }
+    void setPixel(int u, int v, const Color& color);
 };
 
-// Concrete class for Normal maps
-class NormalMap : public ITexture {
+class NormalMap : public AbstractTexture {
+private:
+    Vec3** normalMapArray;
+
+public:
+    // Constructor
+    NormalMap(const std::string& filename);
+
+    // Destructor
+    ~NormalMap() {
+        for (int i = 0; i < this->imageSize.getWidth(); i++) {
+            delete[] this->normalMapArray[i];
+        }
+        delete[] this->normalMapArray;
+    }
+
+    // Overridden methods
+    const Vec3& getNormal(int u, int v) const;
+
+    void setNormal(int u, int v, const Vec3& normal);
 };

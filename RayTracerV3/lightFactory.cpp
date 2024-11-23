@@ -21,7 +21,7 @@ AbstractLight* LightFactory::createDirectionalLight(const Vec3& direction, const
 }
 
 // Factory method to create an AttributePointLight with attributes
-AbstractLight* LightFactory::createAttributePointLight(const Vec3& position, const Color& color, float c1, float c2, float c3) {
+AbstractLight* LightFactory::createAttributePointLight(const Vec3& position, const Color& color, double c1, double c2, double c3) {
     // Check if color values are within the range [0, 1]
     if (color.getR() < 0 || color.getR() > 1 || color.getG() < 0 || color.getG() > 1 || color.getB() < 0 || color.getB() > 1) {
         throw std::runtime_error("Error: Attribute light color values must be between 0 and 1.");
@@ -34,7 +34,7 @@ AbstractLight* LightFactory::createAttributePointLight(const Vec3& position, con
 }
 
 // Factory method to create an AttributeDirectionalLight with attributes
-AbstractLight* LightFactory::createAttributeDirectionalLight(const Vec3& direction, const Color& color, float c1, float c2, float c3) {
+AbstractLight* LightFactory::createAttributeDirectionalLight(const Vec3& direction, const Color& color, double c1, double c2, double c3) {
     // Check if color values are within the range [0, 1]
     if (color.getR() < 0 || color.getR() > 1 || color.getG() < 0 || color.getG() > 1 || color.getB() < 0 || color.getB() > 1) {
         throw std::runtime_error("Error: Attribute light color values must be between 0 and 1.");

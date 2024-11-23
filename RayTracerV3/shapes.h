@@ -48,12 +48,12 @@ public:
 // Concrete Sphere class derived from AbstractShape
 class Sphere : public AbstractShape {
 private:
-    float radius;
+    double radius;
     Vec3 position;
 
 public:
     // Constructor
-    Sphere(const Vec3& position, float radius) : position(position), radius(radius) {
+    Sphere(const Vec3& position, double radius) : position(position), radius(radius) {
         computeAABB();
     }
 

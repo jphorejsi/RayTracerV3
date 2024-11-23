@@ -15,7 +15,10 @@ public:
     IMaterial() = default;
 
     // Virtual methods
-    virtual Color shade(const Ray& ray, const Vec3& intersectionPoint, const Scene& scene, const AbstractShape* shape) const = 0;
+    virtual Color shadeRay(const Ray& ray, const Vec3& intersectionPoint, const Scene& scene, const AbstractShape* shape) const = 0;
+
+    // Virtual destructor
+    virtual ~IMaterial() = default;
 };
 
 // RGBMaterial class with default white color
@@ -25,10 +28,16 @@ private:
 
 public:
     // Constructor with default color white
-    RGBMaterial(Color color) : color(color) {}
+    RGBMaterial(Color color);
+
+    // Getter
+    Color getColor() const { return color; }
+
+    // Setter
+    void setColor(Color color);
 
     // Overrides
-    Color shade(const Ray& ray, const Vec3& intersectionPoint, const Scene& scene, const AbstractShape* shape) const override { return color; }
+    Color shadeRay(const Ray& ray, const Vec3& intersectionPoint, const Scene& scene, const AbstractShape* shape) const override;
 };
 
 // PhongMaterial class for Phong shading
@@ -36,31 +45,53 @@ class PhongMaterial : public IMaterial {
 private:
     Color od;  // Diffuse color
     Color os;  // Specular color
-    float ka;  // Ambient coefficient
-    float kd;  // Diffuse coefficient
-    float ks;  // Specular coefficient
-    float n;   // Shininess exponent
+    double ka;  // Ambient coefficient
+    double kd;  // Diffuse coefficient
+    double ks;  // Specular coefficient
+    double n;   // Shininess exponent
 
 public:
     // Constructor
-    PhongMaterial(Color od, Color os, float ka, float kd, float ks, float n) : od(od), os(os), ka(ka), kd(kd), ks(ks), n(n) {}
+    PhongMaterial(Color od, Color os, double ka, double kd, double ks, double n);
 
     // Getters
     Color getOd() const { return od; }
     Color getOs() const { return os; }
-    float getKa() const { return ka; }
-    float getKd() const { return kd; }
-    float getKs() const { return ks; }
-    float getN() const { return n; }
+    double getKa() const { return ka; }
+    double getKd() const { return kd; }
+    double getKs() const { return ks; }
+    double getN() const { return n; }
 
     // Setters
-    void setOd(Color od) { this->od = od; }
-    void setOs(Color os) { this->os = os; }
-    void setKa(float ka) { this->ka = ka; }
-    void setKd(float kd) { this->kd = kd; }
-    void setKs(float ks) { this->ks = ks; }
-    void setN(float n) { this->n = n; }
+    void setOd(Color od);
+    void setOs(Color os);
+    void setKa(double ka);
+    void setKd(double kd);
+    void setKs(double ks);
+    void setN(double n);
 
-    // overrides
-    Color shade(const Ray& ray, const Vec3& intersectionPoint, const Scene& scene, const AbstractShape* shape) const override;
+    // Overrides
+    Color shadeRay(const Ray& ray, const Vec3& intersectionPoint, const Scene& scene, const AbstractShape* shape) const override;
+};
+
+// ReflectivePhongMaterial class for reflective materials with Phong shading
+class ReflectivePhongMaterial : public PhongMaterial {
+private:
+    double alpha; // Reflectivity
+    double eta;   // Refractive index
+
+public:
+    // Constructor
+    ReflectivePhongMaterial(Color od, Color os, double ka, double kd, double ks, double n, double alpha, double eta);
+
+    // Getters
+    double getAlpha() const { return alpha; }
+    double getEta() const { return eta; }
+
+    // Setters
+    void setAlpha(double alpha);
+    void setEta(double eta);
+
+    // Overrides
+    Color shadeRay(const Ray& ray, const Vec3& intersectionPoint, const Scene& scene, const AbstractShape* shape) const override;
 };

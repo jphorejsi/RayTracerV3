@@ -8,12 +8,13 @@
 #include "materials.h"
 #include "lights.h"
 #include "vec.h"
+#include "color.h"
 
 #include <unordered_map>
 #include <stdexcept>
 
 
-int FileReader::readFile(const std::string& filename, CameraBuilder& cameraBuilder, SceneBuilder& sceneBuilder, ImageSize& imageSize) {
+int FileReader::readFile(const std::string& filename, Camera& camera, SceneBuilder& sceneBuilder, ImageSize& imageSize) {
     // Open input file
     std::ifstream inputFile(filename);
     if (!inputFile.is_open()) {
@@ -33,19 +34,19 @@ int FileReader::readFile(const std::string& filename, CameraBuilder& cameraBuild
         iss >> keyword;
         // Check for keyword and process based on this keyword
         if (keyword == "eye") {
-            processEye(iss, cameraBuilder);
+            processEye(iss, camera);
             requiredParams["eye"] = true;
         }
         else if (keyword == "viewdir") {
-            processViewDir(iss, cameraBuilder);
+            processViewDir(iss, camera);
             requiredParams["viewdir"] = true;
         }
         else if (keyword == "updir") {
-            processUpDir(iss, cameraBuilder);
+            processUpDir(iss, camera);
             requiredParams["updir"] = true;
         }
         else if (keyword == "hfov") {
-            processHfov(iss, cameraBuilder);
+            processHfov(iss, camera);
             requiredParams["hfov"] = true;
         }
         else if (keyword == "bkgcolor") {
@@ -67,6 +68,9 @@ int FileReader::readFile(const std::string& filename, CameraBuilder& cameraBuild
         else if (keyword == "light") {
             processLight(iss, sceneBuilder);
         }
+        else if (keyword == "attlight") {
+            processAttributeLight(iss, sceneBuilder);
+        }
         else if (keyword == "v") {
             processVertex(iss, sceneBuilder);
         }
@@ -79,6 +83,12 @@ int FileReader::readFile(const std::string& filename, CameraBuilder& cameraBuild
         else if (keyword == "f") {
             processTriangle(line, sceneBuilder);
         }
+        else if (keyword == "depthcueing") {
+            processDepthCue(iss, sceneBuilder);
+        }
+        else if (keyword == "normalmap") {
+            processNormalMap(iss, sceneBuilder);
+        }
     }
     // Check required parameters were provided
     for (const auto& param : requiredParams) {
@@ -89,52 +99,53 @@ int FileReader::readFile(const std::string& filename, CameraBuilder& cameraBuild
     return 0;
 }
 
-// Read eye into cameraBuilder
-void FileReader::processEye(std::istringstream& iss, CameraBuilder& cameraBuilder) {
-    float x, y, z;
+// Read eye into camera
+void FileReader::processEye(std::istringstream& iss, Camera& camera) {
+    double x, y, z;
     if (!(iss >> x >> y >> z)) {
         throw std::runtime_error("Error: Invalid or missing eye position coordinates.");
     }
     Vec3 eyePosition(x, y, z);
-    cameraBuilder.setEyePosition(eyePosition);
+    camera.setEyePosition(eyePosition);
 }
 
-// read view direction into cameraBuilder
-void FileReader::processViewDir(std::istringstream& iss, CameraBuilder& cameraBuilder) {
-    float x, y, z;
+// read view direction into camera
+void FileReader::processViewDir(std::istringstream& iss, Camera& camera) {
+    double x, y, z;
     if (!(iss >> x >> y >> z)) {
         throw std::runtime_error("Error: Invalid or missing view direction coordinates.");
     }
     Vec3 viewDirection(x, y, z);
-    cameraBuilder.setViewDirection(viewDirection);
+    camera.setViewDirection(viewDirection);
 }
 
-// Read up direction into cameraBuilder
-void FileReader::processUpDir(std::istringstream& iss, CameraBuilder& cameraBuilder) {
-    float x, y, z;
+// Read up direction into camera
+void FileReader::processUpDir(std::istringstream& iss, Camera& camera) {
+    double x, y, z;
     if (!(iss >> x >> y >> z)) {
         throw std::runtime_error("Error: Invalid or missing up direction coordinates.");
     }
     Vec3 upDirection(x, y, z);
-    cameraBuilder.setUpDirection(upDirection);
+    camera.setUpDirection(upDirection);
 }
 
-// Read horizontal fov into cameraBuilder
-void FileReader::processHfov(std::istringstream& iss, CameraBuilder& cameraBuilder) {
-    float fov;
+// Read horizontal fov into camera
+void FileReader::processHfov(std::istringstream& iss, Camera& camera) {
+    double fov;
     if (!(iss >> fov)) {
         throw std::runtime_error("Error: Invalid or missing horizontal field of view.");
     }
-    cameraBuilder.setHorizontalFOV(fov);
+    camera.setHorizontalFOV(fov);
 }
 
 // Read background color into sceneBuilder
 void FileReader::processBackgroundColor(std::istringstream& iss, SceneBuilder& sceneBuilder) {
-    float r, g, b;
+    double r, g, b;
     if (!(iss >> r >> g >> b)) {
         throw std::runtime_error("Error: Invalid or missing background color values.");
     }
     Color backgroundColor(r, g, b);
+    //backgroundColor.normalize();
     sceneBuilder.setBackgroundColor(backgroundColor);
 }
 
@@ -149,12 +160,14 @@ void FileReader::processImageSize(std::istringstream& iss, ImageSize& imageSize)
 
 // Read material into sceneBuilder
 void FileReader::processMaterial(std::istringstream& iss, SceneBuilder& sceneBuilder) {
-    float odr, odg, odb, osr, osg, osb, ka, kd, ks, n;
+    double odr, odg, odb, osr, osg, osb, ka, kd, ks, n;
     if (!(iss >> odr >> odg >> odb >> osr >> osg >> osb >> ka >> kd >> ks >> n)) {
         throw std::runtime_error("Error: Invalid or missing material parameters.");
     }
     Color diffuse(odr, odg, odb);
     Color specular(osr, osg, osb);
+    //diffuse.normalize();
+    //specular.normalize();
     IMaterial* material = MaterialFactory::createPhongMaterial(diffuse, specular, ka, kd, ks, n);
     sceneBuilder.addMaterial(material);  // Add material to SceneBuilder's vector
 }
@@ -168,9 +181,17 @@ void FileReader::processTexture(std::istringstream& iss, SceneBuilder& sceneBuil
     sceneBuilder.addTexture(new Texture(filename));
 }
 
+void FileReader::processNormalMap(std::istringstream& iss, SceneBuilder& sceneBuilder) {
+    std::string filename;
+    if (!(iss >> filename) || filename.empty()) {
+        throw std::runtime_error("Error: Invalid or missing filename for normal map.");
+    }
+    sceneBuilder.addNormalMap(new NormalMap(filename));
+}
+
 // Read sphere into sceneBuilder
 void FileReader::processSphere(std::istringstream& iss, SceneBuilder& sceneBuilder) {
-    float x, y, z, r;
+    double x, y, z, r;
     if (!(iss >> x >> y >> z >> r)) {
         throw std::runtime_error("Error: Invalid or missing sphere parameters.");
     }
@@ -207,7 +228,7 @@ void FileReader::processSphere(std::istringstream& iss, SceneBuilder& sceneBuild
 
 // Read light into sceneBuilder
 void FileReader::processLight(std::istringstream& iss, SceneBuilder& sceneBuilder) {
-    float x, y, z, r, g, b;
+    double x, y, z, r, g, b;
     int type;
     if (!(iss >> x >> y >> z >> type >> r >> g >> b)) {
         throw std::runtime_error("Error: Invalid or missing light parameters.");
@@ -227,9 +248,31 @@ void FileReader::processLight(std::istringstream& iss, SceneBuilder& sceneBuilde
     sceneBuilder.addLight(light);
 }
 
+// Read attrubute light into sceneBuilder
+void FileReader::processAttributeLight(std::istringstream& iss, SceneBuilder& sceneBuilder) {
+    double x, y, z, r, g, b, c1, c2, c3;
+    int type;
+    if (!(iss >> x >> y >> z >> type >> r >> g >> b >> c1 >> c2 >> c3)) {
+        throw std::runtime_error("Error: Invalid or missing light parameters.");
+    }
+    Color color(r, g, b);
+    Vec3 position(x, y, z);
+    AbstractLight* light = nullptr;
+    if (type == 1) {
+        light = LightFactory::createAttributePointLight(position, color, c1, c2, c3);
+    }
+    else if (type == 0) {
+        light = LightFactory::createAttributeDirectionalLight(position, color, c1, c2, c3);
+    }
+    else {
+        throw std::runtime_error("Error: light type is not 0 or 1.");
+    }
+    sceneBuilder.addLight(light);
+}
+
 // Read vertex into verticies
 void FileReader::processVertex(std::istringstream& iss, SceneBuilder& sceneBuilder) {
-    float x, y, z;
+    double x, y, z;
     if (!(iss >> x >> y >> z)) {
         throw std::runtime_error("Error: Invalid or missing vertex coordinates.");
     }
@@ -239,7 +282,7 @@ void FileReader::processVertex(std::istringstream& iss, SceneBuilder& sceneBuild
 
 // Read vertex normal into vertexNormals
 void FileReader::processVertexNormal(std::istringstream& iss, SceneBuilder& sceneBuilder) {
-    float x, y, z;
+    double x, y, z;
     if (!(iss >> x >> y >> z)) {
         throw std::runtime_error("Error: Invalid or missing vertex normal coordinates.");
     }
@@ -249,7 +292,7 @@ void FileReader::processVertexNormal(std::istringstream& iss, SceneBuilder& scen
 
 // Read texture coordinate into textureCoordinates
 void FileReader::processTextureCoordinate(std::istringstream& iss, SceneBuilder& sceneBuilder) {
-    float u, v;
+    double u, v;
     if (!(iss >> u >> v)) {
         throw std::runtime_error("Error: Invalid or missing texture coordinates.");
     }
@@ -294,6 +337,17 @@ void FileReader::processTriangle(std::string& line, SceneBuilder& sceneBuilder) 
     }
     sceneBuilder.addShape(triangle);
 
+}
+
+// Read depthCue into sceneBuilder
+void FileReader::processDepthCue(std::istringstream& iss, SceneBuilder& sceneBuilder) {
+    double r, g, b, alphaMax, alphaMin, distanceMax, distanceMin;
+    if (!(iss >> r >> g >> b >> alphaMax >> alphaMin >> distanceMax >> distanceMin)) {
+        throw std::runtime_error("Error: Invalid or missing depthcueing parameters.");
+    }
+    Color depthCueColor(r, g, b);
+    DepthCue* depthCue = new DepthCue(depthCueColor, alphaMax, alphaMin, distanceMax, distanceMin);
+    sceneBuilder.setDepthCue(depthCue);
 }
 
 // Create output ppm file based on input file name

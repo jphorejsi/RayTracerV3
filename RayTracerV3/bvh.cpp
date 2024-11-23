@@ -1,20 +1,20 @@
 #include "bvh.h"
 #include <algorithm>
-
+#include <array>
 
 // Determine if ray intersects AABB
 bool AABB::intersects(const Ray& ray) const {
-    float invDirX = 1.0f / ray.getDirection().getX();
-    float invDirY = 1.0f / ray.getDirection().getY();
-    float invDirZ = 1.0f / ray.getDirection().getZ();
+    double invDirX = 1.0f / ray.getDirection().getX();
+    double invDirY = 1.0f / ray.getDirection().getY();
+    double invDirZ = 1.0f / ray.getDirection().getZ();
 
-    float tMin = (this->minBounds.getX() - ray.getOrigin().getX()) * invDirX;
-    float tMax = (this->maxBounds.getX() - ray.getOrigin().getX()) * invDirX;
+    double tMin = (this->minBounds.getX() - ray.getOrigin().getX()) * invDirX;
+    double tMax = (this->maxBounds.getX() - ray.getOrigin().getX()) * invDirX;
 
     if (tMin > tMax) std::swap(tMin, tMax);
 
-    float tyMin = (this->minBounds.getY() - ray.getOrigin().getY()) * invDirY;
-    float tyMax = (this->maxBounds.getY() - ray.getOrigin().getY()) * invDirY;
+    double tyMin = (this->minBounds.getY() - ray.getOrigin().getY()) * invDirY;
+    double tyMax = (this->maxBounds.getY() - ray.getOrigin().getY()) * invDirY;
 
     if (tyMin > tyMax) std::swap(tyMin, tyMax);
 
@@ -23,8 +23,8 @@ bool AABB::intersects(const Ray& ray) const {
     if (tyMin > tMin) tMin = tyMin;
     if (tyMax < tMax) tMax = tyMax;
 
-    float tzMin = (this->minBounds.getZ() - ray.getOrigin().getZ()) * invDirZ;
-    float tzMax = (this->maxBounds.getZ() - ray.getOrigin().getZ()) * invDirZ;
+    double tzMin = (this->minBounds.getZ() - ray.getOrigin().getZ()) * invDirZ;
+    double tzMax = (this->maxBounds.getZ() - ray.getOrigin().getZ()) * invDirZ;
 
     if (tzMin > tzMax) std::swap(tzMin, tzMax);
 
@@ -32,6 +32,7 @@ bool AABB::intersects(const Ray& ray) const {
 
     return true;
 }
+
 
 void BVHNode::buildBVH(std::vector<AbstractShape*>& shapes, const int maxShapesPerLeaf) {
     // Compute the bounding box for all shapes
@@ -50,50 +51,55 @@ void BVHNode::buildBVH(std::vector<AbstractShape*>& shapes, const int maxShapesP
 
     // Partitioning variables
     int bestAxis = -1;
-    float bestCost = std::numeric_limits<float>::max();
+    double bestCost = std::numeric_limits<double>::max();
     int bestSplit = -1;
+
+    // Precompute sorted shapes along each axis and store them
+    std::array<std::vector<AbstractShape*>, 3> sortedShapes;
+    for (int axis = 0; axis < 3; ++axis) {
+        sortedShapes[axis] = shapes;
+        std::sort(sortedShapes[axis].begin(), sortedShapes[axis].end(), [axis](AbstractShape* a, AbstractShape* b) {
+            return a->getCentroid()[axis] < b->getCentroid()[axis];
+            });
+    }
 
     // Try splitting along each axis
     for (int axis = 0; axis < 3; ++axis) {
-        // Sort shapes by centroid along the current axis
-        std::sort(shapes.begin(), shapes.end(), [axis](AbstractShape* a, AbstractShape* b) {
-            return a->getCentroid()[axis] < b->getCentroid()[axis];
-            });
+        AABB leftAABB, rightAABB;
 
-        // Evaluate split positions
-        for (size_t i = 1; i < shapes.size(); ++i) {
-            // Split into two groups
-            std::vector<AbstractShape*> leftShapes(shapes.begin(), shapes.begin() + i);
-            std::vector<AbstractShape*> rightShapes(shapes.begin() + i, shapes.end());
+        // Initialize rightAABB to encompass all shapes
+        for (auto* shape : sortedShapes[axis]) {
+            rightAABB.expand(*shape->getAABB());
+        }
 
-            // Compute AABBs for the two groups
-            AABB leftAABB, rightAABB;
-            for (auto* shape : leftShapes) leftAABB.expand(*shape->getAABB());
-            for (auto* shape : rightShapes) rightAABB.expand(*shape->getAABB());
+        // Incrementally compute AABBs for left and right groups
+        for (size_t i = 0; i < sortedShapes[axis].size() - 1; ++i) {
+            leftAABB.expand(*sortedShapes[axis][i]->getAABB());
+            rightAABB = AABB(); // Recompute rightAABB from the remaining shapes
+            for (size_t j = i + 1; j < sortedShapes[axis].size(); ++j) {
+                rightAABB.expand(*sortedShapes[axis][j]->getAABB());
+            }
 
             // Compute SAH cost
-            float cost = evaluateSAH(this->aabb, leftAABB, leftShapes.size(), rightAABB, rightShapes.size());
+            double cost = evaluateSAH(this->aabb, leftAABB, i + 1, rightAABB, sortedShapes[axis].size() - i - 1);
             if (cost < bestCost) {
                 bestCost = cost;
                 bestAxis = axis;
-                bestSplit = i;
+                bestSplit = i + 1;
             }
         }
     }
 
-    // If no valid split was found, make this a leaf node
-    if (bestAxis == -1) {
+    // If no valid split was found or cost is too high, make this a leaf node
+    const double terminationCostThreshold = 1e6; // Example threshold for termination
+    if (bestAxis == -1 || bestCost > terminationCostThreshold) {
         this->shapes = shapes;
         return;
     }
 
     // Perform the best split
-    std::sort(shapes.begin(), shapes.end(), [bestAxis](AbstractShape* a, AbstractShape* b) {
-        return a->getCentroid()[bestAxis] < b->getCentroid()[bestAxis];
-        });
-
-    std::vector<AbstractShape*> leftShapes(shapes.begin(), shapes.begin() + bestSplit);
-    std::vector<AbstractShape*> rightShapes(shapes.begin() + bestSplit, shapes.end());
+    std::vector<AbstractShape*> leftShapes(sortedShapes[bestAxis].begin(), sortedShapes[bestAxis].begin() + bestSplit);
+    std::vector<AbstractShape*> rightShapes(sortedShapes[bestAxis].begin() + bestSplit, sortedShapes[bestAxis].end());
 
     // Recursively build child nodes
     this->left = new BVHNode();
@@ -102,11 +108,12 @@ void BVHNode::buildBVH(std::vector<AbstractShape*>& shapes, const int maxShapesP
     this->right->buildBVH(rightShapes, maxShapesPerLeaf);
 }
 
-float BVHNode::evaluateSAH(const AABB& parent, const AABB& left, int leftCount, const AABB& right, int rightCount) {
+
+double BVHNode::evaluateSAH(const AABB& parent, const AABB& left, int leftCount, const AABB& right, int rightCount) {
     // Surface areas of the left and right bounding boxes
-    float leftSurfaceArea = left.surfaceArea();
-    float rightSurfaceArea = right.surfaceArea();
-    float parentSurfaceArea = parent.surfaceArea();
+    double leftSurfaceArea = left.surfaceArea();
+    double rightSurfaceArea = right.surfaceArea();
+    double parentSurfaceArea = parent.surfaceArea();
 
     // Avoid division by zero (e.g., if parentSurfaceArea is degenerate)
     if (parentSurfaceArea <= 0.0f) {
@@ -114,11 +121,11 @@ float BVHNode::evaluateSAH(const AABB& parent, const AABB& left, int leftCount, 
     }
 
     // Constants for traversal and intersection costs
-    const float traversalCost = 1.0f; // Cost of traversing a BVH node
-    const float intersectionCost = 1.0f; // Cost of intersecting a shape
+    const double traversalCost = 1.0f; // Cost of traversing a BVH node
+    const double intersectionCost = 1.0f; // Cost of intersecting a shape
 
     // Compute SAH cost
-    float sahCost = traversalCost +
+    double sahCost = traversalCost +
         intersectionCost * ((leftSurfaceArea / parentSurfaceArea) * leftCount +
             (rightSurfaceArea / parentSurfaceArea) * rightCount);
 

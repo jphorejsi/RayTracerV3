@@ -12,7 +12,7 @@ IMaterial* MaterialFactory::createRGBMaterial(const Color& color) {
 }
 
 // Factory method to create a PhongMaterial with specified properties
-IMaterial* MaterialFactory::createPhongMaterial(const Color& od, const Color& os, float ka, float kd, float ks, float n) {
+IMaterial* MaterialFactory::createPhongMaterial(const Color& od, const Color& os, double ka, double kd, double ks, double n) {
     // Check if color values are within the range [0, 1]
     if (od.getR() < 0 || od.getR() > 1 || od.getG() < 0 || od.getG() > 1 || od.getB() < 0 || od.getB() > 1) {
         throw std::invalid_argument("Error: Diffuse color (od) values must be between 0 and 1.");
