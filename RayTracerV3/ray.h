@@ -7,6 +7,9 @@ private:
     Vec3 origin, direction;
 
 public:
+
+    int depth = 1; // uupdate
+
     // Constructor
     Ray(Vec3 origin = Vec3(), Vec3 direction = Vec3()) : origin(origin), direction(direction) {}
 

@@ -1,4 +1,4 @@
-#include "shapes.h"
+﻿#include "shapes.h"
 
 #include <cmath>
 #include <stdexcept>
@@ -59,7 +59,6 @@ Vec2 Sphere::getTextureCoordinate(const Vec3& intersectionPoint) const {
 
 // calculate normal at intersectionPoint
 Vec3 Sphere::getNormal(const Vec3& intersectionPoint) const {
-    // add if for normalMap
     return (intersectionPoint - this->position).normal();
 }
 
@@ -123,7 +122,43 @@ Vec2 Triangle::getTextureCoordinate(const Vec3& intersectionPoint) const {
 
 // calculate normal at intersectionPoint
 Vec3 Triangle::getNormal(const Vec3& intersectionPoint) const {
-    // add if for normalMap
+    if (normalMap && vertexANormal && vertexBNormal && vertexCNormal) {
+        // Retrieve the interpolated texture coordinates using the helper function
+        Vec2 uv = getTextureCoordinate(intersectionPoint);
+        double u = uv.getX();
+        double v = uv.getY();
+
+        // Fetch the normal from the normal map
+        Vec3 m = normalMap->getNormal(u, v);
+
+        // Interpolate the base normal
+        Vec3 barycentric = getBarycentricCoordinates(intersectionPoint);
+        Vec3 N = (*vertexANormal * barycentric.getX() +
+            *vertexBNormal * barycentric.getY() +
+            *vertexCNormal * barycentric.getZ())
+            .normal();
+
+        // Compute tangents and bitangents
+        Vec3 e1 = *vertexB - *vertexA;
+        Vec3 e2 = *vertexC - *vertexA;
+
+        double u1 = textureCoordinateB->getX() - textureCoordinateA->getX();
+        double v1 = textureCoordinateB->getY() - textureCoordinateA->getY();
+        double u2 = textureCoordinateC->getX() - textureCoordinateA->getX();
+        double v2 = textureCoordinateC->getY() - textureCoordinateA->getY();
+
+        double invDet = 1.0 / (u1 * v2 - u2 * v1);
+        Vec3 T = (e1 * v2 - e2 * v1) * invDet;
+        Vec3 B = (e2 * u1 - e1 * u2) * invDet;
+
+        // Normalize T and B
+        T = T.normal();
+        B = B.normal();
+
+        // Transform normal from tangent space to world space
+        Vec3 newN = (T * m.getX() + B * m.getY() + N * m.getZ()).normal();
+        return newN;
+    }
     if (vertexANormal && vertexBNormal && vertexCNormal) {
         Vec3 barycentric = getBarycentricCoordinates(intersectionPoint);
         return (*vertexANormal * barycentric.getX() + *vertexBNormal * barycentric.getY() + *vertexCNormal * barycentric.getZ()).normal();
@@ -133,22 +168,28 @@ Vec3 Triangle::getNormal(const Vec3& intersectionPoint) const {
 
 
 Vec3 Triangle::getBarycentricCoordinates(const Vec3& intersectionPoint) const {
-    Vec3 v0 = vertexB - vertexA;
-    Vec3 v1 = vertexC - vertexA;
-    Vec3 v2 = intersectionPoint - *vertexA;
-    double d00 = v0.dot(v0);
-    double d01 = v0.dot(v1);
-    double d11 = v1.dot(v1);
-    double d20 = v2.dot(v0);
-    double d21 = v2.dot(v1);
-    // get the denominator
-    double denom = d00 * d11 - d01 * d01;
-    if (denom == 0) {
+    // Compute edges
+    Vec3 e1 = *vertexB - *vertexA; // Edge 1: vertexB - vertexA
+    Vec3 e2 = *vertexC - *vertexA; // Edge 2: vertexC - vertexA
+    Vec3 ep = intersectionPoint - *vertexA; // Vector from vertexA to intersectionPoint
+
+    // Dot products
+    double d11 = e1.dot(e1); // e1 • e1
+    double d12 = e1.dot(e2); // e1 • e2
+    double d22 = e2.dot(e2); // e2 • e2
+    double dp1 = ep.dot(e1); // ep • e1
+    double dp2 = ep.dot(e2); // ep • e2
+
+    // Compute denominator
+    double denom = d11 * d22 - d12 * d12;
+    if (std::fabs(denom) < 1e-6) { // Add epsilon check for precision issues
         throw std::runtime_error("Error: Degenerate triangle with zero area.");
     }
-    // get barycentric coordinates
-    double v = (d11 * d20 - d01 * d21) / denom;
-    double w = (d00 * d21 - d01 * d20) / denom;
-    double u = 1.0f - v - w;
-    return Vec3(u, v, w);
+
+    // Compute barycentric coordinates
+    double beta = (d22 * dp1 - d12 * dp2) / denom;  // β = D_beta / denom
+    double gamma = (d11 * dp2 - d12 * dp1) / denom; // γ = D_gamma / denom
+    double alpha = 1.0 - beta - gamma;             // α = 1 - β - γ
+
+    return Vec3(alpha, beta, gamma); // Return barycentric coordinates
 }

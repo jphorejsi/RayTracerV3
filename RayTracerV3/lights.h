@@ -23,8 +23,8 @@ public:
 
     // Virtual functions for illumination
     virtual bool illuminates(const Vec3& position, const Scene& scene) const = 0;
-    virtual Color calculateDiffuse(const PhongMaterial* material, const Vec3& intersectionPoint, const Vec3& normal) const = 0;
-    virtual Color calculateSpecular(const PhongMaterial* material, const Vec3& intersectionPoint, const Vec3& normal, const Vec3& viewDirection) const = 0;
+    virtual Color calculateDiffuse(const Material* material, const Vec3& intersectionPoint, const Vec3& normal) const = 0;
+    virtual Color calculateSpecular(const Material* material, const Vec3& intersectionPoint, const Vec3& normal, const Vec3& viewDirection) const = 0;
 };
 
 // Concrete class for DirectionalLight with direction
@@ -44,8 +44,8 @@ public:
 
     // Overrides
     bool illuminates(const Vec3& position, const Scene& scene) const override;
-    Color calculateDiffuse(const PhongMaterial* material, const Vec3& intersectionPoint, const Vec3& normal) const override;
-    Color calculateSpecular(const PhongMaterial* material, const Vec3& intersectionPoint, const Vec3& normal, const Vec3& viewDirection) const override;
+    Color calculateDiffuse(const Material* material, const Vec3& intersectionPoint, const Vec3& normal) const override;
+    Color calculateSpecular(const Material* material, const Vec3& intersectionPoint, const Vec3& normal, const Vec3& viewDirection) const override;
 };
 
 // Concrete class for attenuating directional light
@@ -68,8 +68,8 @@ public:
     void setC3(double value) { this->c3 = value; }
 
     // Overrides
-    Color calculateDiffuse(const PhongMaterial* material, const Vec3& intersectionPoint, const Vec3& normal) const override;
-    Color calculateSpecular(const PhongMaterial* material, const Vec3& intersectionPoint, const Vec3& normal, const Vec3& viewDirection) const override;
+    Color calculateDiffuse(const Material* material, const Vec3& intersectionPoint, const Vec3& normal) const override;
+    Color calculateSpecular(const Material* material, const Vec3& intersectionPoint, const Vec3& normal, const Vec3& viewDirection) const override;
 };
 
 // Concrete class for PointLight with position
@@ -89,8 +89,8 @@ public:
 
     // Overrides
     bool illuminates(const Vec3& targetPosition, const Scene& scene) const override;
-    Color calculateDiffuse(const PhongMaterial* material, const Vec3& intersectionPoint, const Vec3& normal) const override;
-    Color calculateSpecular(const PhongMaterial* material, const Vec3& intersectionPoint, const Vec3& normal, const Vec3& viewDirection) const override;
+    Color calculateDiffuse(const Material* material, const Vec3& intersectionPoint, const Vec3& normal) const override;
+    Color calculateSpecular(const Material* material, const Vec3& intersectionPoint, const Vec3& normal, const Vec3& viewDirection) const override;
 };
 
 // Concrete class for attenuating point light
@@ -113,6 +113,6 @@ public:
     void setC3(double value) { this->c3 = value; }
 
     // Overrides
-    Color calculateDiffuse(const PhongMaterial* material, const Vec3& intersectionPoint, const Vec3& normal) const override;
-    Color calculateSpecular(const PhongMaterial* material, const Vec3& intersectionPoint, const Vec3& normal, const Vec3& viewDirection) const override;
+    Color calculateDiffuse(const Material* material, const Vec3& intersectionPoint, const Vec3& normal) const override;
+    Color calculateSpecular(const Material* material, const Vec3& intersectionPoint, const Vec3& normal, const Vec3& viewDirection) const override;
 };

@@ -14,35 +14,14 @@ public:
     // Constructor
     IMaterial() = default;
 
-    // Virtual methods
-    virtual Color shadeRay(const Ray& ray, const Vec3& intersectionPoint, const Scene& scene, const AbstractShape* shape) const = 0;
 
     // Virtual destructor
     virtual ~IMaterial() = default;
 };
 
-// RGBMaterial class with default white color
-class RGBMaterial : public IMaterial {
-private:
-    Color color;
-
-public:
-    // Constructor with default color white
-    RGBMaterial(Color color);
-
-    // Getter
-    Color getColor() const { return color; }
-
-    // Setter
-    void setColor(Color color);
-
-    // Overrides
-    Color shadeRay(const Ray& ray, const Vec3& intersectionPoint, const Scene& scene, const AbstractShape* shape) const override;
-};
-
-// PhongMaterial class for Phong shading
-class PhongMaterial : public IMaterial {
-private:
+// Material class for Phong shading
+class Material : public IMaterial {
+protected:
     Color od;  // Diffuse color
     Color os;  // Specular color
     double ka;  // Ambient coefficient
@@ -52,7 +31,7 @@ private:
 
 public:
     // Constructor
-    PhongMaterial(Color od, Color os, double ka, double kd, double ks, double n);
+    Material(Color od, Color os, double ka, double kd, double ks, double n);
 
     // Getters
     Color getOd() const { return od; }
@@ -69,20 +48,17 @@ public:
     void setKd(double kd);
     void setKs(double ks);
     void setN(double n);
-
-    // Overrides
-    Color shadeRay(const Ray& ray, const Vec3& intersectionPoint, const Scene& scene, const AbstractShape* shape) const override;
 };
 
-// ReflectivePhongMaterial class for reflective materials with Phong shading
-class ReflectivePhongMaterial : public PhongMaterial {
-private:
+// ReflectiveMaterial class for reflective materials with Phong shading
+class ReflectiveMaterial : public Material {
+protected:
     double alpha; // Reflectivity
     double eta;   // Refractive index
 
 public:
     // Constructor
-    ReflectivePhongMaterial(Color od, Color os, double ka, double kd, double ks, double n, double alpha, double eta);
+    ReflectiveMaterial(Color od, Color os, double ka, double kd, double ks, double n, double alpha, double eta);
 
     // Getters
     double getAlpha() const { return alpha; }
@@ -91,7 +67,4 @@ public:
     // Setters
     void setAlpha(double alpha);
     void setEta(double eta);
-
-    // Overrides
-    Color shadeRay(const Ray& ray, const Vec3& intersectionPoint, const Scene& scene, const AbstractShape* shape) const override;
 };

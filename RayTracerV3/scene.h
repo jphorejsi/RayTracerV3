@@ -14,29 +14,19 @@ private:
     Color backgroundColor;
     std::vector<AbstractShape*> shapes;
     std::vector<AbstractLight*> lights;
-
-    std::vector<IMaterial*> materials;
-    std::vector<Texture*> textures;
-    std::vector<NormalMap*> normalMaps;
-    
-    std::vector<Vec3> vertices;
-    std::vector<Vec3> vertexNormals;
-    std::vector<Vec2> textureCoordinates;
-
     BVHNode* BVHRoot = nullptr;
     DepthCue* depthCue = nullptr;
 
 public:
     // Constructors
     Scene() = default;
-    Scene(Color backgroundColor, const std::vector<AbstractShape*>& shapes, const std::vector<AbstractLight*>& lights, const std::vector<IMaterial*>& materials, const std::vector<Texture*>& textures, const std::vector<NormalMap*>& normalMaps, const std::vector<Vec3>& vertices, const std::vector<Vec3>& vertexNormals, const std::vector<Vec2>& textureCoordinates, BVHNode* BVHRoot, DepthCue* depthCue)
-        : backgroundColor(backgroundColor), shapes(shapes), lights(lights), materials(materials), textures(textures), normalMaps(normalMaps), vertices(vertices), vertexNormals(vertexNormals), textureCoordinates(textureCoordinates), BVHRoot(BVHRoot), depthCue(depthCue) {}
+    Scene(Color backgroundColor, const std::vector<AbstractShape*>& shapes, const std::vector<AbstractLight*>& lights, const std::vector<Vec3>& vertices, const std::vector<Vec3>& vertexNormals, const std::vector<Vec2>& textureCoordinates, BVHNode* BVHRoot, DepthCue* depthCue)
+        : backgroundColor(backgroundColor), shapes(shapes), lights(lights), BVHRoot(BVHRoot), depthCue(depthCue) {}
 
     // Destructor
     ~Scene() {
         for (auto shape : shapes) delete shape;
         for (auto light : lights) delete light;
-        for (auto material : materials) delete material;
         delete BVHRoot;
         delete depthCue;
     }
@@ -60,23 +50,25 @@ private:
     std::vector<AbstractShape*> shapes;
     std::vector<AbstractLight*> lights;
 
-    std::vector<IMaterial*> materials;
-    std::vector<Texture*> textures;
-    std::vector<NormalMap*> normalMaps;
+    std::shared_ptr<IMaterial> currentMaterial = nullptr; // Use shared_ptr for shared ownership
+    std::shared_ptr<Texture> currentTexture = nullptr;    // Use shared_ptr for shared ownership
+    std::shared_ptr<NormalMap> currentNormalMap = nullptr; // Use shared_ptr for shared ownership
 
     std::vector<Vec3> vertices;
     std::vector<Vec3> vertexNormals;
     std::vector<Vec2> textureCoordinates;
 
-    BVHNode* BVHroot = nullptr;
-    DepthCue* depthCue = nullptr;
+    BVHNode* BVHRoot = nullptr;         // Still raw pointer
+    DepthCue* depthCue = nullptr;       // Still raw pointer
+
 public:
+
     // Getters
     std::vector<AbstractShape*>& getShapes() { return this->shapes; }
 
-    const std::vector<IMaterial*>& getMaterials() const { return this->materials; }
-    const std::vector<Texture*>& getTextures() const { return this->textures; }
-    const std::vector<NormalMap*>& getNormalMaps() const { return this->normalMaps; }
+    std::shared_ptr<IMaterial> getCurrentMaterial() const { return this->currentMaterial; }
+    std::shared_ptr<Texture> getCurrentTexture() const { return this->currentTexture; }
+    std::shared_ptr<NormalMap> getCurrentNormalMap() const { return this->currentNormalMap; }
 
     const std::vector<Vec3>& getVertices() const { return this->vertices; }
     const std::vector<Vec3>& getVertexNormals() const { return this->vertexNormals; }
@@ -87,17 +79,17 @@ public:
     void addLight(AbstractLight* light) { this->lights.push_back(light); }
     void setBackgroundColor(const Color& color) { this->backgroundColor = color; }
 
-    void addMaterial(IMaterial* material) { this->materials.push_back(material); }
-    void addTexture(Texture* texture) { this->textures.push_back(texture); }
-    void addNormalMap(NormalMap* normalMap) { this->normalMaps.push_back(normalMap); }
+    void setCurrentMaterial(const std::shared_ptr<IMaterial>& material) { this->currentMaterial = material; }
+    void setCurrentTexture(const std::shared_ptr<Texture>& texture) { this->currentTexture = texture; }
+    void setCurrentNormalMap(const std::shared_ptr<NormalMap>& normalMap) { this->currentNormalMap = normalMap; }
 
-    void addVertex(Vec3 vertex) { this->vertices.push_back(vertex); }
-    void addVertexNormal(Vec3 vertexNormal) { this->vertexNormals.push_back(vertexNormal); }
-    void addTextureCoordinate(Vec2 textureCoordinate) { this->textureCoordinates.push_back(textureCoordinate); }
+    void addVertex(const Vec3& vertex) { this->vertices.push_back(vertex); }
+    void addVertexNormal(const Vec3& vertexNormal) { this->vertexNormals.push_back(vertexNormal); }
+    void addTextureCoordinate(const Vec2& textureCoordinate) { this->textureCoordinates.push_back(textureCoordinate); }
 
-    void setBVHRoot(BVHNode* root) { this->BVHroot = root; }
+    void setBVHRoot(BVHNode* root) { this->BVHRoot = root; }
     void setDepthCue(DepthCue* depthCue) { this->depthCue = depthCue; }
 
     // Build method
-    Scene build() const { return Scene(backgroundColor, shapes, lights, materials, textures, normalMaps, vertices, vertexNormals, textureCoordinates, BVHroot, depthCue); }
+    Scene build() const { return Scene(backgroundColor, shapes, lights, vertices, vertexNormals, textureCoordinates, BVHRoot, depthCue); }
 };

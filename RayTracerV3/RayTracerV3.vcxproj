@@ -166,7 +166,8 @@
     <ClCompile Include="viewFrustrum.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="earthtexture.ppm" />
+    <None Include="brickwall.ppm" />
+    <None Include="brickwall_normal.ppm" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="test.txt" />

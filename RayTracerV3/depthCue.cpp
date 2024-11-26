@@ -24,7 +24,6 @@ DepthCue::DepthCue(const Color& depthCue, double alphaMax, double alphaMin, doub
     this->distanceMin = distanceMin;
 }
 
-
 void DepthCue::setDepthCue(const Color& depthCue) {
     if (depthCue.getR() < 0.0 || depthCue.getR() > 1.0 ||
         depthCue.getG() < 0.0 || depthCue.getG() > 1.0 ||

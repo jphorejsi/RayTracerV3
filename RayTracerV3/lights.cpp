@@ -5,31 +5,27 @@
 #include <cmath>
 
 // DirectionalLight methods
-Color DirectionalLight::calculateDiffuse(const PhongMaterial* material, const Vec3& intersectionPoint, const Vec3& normal) const {
+Color DirectionalLight::calculateDiffuse(const Material* material, const Vec3& intersectionPoint, const Vec3& normal) const {
     Vec3 L = this->direction.normal() * -1.0f;  // Reverse the direction vector
     double N_dot_L = std::max(normal.dot(L), 0.0);
     return material->getOd() * material->getKd() * N_dot_L * this->color;
 }
 
-Color DirectionalLight::calculateSpecular(const PhongMaterial* material, const Vec3& intersectionPoint, const Vec3& normal, const Vec3& viewDirection) const {
+Color DirectionalLight::calculateSpecular(const Material* material, const Vec3& intersectionPoint, const Vec3& normal, const Vec3& viewDirection) const {
     // Reverse the direction vector to point from the intersection towards the light source
     Vec3 L = this->direction.normal() * -1.0f;
-
     // Calculate the halfway vector
-    Vec3 H = (L + viewDirection * -1.0f).normal();
-
+    Vec3 H = (L + -1.0 * viewDirection).normal();
     // Calculate N dot H, clamped to a minimum of 0
     double N_dot_H = std::max(normal.dot(H), 0.0);
-
     // Apply the Blinn-Phong specular formula
     double specularFactor = std::pow(N_dot_H, material->getN());
-
     // Return the calculated specular color
     return material->getOs() * material->getKs() * specularFactor * this->color;
 }
 
 // AttributeDirectionalLight methods with attenuation
-Color AttributeDirectionalLight::calculateDiffuse(const PhongMaterial* material, const Vec3& intersectionPoint, const Vec3& normal) const {
+Color AttributeDirectionalLight::calculateDiffuse(const Material* material, const Vec3& intersectionPoint, const Vec3& normal) const {
     Vec3 L = this->direction.normal() * -1.0f;
     double N_dot_L = std::max(normal.dot(L), 0.0);
     double dist = FLT_MAX;  // Infinite distance for directional light
@@ -37,31 +33,41 @@ Color AttributeDirectionalLight::calculateDiffuse(const PhongMaterial* material,
     return material->getOd() * material->getKd() * N_dot_L * this->color * attenuation;
 }
 
-Color AttributeDirectionalLight::calculateSpecular(const PhongMaterial* material, const Vec3& intersectionPoint, const Vec3& normal, const Vec3& viewDirection) const {
-    Vec3 L = this->direction.normal() * -1.0f;
-    Vec3 R = (2 * normal.dot(L) * normal - L).normal();
-    double R_dot_V = std::max(R.dot(viewDirection), 0.0);
-    double dist = FLT_MAX;
-    double attenuation = 1.0f / (this->c1 + this->c2 * dist + this->c3 * dist * dist);
-    return material->getOs() * material->getKs() * std::pow(R_dot_V, material->getN()) * this->color * attenuation;
+Color AttributeDirectionalLight::calculateSpecular(const Material* material, const Vec3& intersectionPoint, const Vec3& normal, const Vec3& viewDirection) const {
+    // Calculate the light direction (L), inverted to point toward the surface
+    Vec3 L = (this->direction * -1.0).normal();
+    // Calculate the half-vector (H)
+    Vec3 H = (L + -1 * viewDirection).normal();
+    // Calculate N dot H (clamp to [0, 1])
+    double N_dot_H = std::max(normal.dot(H), 0.0);
+    // Attenuation for directional lights is typically constant
+    double attenuation = 1.0;
+    // Compute the specular component
+    return material->getOs() * material->getKs() * std::pow(N_dot_H, material->getN()) * this->color * attenuation;
 }
 
+
 // PointLight methods
-Color PointLight::calculateDiffuse(const PhongMaterial* material, const Vec3& intersectionPoint, const Vec3& normal) const {
+Color PointLight::calculateDiffuse(const Material* material, const Vec3& intersectionPoint, const Vec3& normal) const {
     Vec3 L = (this->position - intersectionPoint).normal();
     double N_dot_L = std::max(normal.dot(L), 0.0);
     return material->getOd() * material->getKd() * N_dot_L * this->color;
 }
 
-Color PointLight::calculateSpecular(const PhongMaterial* material, const Vec3& intersectionPoint, const Vec3& normal, const Vec3& viewDirection) const {
+Color PointLight::calculateSpecular(const Material* material, const Vec3& intersectionPoint, const Vec3& normal, const Vec3& viewDirection) const {
+    // Calculate the light direction (L)
     Vec3 L = (this->position - intersectionPoint).normal();
-    Vec3 R = (2 * normal.dot(L) * normal - L).normal();
-    double R_dot_V = std::max(R.dot(viewDirection), 0.0);
-    return material->getOs() * material->getKs() * std::pow(R_dot_V, material->getN()) * this->color;
+    // Calculate the half-vector (H)
+    Vec3 H = (L + -1 * viewDirection).normal(); // added -1
+    // Calculate N dot H (clamp to [0, 1])
+    double N_dot_H = std::max(normal.dot(H), 0.0);
+    // Compute the specular component
+    return material->getOs() * material->getKs() * std::pow(N_dot_H, material->getN()) * this->color;
 }
 
+
 // AttributePointLight methods with attenuation
-Color AttributePointLight::calculateDiffuse(const PhongMaterial* material, const Vec3& intersectionPoint, const Vec3& normal) const {
+Color AttributePointLight::calculateDiffuse(const Material* material, const Vec3& intersectionPoint, const Vec3& normal) const {
     Vec3 L = (this->position - intersectionPoint).normal();
     double N_dot_L = std::max(normal.dot(L), 0.0);
     double dist = (this->position - intersectionPoint).length();
@@ -69,14 +75,21 @@ Color AttributePointLight::calculateDiffuse(const PhongMaterial* material, const
     return material->getOd() * material->getKd() * N_dot_L * this->color * attenuation;
 }
 
-Color AttributePointLight::calculateSpecular(const PhongMaterial* material, const Vec3& intersectionPoint, const Vec3& normal, const Vec3& viewDirection) const {
+Color AttributePointLight::calculateSpecular(const Material* material, const Vec3& intersectionPoint, const Vec3& normal, const Vec3& viewDirection) const {
+    // Calculate the light direction (L)
     Vec3 L = (this->position - intersectionPoint).normal();
-    Vec3 R = (2 * normal.dot(L) * normal - L).normal();
-    double R_dot_V = std::max(R.dot(viewDirection), 0.0);
+    // Calculate the half-vector (H)
+    Vec3 H = (L + -1 * viewDirection).normal(); // Added -1 to invert view direction
+    // Calculate N dot H (clamp to [0, 1])
+    double N_dot_H = std::max(normal.dot(H), 0.0);
+    // Calculate the distance between light and intersection
     double dist = (this->position - intersectionPoint).length();
-    double attenuation = 1.0f / (this->c1 + this->c2 * dist + this->c3 * dist * dist);
-    return material->getOs() * material->getKs() * std::pow(R_dot_V, material->getN()) * this->color * attenuation;
+    // Compute attenuation factor
+    double attenuation = 1.0 / (this->c1 + this->c2 * dist + this->c3 * dist * dist);
+    // Compute the specular component
+    return material->getOs() * material->getKs() * std::pow(N_dot_H, material->getN()) * this->color * attenuation;
 }
+
 
 // Illuminates method for PointLight using BVH tree
 bool PointLight::illuminates(const Vec3& position, const Scene& scene) const { // ADD INTERSECTIONPOINT

@@ -96,6 +96,47 @@ public:
         if (index == 2) return z;
         throw std::out_of_range("Index out of range for Vec3");
     }
+
+    Vec3 transform(const Vec3& baseNormal) const {
+        // Normalize the base normal
+        Vec3 normalizedBaseNormal = baseNormal.normal();
+
+        // Check for degenerate baseNormal
+        if (normalizedBaseNormal.length() == 0.0) {
+            throw std::runtime_error("Error: Base normal is zero-length.");
+        }
+
+        // Calculate the tangent vector
+        Vec3 tangent;
+        if (std::abs(normalizedBaseNormal.getY()) < 1e-6) {
+            tangent = Vec3(0, -normalizedBaseNormal.getZ(), normalizedBaseNormal.getY());
+        }
+        else {
+            tangent = Vec3(normalizedBaseNormal.getZ(), 0, -normalizedBaseNormal.getX());
+        }
+
+        if (tangent.length() == 0.0) {
+            throw std::runtime_error("Error: Degenerate tangent vector.");
+        }
+        tangent = tangent.normal();
+
+        // Calculate the bitangent vector
+        Vec3 bitangent = normalizedBaseNormal.cross(tangent);
+        if (bitangent.length() == 0.0) {
+            throw std::runtime_error("Error: Degenerate bitangent vector.");
+        }
+        bitangent = bitangent.normal();
+
+        // Transform the vector from tangent space to world space
+        Vec3 transformed(
+            this->getX() * tangent.getX() + this->getY() * bitangent.getX() + this->getZ() * normalizedBaseNormal.getX(),
+            this->getX() * tangent.getY() + this->getY() * bitangent.getY() + this->getZ() * normalizedBaseNormal.getY(),
+            this->getX() * tangent.getZ() + this->getY() * bitangent.getZ() + this->getZ() * normalizedBaseNormal.getZ()
+        );
+
+        return transformed.normal(); // Normalize the output for safety
+    }
+
 };
 
 inline Vec3 operator*(double a, const Vec3& b) { return Vec3(b.getX() * a, b.getY() * a, b.getZ() * a); }

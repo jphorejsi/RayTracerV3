@@ -1,5 +1,6 @@
 #pragma once
 
+#include <memory> // For std::shared_ptr
 #include "vec.h"
 #include "materials.h"
 #include "texture.h"
@@ -10,24 +11,26 @@
 // Abstract base class for shapes
 class AbstractShape {
 protected:
-    IMaterial* material = nullptr;
-    Texture* texture = nullptr;
-    NormalMap* normalMap = nullptr;
-    AABB* aabb = nullptr;
+    std::shared_ptr<IMaterial> material; // Use shared_ptr for shared ownership
+    std::shared_ptr<Texture> texture;   // Use shared_ptr for shared ownership
+    std::shared_ptr<NormalMap> normalMap; // Use shared_ptr for shared ownership
+    AABB* aabb = nullptr; // AABB managed as a raw pointer
 
 public:
-    virtual ~AbstractShape() { delete aabb; }
+    virtual ~AbstractShape() {
+        delete aabb; // Clean up AABB explicitly
+    }
 
     // Getters
-    IMaterial* getMaterial() const { return material; }
-    Texture* getTexture() const { return texture; }
-    NormalMap* getNormalMap() const { return normalMap; }
+    std::shared_ptr<IMaterial> getMaterial() const { return material; }
+    std::shared_ptr<Texture> getTexture() const { return texture; }
+    std::shared_ptr<NormalMap> getNormalMap() const { return normalMap; }
     const AABB* getAABB() const { return aabb; }
 
     // Setters
-    void setMaterial(IMaterial* mat) { material = mat; }
-    void setTexture(Texture* tex) { texture = tex; }
-    void setNormalMap(NormalMap* nMap) { normalMap = nMap; }
+    void setMaterial(const std::shared_ptr<IMaterial>& mat) { material = mat; }
+    void setTexture(const std::shared_ptr<Texture>& tex) { texture = tex; }
+    void setNormalMap(const std::shared_ptr<NormalMap>& nMap) { normalMap = nMap; }
 
     // Pure virtual methods
     virtual bool intersects(const Ray& ray, Vec3& intersectionPoint) const = 0;
@@ -37,10 +40,9 @@ public:
     virtual Vec3 getNormal(const Vec3& intersectionPoint) const = 0;
     virtual Vec3 getCentroid() const = 0;
 
-
     // Other methods
     virtual void computeAABB() {
-        delete aabb;
+        delete aabb; // Clean up the old AABB if it exists
         aabb = new AABB(getBoundingBoxMin(), getBoundingBoxMax());
     }
 };
@@ -63,8 +65,7 @@ public:
     Vec3 getBoundingBoxMax() const override;
     Vec2 getTextureCoordinate(const Vec3& intersectionPoint) const override;
     Vec3 getNormal(const Vec3& intersectionPoint) const override;
-    Vec3 getCentroid() const { return position; }
-
+    Vec3 getCentroid() const override { return position; }
 };
 
 // Concrete Triangle class derived from AbstractShape
@@ -103,6 +104,5 @@ public:
     Vec3 getBoundingBoxMax() const override;
     Vec2 getTextureCoordinate(const Vec3& intersectionPoint) const override;
     Vec3 getNormal(const Vec3& intersectionPoint) const override;
-    Vec3 getCentroid() const { return (*vertexA + *vertexB + *vertexC) / 3.0f; }
-
+    Vec3 getCentroid() const override { return (*vertexA + *vertexB + *vertexC) / 3.0f; }
 };

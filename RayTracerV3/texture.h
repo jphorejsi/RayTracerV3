@@ -38,10 +38,10 @@ public:
     }
 
     // Getters
-    const Color& getPixel(int u, int v) const;
+    const Color& getPixel(double u, double v) const;
 
     // Setters
-    void setPixel(int u, int v, const Color& color);
+    void setPixel(double u, double v, const Color& color);
 };
 
 class NormalMap : public AbstractTexture {
@@ -61,7 +61,7 @@ public:
     }
 
     // Overridden methods
-    const Vec3& getNormal(int u, int v) const;
+    const Vec3& getNormal(double u, double v) const;
 
-    void setNormal(int u, int v, const Vec3& normal);
+    void setNormal(double u, double v, const Vec3& normal);
 };

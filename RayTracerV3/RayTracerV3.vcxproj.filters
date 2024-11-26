@@ -60,9 +60,6 @@
     <ClInclude Include="color.h">
       <Filter>Header Files\utility</Filter>
     </ClInclude>
-    <ClInclude Include="fileManager.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="vec.h">
       <Filter>Header Files\utility\vec</Filter>
     </ClInclude>
@@ -108,6 +105,9 @@
     <ClInclude Include="rendering.h">
       <Filter>Header Files\core</Filter>
     </ClInclude>
+    <ClInclude Include="fileManager.h">
+      <Filter>Header Files\utility</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -152,15 +152,16 @@
     <ClCompile Include="viewFrustrum.cpp">
       <Filter>Source Files\core</Filter>
     </ClCompile>
-    <ClCompile Include="material.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="camera.cpp">
       <Filter>Source Files\core</Filter>
     </ClCompile>
+    <ClCompile Include="material.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="earthtexture.ppm" />
+    <None Include="brickwall_normal.ppm" />
+    <None Include="brickwall.ppm" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="test.txt" />

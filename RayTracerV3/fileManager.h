@@ -7,6 +7,7 @@
 #include "ImageSize.h"
 
 class FileReader {
+public:
     void processEye(std::istringstream& iss, Camera& camera);
     void processViewDir(std::istringstream& iss, Camera& camera);
     void processUpDir(std::istringstream& iss, Camera& camera);
@@ -24,8 +25,6 @@ class FileReader {
     void processTextureCoordinate(std::istringstream& iss, SceneBuilder& sceneBuilder);
     void processTriangle(std::string& line, SceneBuilder& sceneBuilder);
     void processDepthCue(std::istringstream& iss, SceneBuilder& sceneBuilder);
-
-public:
     int readFile(const std::string& filename, Camera& camera, SceneBuilder& sceneBuilder, ImageSize& imageSize);
 };
 
