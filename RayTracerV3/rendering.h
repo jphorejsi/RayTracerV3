@@ -2,18 +2,16 @@
 
 #include "color.h"
 #include "scene.h"
+#include "shading.h"
 
 class Rendering {
-private:
-    int maxDepth = 10;
-
 public:
     // Constructor
-    Rendering(int maxDepth) : maxDepth(maxDepth) {}
+    Rendering(int maxDepth) {}
 
     // Other methods
-    Color traceRay(const Ray& ray, const Scene& scene, int depth);
-    const AbstractShape* findClosestIntersectedShape(const Ray& ray, const Scene& scene, Vec3& intersectionPoint) const;
+    static Color traceRay(const Ray& ray, const Scene& scene, int maxRecursion, double etaI);
+    static const AbstractShape* findClosestIntersectedShape(const Ray& ray, const Scene& scene, Vec3& intersectionPoint);
 };
 
 

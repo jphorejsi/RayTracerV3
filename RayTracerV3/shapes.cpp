@@ -8,7 +8,8 @@ bool Sphere::intersects(const Ray& ray, Vec3& intersectionPoint) const {
     Vec3 oc = ray.getOrigin() - this->position;
     double a = 1.0f; //ray.getDirection().dot(ray.getDirection())
     double b = 2.0f * oc.dot(ray.getDirection());
-    double c = oc.dot(oc) - this->radius * this->radius;
+    //double c = oc.dot(oc) - this->radius * this->radius;
+    double c = pow(ray.getOrigin().getX() - this->position.getX(), 2) + pow(ray.getOrigin().getY() - this->position.getY(), 2) + pow(ray.getOrigin().getZ() - this->position.getZ(), 2) - pow(this->radius, 2);
     double discriminant = b * b - 4 * a * c;
 
     if (discriminant < 0) return false;
@@ -50,12 +51,27 @@ Vec3 Sphere::getBoundingBoxMax() const {
 }
 
 // calculate Sphere TC at intersectionPoint
+//Vec2 Sphere::getTextureCoordinate(const Vec3& intersectionPoint) const {
+//    Vec3 localPoint = (intersectionPoint - position).normal();
+//    double u = 0.5f + (atan2(localPoint.getY(), localPoint.getX()) / (2 * 3.1415927));
+//    double v = 0.5f - (asin(localPoint.getZ()) / 3.1415927);
+//    return Vec2(u, v);
+//}
+
 Vec2 Sphere::getTextureCoordinate(const Vec3& intersectionPoint) const {
     Vec3 localPoint = (intersectionPoint - position).normal();
-    double u = 0.5f + (atan2(localPoint.getZ(), localPoint.getX()) / (2 * 3.1415927));
-    double v = 0.5f - (asin(localPoint.getY()) / 3.1415927);
+
+    // Compute u and v texture coordinates
+    double u = 0.5 + (atan2(localPoint.getY(), localPoint.getX()) / (2 * 3.1415927));
+    double v = 0.5 - (asin(localPoint.getZ()) / 3.1415927);
+
+    // Rotate the u coordinate 180 degrees
+    u = fmod(u + 0.5, 1.0); // Add 0.5 to rotate 180 degrees, then wrap around to [0, 1]
+
     return Vec2(u, v);
 }
+
+
 
 // calculate normal at intersectionPoint
 Vec3 Sphere::getNormal(const Vec3& intersectionPoint) const {
@@ -64,23 +80,23 @@ Vec3 Sphere::getNormal(const Vec3& intersectionPoint) const {
 
 // Determine if ray intersects triangle
 bool Triangle::intersects(const Ray& ray, Vec3& intersectionPoint) const {
-    Vec3 edgeAB = *this->vertexB - *this->vertexA;
-    Vec3 edgeAC = *this->vertexC - *this->vertexA;
+    Vec3 edgeAB = this->vertexB - this->vertexA;
+    Vec3 edgeAC = this->vertexC - this->vertexA;
     Vec3 normal = edgeAB.cross(edgeAC).normal();
 
     double discriminant = normal.dot(ray.getDirection());
     if (fabs(discriminant) < 1e-6f) return false;
 
-    double D = -normal.dot(*this->vertexA);
+    double D = -normal.dot(this->vertexA);
     double ray_t = -(normal.dot(ray.getOrigin()) + D) / discriminant;
     if (ray_t < 1e-5f) return false;
 
     intersectionPoint = ray.getOrigin() + ray.getDirection() * ray_t;
 
     // Barycentric coordinates for the intersection point
-    Vec3 v0 = *this->vertexB - *this->vertexA;
-    Vec3 v1 = *this->vertexC - *this->vertexA;
-    Vec3 v2 = intersectionPoint - *this->vertexA;
+    Vec3 v0 = this->vertexB - this->vertexA;
+    Vec3 v1 = this->vertexC - this->vertexA;
+    Vec3 v2 = intersectionPoint - this->vertexA;
 
     double dot00 = v0.dot(v0);
     double dot01 = v0.dot(v1);
@@ -98,17 +114,17 @@ bool Triangle::intersects(const Ray& ray, Vec3& intersectionPoint) const {
 // Triangle bounding box implementation
 Vec3 Triangle::getBoundingBoxMin() const {
     return Vec3(
-        std::min({ this->vertexA->getX(), this->vertexB->getX(), this->vertexC->getX() }),
-        std::min({ this->vertexA->getY(), this->vertexB->getY(), this->vertexC->getY() }),
-        std::min({ this->vertexA->getZ(), this->vertexB->getZ(), this->vertexC->getZ() })
+        std::min({ vertexA.getX(), vertexB.getX(), vertexC.getX() }),
+        std::min({ vertexA.getY(), vertexB.getY(), vertexC.getY() }),
+        std::min({ vertexA.getZ(), vertexB.getZ(), vertexC.getZ() })
     );
 }
 
 Vec3 Triangle::getBoundingBoxMax() const {
     return Vec3(
-        std::max({ this->vertexA->getX(), this->vertexB->getX(), this->vertexC->getX() }),
-        std::max({ this->vertexA->getY(), this->vertexB->getY(), this->vertexC->getY() }),
-        std::max({ this->vertexA->getZ(), this->vertexB->getZ(), this->vertexC->getZ() })
+        std::max({ vertexA.getX(), vertexB.getX(), vertexC.getX() }),
+        std::max({ vertexA.getY(), vertexB.getY(), vertexC.getY() }),
+        std::max({ vertexA.getZ(), vertexB.getZ(), vertexC.getZ() })
     );
 }
 
@@ -122,56 +138,56 @@ Vec2 Triangle::getTextureCoordinate(const Vec3& intersectionPoint) const {
 
 // calculate normal at intersectionPoint
 Vec3 Triangle::getNormal(const Vec3& intersectionPoint) const {
-    if (normalMap && vertexANormal && vertexBNormal && vertexCNormal) {
-        // Retrieve the interpolated texture coordinates using the helper function
-        Vec2 uv = getTextureCoordinate(intersectionPoint);
-        double u = uv.getX();
-        double v = uv.getY();
+    //if (normalMap && vertexANormal && vertexBNormal && vertexCNormal) {
+    //    // Retrieve the interpolated texture coordinates using the helper function
+    //    Vec2 uv = getTextureCoordinate(intersectionPoint);
+    //    double u = uv.getX();
+    //    double v = uv.getY();
 
-        // Fetch the normal from the normal map
-        Vec3 m = normalMap->getNormal(u, v);
+    //    // Fetch the normal from the normal map
+    //    Vec3 m = normalMap->getNormal(u, v);
 
-        // Interpolate the base normal
-        Vec3 barycentric = getBarycentricCoordinates(intersectionPoint);
-        Vec3 N = (*vertexANormal * barycentric.getX() +
-            *vertexBNormal * barycentric.getY() +
-            *vertexCNormal * barycentric.getZ())
-            .normal();
+    //    // Interpolate the base normal
+    //    Vec3 barycentric = getBarycentricCoordinates(intersectionPoint);
+    //    Vec3 N = (*vertexANormal * barycentric.getX() +
+    //        *vertexBNormal * barycentric.getY() +
+    //        *vertexCNormal * barycentric.getZ())
+    //        .normal();
 
-        // Compute tangents and bitangents
-        Vec3 e1 = *vertexB - *vertexA;
-        Vec3 e2 = *vertexC - *vertexA;
+    //    // Compute tangents and bitangents
+    //    Vec3 e1 = vertexB - vertexA;
+    //    Vec3 e2 = vertexC - vertexA;
 
-        double u1 = textureCoordinateB->getX() - textureCoordinateA->getX();
-        double v1 = textureCoordinateB->getY() - textureCoordinateA->getY();
-        double u2 = textureCoordinateC->getX() - textureCoordinateA->getX();
-        double v2 = textureCoordinateC->getY() - textureCoordinateA->getY();
+    //    double u1 = textureCoordinateB->getX() - textureCoordinateA->getX();
+    //    double v1 = textureCoordinateB->getY() - textureCoordinateA->getY();
+    //    double u2 = textureCoordinateC->getX() - textureCoordinateA->getX();
+    //    double v2 = textureCoordinateC->getY() - textureCoordinateA->getY();
 
-        double invDet = 1.0 / (u1 * v2 - u2 * v1);
-        Vec3 T = (e1 * v2 - e2 * v1) * invDet;
-        Vec3 B = (e2 * u1 - e1 * u2) * invDet;
+    //    double invDet = 1.0 / (u1 * v2 - u2 * v1);
+    //    Vec3 T = (e1 * v2 - e2 * v1) * invDet;
+    //    Vec3 B = (e2 * u1 - e1 * u2) * invDet;
 
-        // Normalize T and B
-        T = T.normal();
-        B = B.normal();
+    //    // Normalize T and B
+    //    T = T.normal();
+    //    B = B.normal();
 
-        // Transform normal from tangent space to world space
-        Vec3 newN = (T * m.getX() + B * m.getY() + N * m.getZ()).normal();
-        return newN;
-    }
-    if (vertexANormal && vertexBNormal && vertexCNormal) {
-        Vec3 barycentric = getBarycentricCoordinates(intersectionPoint);
-        return (*vertexANormal * barycentric.getX() + *vertexBNormal * barycentric.getY() + *vertexCNormal * barycentric.getZ()).normal();
-    }
-    return ((*vertexB - *vertexA).cross(*vertexC - *vertexA)).normal();
+    //    // Transform normal from tangent space to world space
+    //    Vec3 newN = (T * m.getX() + B * m.getY() + N * m.getZ()).normal();
+    //    return newN;
+    //}
+    //if (vertexANormal && vertexBNormal && vertexCNormal) {
+    //    Vec3 barycentric = getBarycentricCoordinates(intersectionPoint);
+    //    return (*vertexANormal * barycentric.getX() + *vertexBNormal * barycentric.getY() + *vertexCNormal * barycentric.getZ()).normal();
+    //}
+    return ((vertexB - vertexA).cross(vertexC - vertexA)).normal();
 }
 
 
 Vec3 Triangle::getBarycentricCoordinates(const Vec3& intersectionPoint) const {
     // Compute edges
-    Vec3 e1 = *vertexB - *vertexA; // Edge 1: vertexB - vertexA
-    Vec3 e2 = *vertexC - *vertexA; // Edge 2: vertexC - vertexA
-    Vec3 ep = intersectionPoint - *vertexA; // Vector from vertexA to intersectionPoint
+    Vec3 e1 = vertexB - vertexA; // Edge 1: vertexB - vertexA
+    Vec3 e2 = vertexC - vertexA; // Edge 2: vertexC - vertexA
+    Vec3 ep = intersectionPoint - vertexA; // Vector from vertexA to intersectionPoint
 
     // Dot products
     double d11 = e1.dot(e1); // e1 • e1

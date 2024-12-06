@@ -11,26 +11,38 @@
 // Abstract base class for shapes
 class AbstractShape {
 protected:
-    std::shared_ptr<IMaterial> material; // Use shared_ptr for shared ownership
-    std::shared_ptr<Texture> texture;   // Use shared_ptr for shared ownership
-    std::shared_ptr<NormalMap> normalMap; // Use shared_ptr for shared ownership
-    AABB* aabb = nullptr; // AABB managed as a raw pointer
+    Material* material;
+    Texture* texture;
+    NormalMap* normalMap;
+    AABB* aabb = nullptr;
 
 public:
     virtual ~AbstractShape() {
-        delete aabb; // Clean up AABB explicitly
+        delete aabb;
+        delete material;
+        delete texture;
+        delete normalMap;
     }
 
     // Getters
-    std::shared_ptr<IMaterial> getMaterial() const { return material; }
-    std::shared_ptr<Texture> getTexture() const { return texture; }
-    std::shared_ptr<NormalMap> getNormalMap() const { return normalMap; }
+    Material* getMaterial() const { return material; }
+    Texture* getTexture() const { return texture; }
+    NormalMap* getNormalMap() const { return normalMap; }
     const AABB* getAABB() const { return aabb; }
 
     // Setters
-    void setMaterial(const std::shared_ptr<IMaterial>& mat) { material = mat; }
-    void setTexture(const std::shared_ptr<Texture>& tex) { texture = tex; }
-    void setNormalMap(const std::shared_ptr<NormalMap>& nMap) { normalMap = nMap; }
+    void setMaterial(Material* material) { 
+        delete this->material;
+        this->material = material;
+    }
+    void setTexture(Texture* texture) { 
+        delete this->texture;
+        this->texture = texture;
+    }
+    void setNormalMap(NormalMap* normalMap) { 
+        delete this->normalMap;
+        this->normalMap = normalMap;
+    }
 
     // Pure virtual methods
     virtual bool intersects(const Ray& ray, Vec3& intersectionPoint) const = 0;
@@ -71,9 +83,9 @@ public:
 // Concrete Triangle class derived from AbstractShape
 class Triangle : public AbstractShape {
 private:
-    const Vec3* vertexA = nullptr;
-    const Vec3* vertexB = nullptr;
-    const Vec3* vertexC = nullptr;
+    const Vec3& vertexA;
+    const Vec3& vertexB;
+    const Vec3& vertexC;
     const Vec3* vertexANormal = nullptr;
     const Vec3* vertexBNormal = nullptr;
     const Vec3* vertexCNormal = nullptr;
@@ -83,7 +95,7 @@ private:
 
 public:
     // Constructor
-    Triangle(const Vec3* vertexA, const Vec3* vertexB, const Vec3* vertexC) : vertexA(vertexA), vertexB(vertexB), vertexC(vertexC) {
+    Triangle(const Vec3& vertexA, const Vec3& vertexB, const Vec3& vertexC) : vertexA(vertexA), vertexB(vertexB), vertexC(vertexC) {
         computeAABB();
     }
 
@@ -104,5 +116,10 @@ public:
     Vec3 getBoundingBoxMax() const override;
     Vec2 getTextureCoordinate(const Vec3& intersectionPoint) const override;
     Vec3 getNormal(const Vec3& intersectionPoint) const override;
-    Vec3 getCentroid() const override { return (*vertexA + *vertexB + *vertexC) / 3.0f; }
+    Vec3 getCentroid() const override { return (vertexA + vertexB + vertexC) / 3.0f; }
 };
+
+//class Cylinder : public AbstractShape {
+//
+//
+//};

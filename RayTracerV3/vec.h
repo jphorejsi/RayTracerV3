@@ -50,6 +50,7 @@ public:
     double length() const { return std::sqrt(x * x + y * y + z * z); }
     Vec3 cross(const Vec3& v) const { return Vec3(this->y * v.z - this->z * v.y, this->z * v.x - this->x * v.z, this->x * v.y - this->y * v.x); }
     double dot(const Vec3& v) const { return (this->x * v.x + this->y * v.y + this->z * v.z); }
+    Vec3 reflect(const Vec3& normal) const { return *this - normal * 2.0 * this->dot(normal); }
 
     Vec3 normal() const {
         double norm = std::sqrt(this->x * this->x + this->y * this->y + this->z * this->z);

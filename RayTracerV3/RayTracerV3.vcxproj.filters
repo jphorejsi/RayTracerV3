@@ -108,6 +108,9 @@
     <ClInclude Include="fileManager.h">
       <Filter>Header Files\utility</Filter>
     </ClInclude>
+    <ClInclude Include="shading.h">
+      <Filter>Header Files\core</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -158,10 +161,15 @@
     <ClCompile Include="material.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="shading.cpp">
+      <Filter>Source Files\core</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="brickwall_normal.ppm" />
     <None Include="brickwall.ppm" />
+    <None Include="harbor.ppm" />
+    <None Include="earthtexture.ppm" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="test.txt" />

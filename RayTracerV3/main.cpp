@@ -23,10 +23,10 @@ T clamp(T value, T min, T max) {
 
 
 int main() {
-    _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
+    //_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
     Camera camera;
     SceneBuilder sceneBuilder;
-    Rendering renderer;
+    Rendering renderer(10);
     ImageSize imageSize;
 
     std::string inputFilename = "test.txt";
@@ -60,15 +60,16 @@ int main() {
     // Iterate over each pixel to cast rays
     for (int j = 0; j < imageSize.getHeight(); j++) {
         for (int i = 0; i < imageSize.getWidth(); i++) {
-            //if (i != 150 || j != 200) {
+            //if (i != 540 || j != 456) {
             //    continue;
             //}
+            //std::cout << i << " " << j << "\n";
             // get the pixel position on the view frustum
             Vec3 pixelPosition = viewFrustrum.getUpperLeft() + deltaH * i + deltaV * j;
             // Create a ray from the camera's eye position to the pixel position
             Ray ray(camera.getEyePosition(), (pixelPosition - camera.getEyePosition()).normal());
             // The ray is now set up for this pixel; proceed with intersection tests and shading as needed
-            Color color = renderer.traceRay(ray, scene, 0);
+            Color color = renderer.traceRay(ray, scene, 10, 1.0);
 
 
             int r = static_cast<int>(clamp(color.getR() * 255, 0.0, 255.0));

@@ -140,6 +140,7 @@
     <ClInclude Include="ray.h" />
     <ClInclude Include="rendering.h" />
     <ClInclude Include="scene.h" />
+    <ClInclude Include="shading.h" />
     <ClInclude Include="shapeFactory.h" />
     <ClInclude Include="shapes.h" />
     <ClInclude Include="texture.h" />
@@ -160,6 +161,7 @@
     <ClCompile Include="materialFactory.cpp" />
     <ClCompile Include="rendering.cpp" />
     <ClCompile Include="scene.cpp" />
+    <ClCompile Include="shading.cpp" />
     <ClCompile Include="shapeFactory.cpp" />
     <ClCompile Include="shapes.cpp" />
     <ClCompile Include="texture.cpp" />
@@ -168,6 +170,8 @@
   <ItemGroup>
     <None Include="brickwall.ppm" />
     <None Include="brickwall_normal.ppm" />
+    <None Include="earthtexture.ppm" />
+    <None Include="harbor.ppm" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="test.txt" />

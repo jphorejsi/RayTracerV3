@@ -160,15 +160,19 @@ void FileReader::processImageSize(std::istringstream& iss, ImageSize& imageSize)
 
 // Read material into sceneBuilder
 void FileReader::processMaterial(std::istringstream& iss, SceneBuilder& sceneBuilder) {
-    double odr, odg, odb, osr, osg, osb, ka, kd, ks, n;
+    double odr, odg, odb, osr, osg, osb, ka, kd, ks, n, alpha, eta;
     if (!(iss >> odr >> odg >> odb >> osr >> osg >> osb >> ka >> kd >> ks >> n)) {
         throw std::runtime_error("Error: Invalid or missing material parameters.");
     }
     Color diffuse(odr, odg, odb);
     Color specular(osr, osg, osb);
-
-    // Use shared_ptr for material creation
-    std::shared_ptr<IMaterial> material = MaterialFactory::createMaterial(diffuse, specular, ka, kd, ks, n);
+    Material* material;
+    if (iss >> alpha >> eta) {
+        material = MaterialFactory::createReflectiveMaterial(diffuse, specular, ka, kd, ks, n, alpha, eta);
+    }
+    else {
+        material = MaterialFactory::createMaterial(diffuse, specular, ka, kd, ks, n);
+    }
     sceneBuilder.setCurrentMaterial(material);
 }
 
@@ -180,7 +184,7 @@ void FileReader::processTexture(std::istringstream& iss, SceneBuilder& sceneBuil
     }
 
     // Use shared_ptr for texture creation
-    std::shared_ptr<Texture> texture = std::make_shared<Texture>(filename);
+    Texture* texture = new Texture(filename);
     sceneBuilder.setCurrentTexture(texture);
 }
 
@@ -192,29 +196,35 @@ void FileReader::processNormalMap(std::istringstream& iss, SceneBuilder& sceneBu
     }
 
     // Use shared_ptr for normal map creation
-    std::shared_ptr<NormalMap> normalMap = std::make_shared<NormalMap>(filename);
+    NormalMap* normalMap = new NormalMap(filename);
     sceneBuilder.setCurrentNormalMap(normalMap);
 }
 
 
 void FileReader::processSphere(std::istringstream& iss, SceneBuilder& sceneBuilder) {
     double x, y, z, radius;
+    AbstractShape* sphere;
     if (!(iss >> x >> y >> z >> radius)) {
         throw std::runtime_error("Error: Invalid sphere parameters.");
     }
     if (sceneBuilder.getCurrentMaterial() && sceneBuilder.getCurrentTexture() && sceneBuilder.getCurrentNormalMap()) {
-        sceneBuilder.addShape(SphereFactory::createNormalMappedSphere(Vec3(x, y, z), radius, sceneBuilder.getCurrentMaterial(), sceneBuilder.getCurrentTexture(), sceneBuilder.getCurrentNormalMap()));
-        return;
+        // create new normalMap, Texture, material
+        Material* material = new Material(*sceneBuilder.getCurrentMaterial());
+        sphere = SphereFactory::createNormalMappedSphere(Vec3(x, y, z), radius, *material, *sceneBuilder.getCurrentTexture(), *sceneBuilder.getCurrentNormalMap());
     }
-    if (sceneBuilder.getCurrentMaterial() && sceneBuilder.getCurrentTexture()) {
-        sceneBuilder.addShape(SphereFactory::createTexturedSphere(Vec3(x, y, z), radius, sceneBuilder.getCurrentMaterial(), sceneBuilder.getCurrentTexture()));
-        return;
+    else if (sceneBuilder.getCurrentMaterial() && sceneBuilder.getCurrentTexture()) {
+        // create new material and texture
+        sphere = SphereFactory::createTexturedSphere(Vec3(x, y, z), radius, *sceneBuilder.getCurrentMaterial(), *sceneBuilder.getCurrentTexture());
     }
-    if (sceneBuilder.getCurrentMaterial()) {
-        sceneBuilder.addShape(SphereFactory::createMaterialSphere(Vec3(x, y, z), radius, sceneBuilder.getCurrentMaterial()));
-        return;
+    else if (sceneBuilder.getCurrentMaterial()) {
+        // create bew material
+        Material* material = new Material(*sceneBuilder.getCurrentMaterial());
+        sphere = SphereFactory::createMaterialSphere(Vec3(x, y, z), radius, *material);
     }
-    sceneBuilder.addShape(SphereFactory::createSphere(Vec3(x, y, z), radius));
+    else {
+        sphere = SphereFactory::createSphere(Vec3(x, y, z), radius);
+    }
+    sceneBuilder.addShape(sphere);
 }
 
 
@@ -306,11 +316,9 @@ void FileReader::processTriangle(std::string& line, SceneBuilder& sceneBuilder) 
     const Vec3* vertexBNormal = nullptr;
     const Vec3* vertexCNormal = nullptr;
 
-    // Perform scans to parse the data
-    if (sscanf_s(line.c_str(), "f %d/%d/%d %d/%d/%d %d/%d/%d",
-        &vertexAIndex, &textureCoordinateAIndex, &vertexANormalIndex,
-        &vertexBIndex, &textureCoordinateBIndex, &vertexBNormalIndex,
-        &vertexCIndex, &textureCoordinateCIndex, &vertexCNormalIndex) == 9) {
+    AbstractShape* triangle = nullptr;
+    // Parse the input line
+    if (sscanf_s(line.c_str(), "f %d/%d/%d %d/%d/%d %d/%d/%d", &vertexAIndex, &textureCoordinateAIndex, &vertexANormalIndex, &vertexBIndex, &textureCoordinateBIndex, &vertexBNormalIndex, &vertexCIndex, &textureCoordinateCIndex, &vertexCNormalIndex) == 9) {
         // Full data with vertices, texture coordinates, and normals
         textureCoordinateA = &sceneBuilder.getTextureCoordinates()[textureCoordinateAIndex - 1];
         textureCoordinateB = &sceneBuilder.getTextureCoordinates()[textureCoordinateBIndex - 1];
@@ -319,77 +327,38 @@ void FileReader::processTriangle(std::string& line, SceneBuilder& sceneBuilder) 
         vertexBNormal = &sceneBuilder.getVertexNormals()[vertexBNormalIndex - 1];
         vertexCNormal = &sceneBuilder.getVertexNormals()[vertexCNormalIndex - 1];
     }
-    else if (sscanf_s(line.c_str(), "f %d/%d %d/%d %d/%d",
-        &vertexAIndex, &textureCoordinateAIndex,
-        &vertexBIndex, &textureCoordinateBIndex,
-        &vertexCIndex, &textureCoordinateCIndex) == 6) {
+    else if (sscanf_s(line.c_str(), "f %d/%d %d/%d %d/%d", &vertexAIndex, &textureCoordinateAIndex, &vertexBIndex, &textureCoordinateBIndex, &vertexCIndex, &textureCoordinateCIndex) == 6) {
         // Vertices with texture coordinates only
         textureCoordinateA = &sceneBuilder.getTextureCoordinates()[textureCoordinateAIndex - 1];
         textureCoordinateB = &sceneBuilder.getTextureCoordinates()[textureCoordinateBIndex - 1];
         textureCoordinateC = &sceneBuilder.getTextureCoordinates()[textureCoordinateCIndex - 1];
     }
-    else if (sscanf_s(line.c_str(), "f %d//%d %d//%d %d//%d",
-        &vertexAIndex, &vertexANormalIndex,
-        &vertexBIndex, &vertexBNormalIndex,
-        &vertexCIndex, &vertexCNormalIndex) == 6) {
+    else if (sscanf_s(line.c_str(), "f %d//%d %d//%d %d//%d", &vertexAIndex, &vertexANormalIndex, &vertexBIndex, &vertexBNormalIndex, &vertexCIndex, &vertexCNormalIndex) == 6) {
         // Vertices with normals only
         vertexANormal = &sceneBuilder.getVertexNormals()[vertexANormalIndex - 1];
         vertexBNormal = &sceneBuilder.getVertexNormals()[vertexBNormalIndex - 1];
         vertexCNormal = &sceneBuilder.getVertexNormals()[vertexCNormalIndex - 1];
     }
-    else if (sscanf_s(line.c_str(), "f %d %d %d",
-        &vertexAIndex, &vertexBIndex, &vertexCIndex) == 3) {
-        // Vertices only
+    else if (sscanf_s(line.c_str(), "f %d %d %d", &vertexAIndex, &vertexBIndex, &vertexCIndex) == 3) { }
+    else { throw std::runtime_error("Error: Triangle parameters are invalid."); }
+
+    if (sceneBuilder.getCurrentMaterial() && sceneBuilder.getCurrentTexture() && sceneBuilder.getCurrentNormalMap()) {
+        // create new normalMap, Texture, material
+        Material* material = new Material(*sceneBuilder.getCurrentMaterial());
+    }
+    else if (sceneBuilder.getCurrentMaterial() && sceneBuilder.getCurrentTexture()) {
+        // create new material and texture
+    }
+    else if (sceneBuilder.getCurrentMaterial()) {
+        // create bew material
+        Material* material = new Material(*sceneBuilder.getCurrentMaterial());
+        triangle = TriangleFactory::createMaterialTriangle(sceneBuilder.getVertices()[vertexAIndex - 1], sceneBuilder.getVertices()[vertexBIndex - 1], sceneBuilder.getVertices()[vertexCIndex - 1], *material);
     }
     else {
-        throw std::runtime_error("Error: Triangle parameters are invalid.");
+        triangle = TriangleFactory::createTriangle(sceneBuilder.getVertices()[vertexAIndex - 1], sceneBuilder.getVertices()[vertexBIndex - 1], sceneBuilder.getVertices()[vertexCIndex - 1]);
     }
-
-    // Determine the appropriate factory method to use
-    if (sceneBuilder.getCurrentNormalMap() && textureCoordinateA && vertexANormal) {
-        // Full data with a normal map
-        sceneBuilder.addShape(TriangleFactory::createNormalMappedTriangle(
-            &sceneBuilder.getVertices()[vertexAIndex - 1], textureCoordinateA, vertexANormal,
-            &sceneBuilder.getVertices()[vertexBIndex - 1], textureCoordinateB, vertexBNormal,
-            &sceneBuilder.getVertices()[vertexCIndex - 1], textureCoordinateC, vertexCNormal,
-            sceneBuilder.getCurrentMaterial(), sceneBuilder.getCurrentTexture(), sceneBuilder.getCurrentNormalMap()));
-        return;
-    }
-
-    if (textureCoordinateA && vertexANormal) {
-        // Full data without a normal map
-        sceneBuilder.addShape(TriangleFactory::createSmoothShadedTexturedTriangle(
-            &sceneBuilder.getVertices()[vertexAIndex - 1], textureCoordinateA, vertexANormal,
-            &sceneBuilder.getVertices()[vertexBIndex - 1], textureCoordinateB, vertexBNormal,
-            &sceneBuilder.getVertices()[vertexCIndex - 1], textureCoordinateC, vertexCNormal,
-            sceneBuilder.getCurrentMaterial(), sceneBuilder.getCurrentTexture()));
-        return;
-    }
-
-    if (textureCoordinateA) {
-        // Vertices and texture coordinates only
-        sceneBuilder.addShape(TriangleFactory::createTexturedTriangle(
-            &sceneBuilder.getVertices()[vertexAIndex - 1], textureCoordinateA, nullptr,
-            &sceneBuilder.getVertices()[vertexBIndex - 1], textureCoordinateB, nullptr,
-            &sceneBuilder.getVertices()[vertexCIndex - 1], textureCoordinateC, nullptr,
-            sceneBuilder.getCurrentMaterial(), sceneBuilder.getCurrentTexture()));
-        return;
-    }
-
-    if (vertexANormal) {
-        // Vertices and normals only
-        sceneBuilder.addShape(TriangleFactory::createSmoothShadedMaterialTriangle(
-            &sceneBuilder.getVertices()[vertexAIndex - 1], &sceneBuilder.getVertices()[vertexBIndex - 1], &sceneBuilder.getVertices()[vertexCIndex - 1],
-            vertexANormal, vertexBNormal, vertexCNormal,
-            sceneBuilder.getCurrentMaterial()));
-        return;
-    }
-
-    // Vertices only UPDATE
-    sceneBuilder.addShape(TriangleFactory::createMaterialTriangle(&sceneBuilder.getVertices()[vertexAIndex - 1], &sceneBuilder.getVertices()[vertexBIndex - 1], &sceneBuilder.getVertices()[vertexCIndex - 1], sceneBuilder.getCurrentMaterial()));
+    sceneBuilder.addShape(triangle);
 }
-
-
 
 // Read depthCue into sceneBuilder
 void FileReader::processDepthCue(std::istringstream& iss, SceneBuilder& sceneBuilder) {
