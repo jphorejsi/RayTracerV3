@@ -146,9 +146,6 @@
     <ClCompile Include="depthCue.cpp">
       <Filter>Source Files\advancedFeatures</Filter>
     </ClCompile>
-    <ClCompile Include="scene.cpp">
-      <Filter>Source Files\core</Filter>
-    </ClCompile>
     <ClCompile Include="rendering.cpp">
       <Filter>Source Files\core</Filter>
     </ClCompile>

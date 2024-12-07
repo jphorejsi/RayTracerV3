@@ -160,7 +160,6 @@
     <ClCompile Include="material.cpp" />
     <ClCompile Include="materialFactory.cpp" />
     <ClCompile Include="rendering.cpp" />
-    <ClCompile Include="scene.cpp" />
     <ClCompile Include="shading.cpp" />
     <ClCompile Include="shapeFactory.cpp" />
     <ClCompile Include="shapes.cpp" />

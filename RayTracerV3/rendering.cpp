@@ -247,23 +247,26 @@ Color Rendering::traceRay(const Ray& ray, const Scene& scene, int maxRecursion, 
 }
 
 
-
-// Finds the closest intersected shape in the scene add use of kdtree???
 const AbstractShape* Rendering::findClosestIntersectedShape(const Ray& ray, const Scene& scene, Vec3& intersectionPoint) {
     const AbstractShape* closestShape = nullptr;
-    double closestDistance = std::numeric_limits<double>::infinity();
+    double closestDistance = std::numeric_limits<double>::max();
 
-    for (const auto& shape : scene.getShapes()) {
-        Vec3 tempIntersection;
-        if (shape->intersects(ray, tempIntersection)) {
-            double distance = (tempIntersection - ray.getOrigin()).length();
-            if (distance < closestDistance) {
-                closestShape = shape;
-                closestDistance = distance;
-                intersectionPoint = tempIntersection;
+    // Get all intersected leaf nodes using the KDTree's method
+    std::vector<BVHNode*> intersectedNodes = scene.getBVHRoot()->findAllIntersectedLeafNodes(ray);
+    
+    // Iterate through all intersected nodes and check for ray-shape intersections
+    for (const BVHNode* node : intersectedNodes) {
+        for (const AbstractShape* shape : node->getShapes()) {  // Explicit type for shape
+            Vec3 currentIntersection;
+            if (shape->intersects(ray, currentIntersection)) {
+                double distance = (currentIntersection - ray.getOrigin()).length();
+                if (distance < closestDistance) {
+                    closestDistance = distance;
+                    closestShape = shape;
+                    intersectionPoint = currentIntersection;
+                }
             }
         }
     }
-
     return closestShape;
 }

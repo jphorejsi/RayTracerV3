@@ -150,42 +150,17 @@ Color AttributePointLight::calculateSpecular(const Material& material, const Vec
 //    return true;
 //}
 
+
 double DirectionalLight::calculateShadowFactor(const Vec3& intersectionPoint, const Scene& scene) const {
     Vec3 shadowDirection = -1 * direction.normal();
-    Ray shadowRay(intersectionPoint + shadowDirection * 1e-4, shadowDirection);
+    Ray shadowRay(intersectionPoint, shadowDirection);
     double shadowFactor = 1.0f;
 
-    for (const auto& shape : scene.getShapes()) {
-        Vec3 tempIntersection;
-        if (shape->intersects(shadowRay, tempIntersection)) {
-            const Material* material = shape->getMaterial();
-            if (material) {
-                shadowFactor *= (1.0f - material->getAlpha());
-                if (shadowFactor <= 0.0f) {
-                    return 0.0f; // Fully shadowed
-                }
-            }
-            else {
-                return 0.0f; // Fully shadowed
-            }
-        }
-    }
-
-    return shadowFactor;
-}
-
-double PointLight::calculateShadowFactor(const Vec3& intersectionPoint, const Scene& scene) const {
-    Vec3 shadowDirection = (position - intersectionPoint).normal();
-    Ray shadowRay(intersectionPoint + shadowDirection * 1e-4, shadowDirection);
-    double shadowFactor = 1.0f;
-
-    for (const auto& shape : scene.getShapes()) {
-        Vec3 tempIntersection;
-        if (shape->intersects(shadowRay, tempIntersection)) {
-            double distanceToLight = (position - intersectionPoint).length();
-            double distanceToIntersection = (tempIntersection - intersectionPoint).length();
-
-            if (distanceToIntersection < distanceToLight) {
+    std::vector<BVHNode*> intersectedNodes = scene.getBVHRoot()->findAllIntersectedLeafNodes(shadowRay);
+    for (const BVHNode* node : intersectedNodes) {
+        for (const AbstractShape* shape : node->getShapes()) {
+            Vec3 tempIntersection;
+            if (shape->intersects(shadowRay, tempIntersection)) {
                 const Material* material = shape->getMaterial();
                 if (material) {
                     shadowFactor *= (1.0f - material->getAlpha());
@@ -193,12 +168,35 @@ double PointLight::calculateShadowFactor(const Vec3& intersectionPoint, const Sc
                         return 0.0f; // Fully shadowed
                     }
                 }
-                else {
-                    return 0.0f; // Fully shadowed
+            }
+        }
+    }
+    return shadowFactor;
+}
+
+double PointLight::calculateShadowFactor(const Vec3& intersectionPoint, const Scene& scene) const {
+    Vec3 shadowDirection = (position - intersectionPoint).normal();
+    Ray shadowRay(intersectionPoint, shadowDirection);
+    double shadowFactor = 1.0f;
+
+    std::vector<BVHNode*> intersectedNodes = scene.getBVHRoot()->findAllIntersectedLeafNodes(shadowRay);
+    for (const BVHNode* node : intersectedNodes) {
+        for (const AbstractShape* shape : node->getShapes()) {
+            Vec3 tempIntersection;
+            if (shape->intersects(shadowRay, tempIntersection)) {
+                double distanceToLight = (position - intersectionPoint).length();
+                double distanceToIntersection = (tempIntersection - intersectionPoint).length();
+                if (distanceToIntersection < distanceToLight) {
+                    const Material* material = shape->getMaterial();
+                    if (material) {
+                        shadowFactor *= (1.0f - material->getAlpha());
+                        if (shadowFactor <= 0.0f) {
+                            return 0.0f; // Fully shadowed
+                        }
+                    }
                 }
             }
         }
     }
-
     return shadowFactor;
 }
