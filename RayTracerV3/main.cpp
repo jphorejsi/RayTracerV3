@@ -1,225 +1,114 @@
-//#include <iostream>
-//#include "camera.h"
-//#include "scene.h"
-//#include "imageSize.h"
-//#include "fileManager.h"
-//#include "viewFrustrum.h"
-//#include "bvh.h"
-//#include "rendering.h"
-//
-//#include <string>
-//#include <algorithm>
-//
-//#define _CRTDBG_MAP_ALLOC
-//#include <cstdlib>
-//#include <crtdbg.h>
-//
-//template <typename T>
-//T clamp(T value, T min, T max) {
-//    if (value < min) return min;
-//    if (value > max) return max;
-//    return value;
-//}
-//
-//
-//int main() {
-//    //_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
-//    Camera camera;
-//    SceneBuilder sceneBuilder;
-//    Rendering renderer(10);
-//    ImageSize imageSize;
-//
-//    std::string inputFilename = "test.txt";
-//    std::string outputFilename = "output.ppm";
-//
-//    // Step 1: Read scene data
-//    FileReader fw;
-//    fw.readFile(inputFilename, camera, sceneBuilder, imageSize);
-//
-//    // Step 2: Build spatial structure (KDTree)
-//    BVHNode* BVHRoot = new BVHNode();
-//    BVHRoot->buildBVH(sceneBuilder.getShapes(), 2);
-//
-//    sceneBuilder.setBVHRoot(BVHRoot);
-//
-//    // Complete scene
-//    Scene scene = sceneBuilder.build();
-//
-//    // Step 3: Prepare viewing window
-//    ViewFrustrum viewFrustrum(camera, imageSize);
-//
-//    // Step 4: Build output file
-//    //FileWriter::createPPMFile(outputFilename, imageSize);
-//    std::ofstream outputFile(outputFilename, std::ios::out | std::ios::binary);
-//    outputFile << "P3\n" << imageSize.getWidth() << " " << imageSize.getHeight() << "\n255\n";
-//
-//    // get deltas for stepping through the view frustum
-//    Vec3 deltaH = (viewFrustrum.getUpperRight() - viewFrustrum.getUpperLeft()) / (double)(imageSize.getWidth() - 1);
-//    Vec3 deltaV = (viewFrustrum.getLowerLeft() - viewFrustrum.getUpperLeft()) / (double)(imageSize.getHeight() - 1);
-//
-//    // Iterate over each pixel to cast rays
-//    for (int j = 0; j < imageSize.getHeight(); j++) {
-//        for (int i = 0; i < imageSize.getWidth(); i++) {
-//            //if (i != 540 || j != 456) {
-//            //    continue;
-//            //}
-//            //std::cout << i << " " << j << "\n";
-//            // get the pixel position on the view frustum
-//            Vec3 pixelPosition = viewFrustrum.getUpperLeft() + deltaH * i + deltaV * j;
-//            // Create a ray from the camera's eye position to the pixel position
-//            Ray ray(camera.getEyePosition(), (pixelPosition - camera.getEyePosition()).normal());
-//            // The ray is now set up for this pixel; proceed with intersection tests and shading as needed
-//            Color color = renderer.traceRay(ray, scene, 10, 1.0);
-//
-//
-//            int r = static_cast<int>(clamp(color.getR() * 255, 0.0, 255.0));
-//            int g = static_cast<int>(clamp(color.getG() * 255, 0.0, 255.0));
-//            int b = static_cast<int>(clamp(color.getB() * 255, 0.0, 255.0));
-//
-//
-//            // Append the color to the output file
-//            outputFile << r << " " << g << " " << b << " ";
-//        }
-//    }
-//
-//    outputFile.close(); // Close the file after writing all pixels
-//
-//    // Cleanup
-//    return 0;
-//}
-
-
-#include <iostream>
-#include <fstream>
-#include <string>
-#include <vector>
-#include <thread>
-#include <chrono>
-#include <mutex>
-#include "camera.h"
 #include "scene.h"
-#include "imageSize.h"
-#include "fileManager.h"
-#include "viewFrustrum.h"
-#include "bvh.h"
-#include "rendering.h"
+#include "camera.h"
+#include "renderer.h"
 
-#define _CRTDBG_MAP_ALLOC
-#include <cstdlib>
-#include <crtdbg.h>
+void static basicLighting() {
+	Scene scene(Color(0.1, 0.1, 0.1));
+	Camera cam(Vec3(0, 0, 0), Vec3(0, 1, 0), Vec3(0, 0.1, -1), 90);
+	Renderer system(512, 512);
 
-// Thread-safe console output
-std::mutex coutMutex;
+	AbstractLight* light1 = new DirectionalLight(Vec3(-1, -1, -1), Color(0.9, 0.5, 0.05));
+	scene.addLight(light1);
 
-// Clamp function
-template <typename T>
-T clamp(T value, T min, T max) {
-    if (value < min) return min;
-    if (value > max) return max;
-    return value;
+	std::shared_ptr<Material> material1 = std::make_shared<BlinnPhong>(Color(1, 0, 0), Color(1, 1, 1), 0.6, 0.2, 0.2, 10);
+	Shape* sphere1 = new Sphere(Vec3(0, 1.5, -4), 1, material1);
+	scene.addShape(sphere1);
+
+	std::shared_ptr<Material> material2 = std::make_shared<BlinnPhong>(Color(0, 1, 0), Color(1, 1, 1), 0.1, 0.8, 0.2, 10);
+	Shape* sphere2 = new Sphere(Vec3(-1.275, -0.75, -4), 1, material2);
+	scene.addShape(sphere2);
+
+	std::shared_ptr<Material> material3 = std::make_shared<BlinnPhong>(Color(0, 0, 1), Color(1, 1, 1), 0.1, 0.2, 0.8, 10);
+	Shape* sphere3 = new Sphere(Vec3(1.275, -0.75, -4), 1, material3);
+	scene.addShape(sphere3);
+
+	system.render(scene, cam);
 }
 
-// Shared storage for each row's color data
-std::vector<std::string> imageRows;
+void static attenuation() {
+	Scene scene(Color(0, 0, 0));
+	Camera cam(Vec3(0, 2, 5), Vec3(0, 1, 0), Vec3(0, -0.25, -1), 45);
+	Renderer system(512, 512);
 
-// Function to render a section of the image
-void renderSection(int threadId, int startRow, int endRow, const ImageSize& imageSize, const ViewFrustrum& viewFrustrum,
-    const Camera& camera, const Scene& scene, Rendering& renderer) {
-    Vec3 deltaH = (viewFrustrum.getUpperRight() - viewFrustrum.getUpperLeft()) / (double)(imageSize.getWidth() - 1);
-    Vec3 deltaV = (viewFrustrum.getLowerLeft() - viewFrustrum.getUpperLeft()) / (double)(imageSize.getHeight() - 1);
+	AbstractLight* light1 = new AttributePointLight(Vec3(8, 8, 10), Color(1, 0, 0), 0.0025, 0.0025, 0.005);
+	scene.addLight(light1);
 
-    for (int j = startRow; j < endRow; j++) {
-        std::string row;
-        for (int i = 0; i < imageSize.getWidth(); i++) {
-            Vec3 pixelPosition = viewFrustrum.getUpperLeft() + deltaH * i + deltaV * j;
-            Ray ray(camera.getEyePosition(), (pixelPosition - camera.getEyePosition()).normal());
-            Color color = renderer.traceRay(ray, scene, 10, 1.0);
+	std::shared_ptr<Material> material1 = std::make_shared<BlinnPhong>(Color(1, 0, 0), Color(1, 1, 1), 0.1, 0.5, 0.3, 20);
 
-            int r = static_cast<int>(clamp(color.getR() * 255, 0.0, 255.0));
-            int g = static_cast<int>(clamp(color.getG() * 255, 0.0, 255.0));
-            int b = static_cast<int>(clamp(color.getB() * 255, 0.0, 255.0));
+	Shape* sphere1 = new Sphere(Vec3(0, -0.2, 0), 1, material1);
+	scene.addShape(sphere1);
 
-            row += std::to_string(r) + " " + std::to_string(g) + " " + std::to_string(b) + " ";
-        }
-        imageRows[j] = row; // Store the row in its designated position
-    }
+	Shape* sphere2 = new Sphere(Vec3(0, 0, -10), 1, material1);
+	scene.addShape(sphere2);
 
-    // Thread progress logging
-    {
-        std::lock_guard<std::mutex> lock(coutMutex);
-        std::cout << "Thread " << threadId << " completed rows " << startRow << " to " << endRow - 1 << ".\n";
-    }
+	Shape* sphere3 = new Sphere(Vec3(0, 1.5, -20), 1, material1);
+	scene.addShape(sphere3);
+
+	Sphere* sphere4 = new Sphere(Vec3(0, 4, -30), 1, material1);
+	scene.addShape(sphere4);
+
+	system.render(scene, cam);
+}
+
+void static earth() {
+	Scene scene(Color(0.5, 0.7, 0.9));
+	Camera cam(Vec3(2, -6, 1), Vec3(0, 0, 1), Vec3(-1, 3, -0.5), 50);
+	Renderer system(512, 512);
+
+	AbstractLight* light1 = new DirectionalLight(Vec3(0, 1, -1), Color(1, 1, 1));
+	scene.addLight(light1);
+
+	std::shared_ptr<Material> material1 = std::make_shared<BlinnPhong>(Color(0, 1, 0), Color(1, 1, 1), 0.2, 0.8, 0.1, 20);
+	std::shared_ptr<Texture> texture1 = std::make_shared<Texture>("earthtexture.ppm");
+	material1->setTexture(texture1);
+
+	Shape* sphere1 = new Sphere(Vec3(0, 0, 0), 2, material1);
+	scene.addShape(sphere1);
+
+	system.render(scene, cam);
+}
+
+void static normalMap() {
+	Scene scene(Color(0.1, 0.1, 0.1));
+	Camera cam(Vec3(0, 0, 2), Vec3(0, 1, 0), Vec3(0, 0, -1), 60);
+	Renderer system(1000, 1000);
+
+	AbstractLight* light1 = new PointLight(Vec3(1, 1, 1), Color(1, 0, 0));
+	scene.addLight(light1);
+
+	AbstractLight* light2 = new PointLight(Vec3(-1, -1, 1), Color(0, 0, 1));
+	scene.addLight(light2);
+
+
+	std::shared_ptr<Material> material1 = std::make_shared<BlinnPhong>(Color(0.1, 0.1, 0.1), Color(1, 1, 1), 1, 1, 1, 20);
+	std::shared_ptr<Texture> texture1 = std::make_shared<Texture>("brickwall.ppm");
+	std::shared_ptr<NormalMap> normalMap1 = std::make_shared<NormalMap>("brickwall_normal.ppm");
+	material1->setTexture(texture1);
+	material1->setNormalMap(normalMap1);
+
+	Mesh mesh1("wall.txt", material1);
+	scene.addMesh(mesh1);
+
+	system.render(scene, cam);
+}
+
+void static teapot() {
+	Scene scene(Color(0, 0, 0));
+	Camera cam(Vec3(6, 6, 6), Vec3(-1, 2, -1), Vec3(-1, -1, -1), 45);
+	Renderer system(512, 512);
+
+	AbstractLight* light1 = new DirectionalLight(Vec3(0, -0.75, 1), Color(1, 1, 1));
+	scene.addLight(light1);
+
+	std::shared_ptr<Material> material1 = std::make_shared<BlinnPhong>(Color(1, 0, 0), Color(1, 1, 1), 0.1, 0.5, 0.3, 20);
+
+	Mesh mesh1("teapot.txt", material1);
+	scene.addMesh(mesh1);
+
+	system.render(scene, cam);
 }
 
 int main() {
-    _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
-
-    Camera camera;
-    SceneBuilder sceneBuilder;
-    Rendering renderer(10);
-    ImageSize imageSize;
-
-    std::string inputFilename = "test.txt";
-    std::string outputFilename = "output.ppm";
-
-    // Step 1: Read scene data
-    FileReader fw;
-    fw.readFile(inputFilename, camera, sceneBuilder, imageSize);
-
-    // Step 2: Build spatial structure (KDTree)
-    BVHNode* BVHRoot = new BVHNode();
-    BVHRoot->buildBVH(sceneBuilder.getShapes(), 2);
-
-    sceneBuilder.setBVHRoot(BVHRoot);
-
-    // Complete scene and camera
-    Scene scene = sceneBuilder.build();
-
-    // Step 3: Prepare viewing window
-    ViewFrustrum viewFrustrum(camera, imageSize);
-
-    // Initialize the shared row storage
-    imageRows.resize(imageSize.getHeight());
-
-    // Determine the number of threads to use
-    int numThreads = std::thread::hardware_concurrency();
-    int rowsPerThread = imageSize.getHeight() / numThreads;
-    int remainingRows = imageSize.getHeight() % numThreads;
-
-    std::cout << "Starting rendering with " << numThreads << " threads...\n";
-
-    // Start timing
-    auto startTime = std::chrono::high_resolution_clock::now();
-
-    // Launch threads
-    std::vector<std::thread> threads;
-    int currentRow = 0;
-    for (int t = 0; t < numThreads; ++t) {
-        int startRow = currentRow;
-        int endRow = startRow + rowsPerThread + (t < remainingRows ? 1 : 0);
-        threads.emplace_back(renderSection, t, startRow, endRow, std::cref(imageSize), std::cref(viewFrustrum),
-            std::cref(camera), std::cref(scene), std::ref(renderer));
-        currentRow = endRow;
-    }
-
-    // Join threads
-    for (auto& thread : threads) {
-        thread.join();
-    }
-
-    // Stop timing
-    auto endTime = std::chrono::high_resolution_clock::now();
-    std::chrono::duration<double> elapsedSeconds = endTime - startTime;
-
-    std::cout << "Rendering completed in " << elapsedSeconds.count() << " seconds.\n";
-
-    // Write the image rows to the output file in the correct order
-    std::ofstream outputFile(outputFilename, std::ios::out | std::ios::binary);
-    outputFile << "P3\n" << imageSize.getWidth() << " " << imageSize.getHeight() << "\n255\n";
-    for (const auto& row : imageRows) {
-        outputFile << row << "\n";
-    }
-    outputFile.close();
-
-    return 0;
+	teapot();
 }
+

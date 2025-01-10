@@ -8,10 +8,9 @@ class Scene;
 
 // Abstract base class for lights and illumination sources with color attribute
 class AbstractLight {
-protected:
-    Color color;
-
 public:
+    Color color; // Color already has rules
+
     // Constructor
     AbstractLight(const Color& color) : color(color) {}
 
@@ -19,18 +18,18 @@ public:
     Color getColor() const { return this->color; }
 
     // Setters
-    void setColor(const Color& color) { this->color = color; }
+    void setColor(const Color& color) { this->color = color; } // fix
 
     // Virtual functions for illumination
     virtual double calculateShadowFactor(const Vec3& intersectionPoint, const Scene& scene) const = 0;
-    virtual Color calculateDiffuse(const Material& material, const Vec3& intersectionPoint, const Vec3& normal) const = 0;
-    virtual Color calculateSpecular(const Material& material, const Vec3& intersectionPoint, const Vec3& normal, const Vec3& viewDirection) const = 0;
+    virtual Color calculateDiffuse(const BlinnPhong& blinnPhongMaterial, const Vec3& intersectionPoint, const Vec3& normal, const Vec2& textureCoordinates) const = 0;
+    virtual Color calculateSpecular(const BlinnPhong& material, const Vec3& intersectionPoint, const Vec3& normal, const Vec3& viewDirection) const = 0;
 };
 
 // Concrete class for DirectionalLight with direction
 class DirectionalLight : public AbstractLight {
 protected:
-    Vec3 direction;
+    Vec3 direction; // cant be 0
 
 public:
     // Constructor
@@ -44,14 +43,14 @@ public:
 
     // Overrides
     double calculateShadowFactor(const Vec3& intersectionPoint, const Scene& scene) const override;
-    Color calculateDiffuse(const Material& material, const Vec3& intersectionPoint, const Vec3& normal) const override;
-    Color calculateSpecular(const Material& material, const Vec3& intersectionPoint, const Vec3& normal, const Vec3& viewDirection) const override;
+    Color calculateDiffuse(const BlinnPhong& blinnPhongMaterial, const Vec3& intersectionPoint, const Vec3& normal, const Vec2& textureCoordinates) const override;
+    Color calculateSpecular(const BlinnPhong& blinnPhongmaterial, const Vec3& intersectionPoint, const Vec3& normal, const Vec3& viewDirection) const override;
 };
 
 // Concrete class for attenuating directional light
 class AttributeDirectionalLight : public DirectionalLight {
 protected:
-    double c1, c2, c3;
+    double c1, c2, c3; // TODO
 
 public:
     // Constructor
@@ -68,35 +67,28 @@ public:
     void setC3(double value) { this->c3 = value; }
 
     // Overrides
-    Color calculateDiffuse(const Material& material, const Vec3& intersectionPoint, const Vec3& normal) const override;
-    Color calculateSpecular(const Material& material, const Vec3& intersectionPoint, const Vec3& normal, const Vec3& viewDirection) const override;
+    Color calculateDiffuse(const BlinnPhong& blinnPhongMaterial, const Vec3& intersectionPoint, const Vec3& normal, const Vec2& textureCoordinates) const override;
+    Color calculateSpecular(const BlinnPhong& blinnPhongmaterial, const Vec3& intersectionPoint, const Vec3& normal, const Vec3& viewDirection) const override;
 };
 
 // Concrete class for PointLight with position
 class PointLight : public AbstractLight {
-protected:
-    Vec3 position;
-
 public:
+    Vec3 position; // can be any value
+
     // Constructor
     PointLight(const Vec3& position, const Color& color) : AbstractLight(color), position(position) {}
 
-    // Getters
-    Vec3 getPosition() const { return this->position; }
-
-    // Setters
-    void setPosition(const Vec3& position) { this->position = position; }
-
     // Overrides
     double calculateShadowFactor(const Vec3& intersectionPoint, const Scene& scene) const override;
-    Color calculateDiffuse(const Material& material, const Vec3& intersectionPoint, const Vec3& normal) const override;
-    Color calculateSpecular(const Material& material, const Vec3& intersectionPoint, const Vec3& normal, const Vec3& viewDirection) const override;
+    Color calculateDiffuse(const BlinnPhong& blinnPhongMaterial, const Vec3& intersectionPoint, const Vec3& normal, const Vec2& textureCoordinates) const override;
+    Color calculateSpecular(const BlinnPhong& blinnPhongmaterial, const Vec3& intersectionPoint, const Vec3& normal, const Vec3& viewDirection) const override;
 };
 
 // Concrete class for attenuating point light
 class AttributePointLight : public PointLight {
 protected:
-    double c1, c2, c3;
+    double c1, c2, c3; // TODO
 
 public:
     // Constructor
@@ -113,6 +105,6 @@ public:
     void setC3(double value) { this->c3 = value; }
 
     // Overrides
-    Color calculateDiffuse(const Material& material, const Vec3& intersectionPoint, const Vec3& normal) const override;
-    Color calculateSpecular(const Material& material, const Vec3& intersectionPoint, const Vec3& normal, const Vec3& viewDirection) const override;
+    Color calculateDiffuse(const BlinnPhong& blinnPhongMaterial, const Vec3& intersectionPoint, const Vec3& normal, const Vec2& textureCoordinates) const override;
+    Color calculateSpecular(const BlinnPhong& blinnPhongmaterial, const Vec3& intersectionPoint, const Vec3& normal, const Vec3& viewDirection) const override;
 };

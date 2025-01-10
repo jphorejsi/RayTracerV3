@@ -4,17 +4,17 @@
 
 // Determine if ray intersects AABB
 bool AABB::intersects(const Ray& ray) const {
-    double invDirX = 1.0f / ray.getDirection().getX();
-    double invDirY = 1.0f / ray.getDirection().getY();
-    double invDirZ = 1.0f / ray.getDirection().getZ();
+    double invDirX = 1.0 / ray.getDirection().x;
+    double invDirY = 1.0 / ray.getDirection().y;
+    double invDirZ = 1.0 / ray.getDirection().z;
 
-    double tMin = (this->minBounds.getX() - ray.getOrigin().getX()) * invDirX;
-    double tMax = (this->maxBounds.getX() - ray.getOrigin().getX()) * invDirX;
+    double tMin = (this->minBounds.x - ray.origin.x) * invDirX;
+    double tMax = (this->maxBounds.x - ray.origin.x) * invDirX;
 
     if (tMin > tMax) std::swap(tMin, tMax);
 
-    double tyMin = (this->minBounds.getY() - ray.getOrigin().getY()) * invDirY;
-    double tyMax = (this->maxBounds.getY() - ray.getOrigin().getY()) * invDirY;
+    double tyMin = (this->minBounds.y - ray.origin.y) * invDirY;
+    double tyMax = (this->maxBounds.y - ray.origin.y) * invDirY;
 
     if (tyMin > tyMax) std::swap(tyMin, tyMax);
 
@@ -23,8 +23,8 @@ bool AABB::intersects(const Ray& ray) const {
     if (tyMin > tMin) tMin = tyMin;
     if (tyMax < tMax) tMax = tyMax;
 
-    double tzMin = (this->minBounds.getZ() - ray.getOrigin().getZ()) * invDirZ;
-    double tzMax = (this->maxBounds.getZ() - ray.getOrigin().getZ()) * invDirZ;
+    double tzMin = (this->minBounds.z - ray.origin.z) * invDirZ;
+    double tzMax = (this->maxBounds.z - ray.origin.z) * invDirZ;
 
     if (tzMin > tzMax) std::swap(tzMin, tzMax);
 
@@ -34,13 +34,11 @@ bool AABB::intersects(const Ray& ray) const {
 }
 
 
-void BVHNode::buildBVH(std::vector<AbstractShape*>& shapes, const int maxShapesPerLeaf) {
+void BVHNode::buildBVH(std::vector<Shape*>& shapes, const int maxShapesPerLeaf) {
     // Compute the bounding box for all shapes
     this->aabb = AABB();
     for (auto* shape : shapes) {
-        if (const AABB* shapeAABB = shape->getAABB()) { // Check if AABB is valid
-            this->aabb.expand(*shapeAABB); // Dereference the pointer to pass the AABB object
-        }
+            this->aabb.expand(shape->getAABB()); // Dereference the pointer to pass the AABB object
     }
 
     // Termination criteria: Stop if the number of shapes is below the threshold
@@ -55,10 +53,10 @@ void BVHNode::buildBVH(std::vector<AbstractShape*>& shapes, const int maxShapesP
     int bestSplit = -1;
 
     // Precompute sorted shapes along each axis and store them
-    std::array<std::vector<AbstractShape*>, 3> sortedShapes;
+    std::array<std::vector<Shape*>, 3> sortedShapes;
     for (int axis = 0; axis < 3; ++axis) {
         sortedShapes[axis] = shapes;
-        std::sort(sortedShapes[axis].begin(), sortedShapes[axis].end(), [axis](AbstractShape* a, AbstractShape* b) {
+        std::sort(sortedShapes[axis].begin(), sortedShapes[axis].end(), [axis](Shape* a, Shape* b) {
             return a->getCentroid()[axis] < b->getCentroid()[axis];
             });
     }
@@ -69,15 +67,15 @@ void BVHNode::buildBVH(std::vector<AbstractShape*>& shapes, const int maxShapesP
 
         // Initialize rightAABB to encompass all shapes
         for (auto* shape : sortedShapes[axis]) {
-            rightAABB.expand(*shape->getAABB());
+            rightAABB.expand(shape->getAABB());
         }
 
         // Incrementally compute AABBs for left and right groups
         for (size_t i = 0; i < sortedShapes[axis].size() - 1; ++i) {
-            leftAABB.expand(*sortedShapes[axis][i]->getAABB());
+            leftAABB.expand(sortedShapes[axis][i]->getAABB());
             rightAABB = AABB(); // Recompute rightAABB from the remaining shapes
             for (size_t j = i + 1; j < sortedShapes[axis].size(); ++j) {
-                rightAABB.expand(*sortedShapes[axis][j]->getAABB());
+                rightAABB.expand(sortedShapes[axis][j]->getAABB());
             }
 
             // Compute SAH cost
@@ -98,8 +96,8 @@ void BVHNode::buildBVH(std::vector<AbstractShape*>& shapes, const int maxShapesP
     }
 
     // Perform the best split
-    std::vector<AbstractShape*> leftShapes(sortedShapes[bestAxis].begin(), sortedShapes[bestAxis].begin() + bestSplit);
-    std::vector<AbstractShape*> rightShapes(sortedShapes[bestAxis].begin() + bestSplit, sortedShapes[bestAxis].end());
+    std::vector<Shape*> leftShapes(sortedShapes[bestAxis].begin(), sortedShapes[bestAxis].begin() + bestSplit);
+    std::vector<Shape*> rightShapes(sortedShapes[bestAxis].begin() + bestSplit, sortedShapes[bestAxis].end());
 
     // Recursively build child nodes
     this->left = new BVHNode();
@@ -121,8 +119,8 @@ double BVHNode::evaluateSAH(const AABB& parent, const AABB& left, int leftCount,
     }
 
     // Constants for traversal and intersection costs
-    const double traversalCost = 1.0f; // Cost of traversing a BVH node
-    const double intersectionCost = 1.0f; // Cost of intersecting a shape
+    const double traversalCost = 1.0; // Cost of traversing a BVH node
+    const double intersectionCost = 1.0; // Cost of intersecting a shape
 
     // Compute SAH cost
     double sahCost = traversalCost +
@@ -133,29 +131,21 @@ double BVHNode::evaluateSAH(const AABB& parent, const AABB& left, int leftCount,
 }
 
 // Compute minimum bounds for the given shapes
-Vec3 BVHNode::computeMinBounds(const std::vector<AbstractShape*>& shapes) {
-    Vec3 minBounds = shapes[0]->getBoundingBoxMin();
+Vec3 BVHNode::computeMinBounds(const std::vector<Shape*>& shapes) {
+    Vec3 minBounds = shapes[0]->getAABB().getMinBounds();
     for (auto shape : shapes) {
-        Vec3 shapeMin = shape->getBoundingBoxMin();
-        minBounds = Vec3(
-            std::min(minBounds.getX(), shapeMin.getX()),
-            std::min(minBounds.getY(), shapeMin.getY()),
-            std::min(minBounds.getZ(), shapeMin.getZ())
-        );
+        Vec3 shapeMin = shape->getAABB().getMinBounds();
+        minBounds = Vec3(std::min(minBounds.x, shapeMin.x), std::min(minBounds.y, shapeMin.y), std::min(minBounds.z, shapeMin.z));
     }
     return minBounds;
 }
 
 // Compute maximum bounds for the given shapes
-Vec3 BVHNode::computeMaxBounds(const std::vector<AbstractShape*>& shapes) {
-    Vec3 maxBounds = shapes[0]->getBoundingBoxMax();
+Vec3 BVHNode::computeMaxBounds(const std::vector<Shape*>& shapes) {
+    Vec3 maxBounds = shapes[0]->getAABB().getMaxBounds();
     for (auto shape : shapes) {
-        Vec3 shapeMax = shape->getBoundingBoxMax();
-        maxBounds = Vec3(
-            std::max(maxBounds.getX(), shapeMax.getX()),
-            std::max(maxBounds.getY(), shapeMax.getY()),
-            std::max(maxBounds.getZ(), shapeMax.getZ())
-        );
+        Vec3 shapeMax = shape->getAABB().getMaxBounds();
+        maxBounds = Vec3(std::max(maxBounds.x, shapeMax.x), std::max(maxBounds.y, shapeMax.y), std::max(maxBounds.z, shapeMax.z));
     }
     return maxBounds;
 }
@@ -201,30 +191,82 @@ BVHNode* BVHNode::findLastIntersectedNode(const Ray& ray) const {
 }
 
 // Find all intersected leaf nodes
-std::vector<BVHNode*> BVHNode::findAllIntersectedLeafNodes(const Ray& ray) const {
-    std::vector<BVHNode*> intersectedLeafNodes;
-    this->findIntersectedLeafNodesRecursive(ray, intersectedLeafNodes);
-    return intersectedLeafNodes;
-}
-
-// Helper function for recursive search of intersected leaf nodes
-void BVHNode::findIntersectedLeafNodesRecursive(const Ray& ray, std::vector<BVHNode*>& intersectedLeafNodes) const {
-    // If the ray does not intersect the current node's bounding box, return
-    if (!this->aabb.intersects(ray)) {
-        return;
-    }
-
-    // If this is a leaf node (no children), add this node to the list
-    if (this->left == nullptr && this->right == nullptr) {
-        intersectedLeafNodes.push_back(const_cast<BVHNode*>(this));
-        return;
-    }
-
-    // Recursively search for intersections in the left and right children
-    if (this->left != nullptr) {
-        this->left->findIntersectedLeafNodesRecursive(ray, intersectedLeafNodes);
-    }
-    if (this->right != nullptr) {
-        this->right->findIntersectedLeafNodesRecursive(ray, intersectedLeafNodes);
-    }
-}
+//std::vector<BVHNode*> BVHNode::findAllIntersectedLeafNodes(const Ray& ray) const {
+//    std::vector<BVHNode*> intersectedLeafNodes;
+//
+//    // Stack for iterative traversal (to avoid recursive overhead)
+//    std::vector<const BVHNode*> stack;
+//    stack.push_back(this);
+//
+//    while (!stack.empty()) {
+//        const BVHNode* currentNode = stack.back();
+//        stack.pop_back();
+//
+//        // Skip if the current node's AABB is not intersected by the ray
+//        if (!currentNode->aabb.intersects(ray)) {
+//            continue;
+//        }
+//
+//        // If this is a leaf node, add it to the list
+//        if (currentNode->left == nullptr && currentNode->right == nullptr) {
+//            intersectedLeafNodes.push_back(const_cast<BVHNode*>(currentNode));
+//        }
+//        else {
+//            // Otherwise, add child nodes to the stack for further traversal
+//            if (currentNode->left != nullptr) {
+//                stack.push_back(currentNode->left);
+//            }
+//            if (currentNode->right != nullptr) {
+//                stack.push_back(currentNode->right);
+//            }
+//        }
+//    }
+//
+//    return intersectedLeafNodes;
+//}
+//
+//
+//const Shape* BVHNode::findClosestIntersectedShape(const Ray& ray, Vec3& intersectionPoint) const {
+//    const Shape* closestShape = nullptr;
+//    double closestDistance = std::numeric_limits<double>::max();
+//
+//    // Stack for BVH traversal
+//    std::vector<const BVHNode*> stack;
+//    stack.push_back(this);
+//
+//    while (!stack.empty()) {
+//        const BVHNode* currentNode = stack.back();
+//        stack.pop_back();
+//
+//        // Skip nodes that the ray does not intersect
+//        if (!currentNode->aabb.intersects(ray)) {
+//            continue;
+//        }
+//
+//        // If this is a leaf node, check its shapes for intersections
+//        if (currentNode->left == nullptr && currentNode->right == nullptr) {
+//            for (const Shape* shape : currentNode->getShapes()) {
+//                Vec3 currentIntersection;
+//                if (shape->intersects(ray, currentIntersection)) {
+//                    double distance = (currentIntersection - ray.origin).length();
+//                    if (distance < closestDistance) {
+//                        closestDistance = distance;
+//                        closestShape = shape;
+//                        intersectionPoint = currentIntersection;
+//                    }
+//                }
+//            }
+//        }
+//        else {
+//            // Add child nodes to the stack for further traversal
+//            if (currentNode->left != nullptr) {
+//                stack.push_back(currentNode->left);
+//            }
+//            if (currentNode->right != nullptr) {
+//                stack.push_back(currentNode->right);
+//            }
+//        }
+//    }
+//
+//    return closestShape;
+//}

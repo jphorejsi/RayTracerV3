@@ -13,153 +13,96 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="Header Files\utility">
-      <UniqueIdentifier>{3179fdfb-3d06-4c13-90e7-c1f929213667}</UniqueIdentifier>
+    <Filter Include="Header Files\advanced features">
+      <UniqueIdentifier>{ecb09702-d6ed-4957-86fe-d381d46dbad8}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\advancedFeatures">
-      <UniqueIdentifier>{e48edb2c-bd8c-4632-8d02-ce8979f70b41}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\utility\vec">
-      <UniqueIdentifier>{c3ac9626-15ca-47cf-a280-47efa3550398}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\Factory">
-      <UniqueIdentifier>{4b623fc1-c97e-46d1-be4c-67ab2bc2dd05}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\materials">
-      <UniqueIdentifier>{5066f27d-2c94-4081-894f-dd46ad9c4a75}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\objects">
-      <UniqueIdentifier>{7a1ea5fe-3965-4331-a46f-1e31e82c7322}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\objects\shapes">
-      <UniqueIdentifier>{e3fde7bf-0e70-4708-845c-7678d17b7081}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\objects\lights">
-      <UniqueIdentifier>{89c38496-c3ec-4bb8-bd2f-7f3ca27138aa}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\core">
-      <UniqueIdentifier>{d6cbed82-d046-400b-ad09-0f3622e1caf5}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\advancedFeatures">
-      <UniqueIdentifier>{c4b9f4fb-54b4-427d-8ec6-2ecd5194c08c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\objects">
-      <UniqueIdentifier>{b87d811c-a5e7-4c92-be81-19dfedc06cdc}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\core">
-      <UniqueIdentifier>{37d78c43-781d-4977-a478-1cb05b591fa1}</UniqueIdentifier>
+    <Filter Include="Source Files\advanced features">
+      <UniqueIdentifier>{494cfc84-bf0a-4d3e-863b-dc215cefd9b8}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="ray.h">
-      <Filter>Header Files\utility</Filter>
-    </ClInclude>
-    <ClInclude Include="bvh.h">
-      <Filter>Header Files\advancedFeatures</Filter>
-    </ClInclude>
-    <ClInclude Include="color.h">
-      <Filter>Header Files\utility</Filter>
+    <ClInclude Include="materials.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="vec.h">
-      <Filter>Header Files\utility\vec</Filter>
+      <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="vecFactory.h">
-      <Filter>Header Files\utility\vec</Filter>
+    <ClInclude Include="ray.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="shapeFactory.h">
-      <Filter>Header Files\objects\shapes</Filter>
-    </ClInclude>
-    <ClInclude Include="lights.h">
-      <Filter>Header Files\objects\lights</Filter>
-    </ClInclude>
-    <ClInclude Include="lightFactory.h">
-      <Filter>Header Files\objects\lights</Filter>
-    </ClInclude>
-    <ClInclude Include="materials.h">
-      <Filter>Header Files\materials</Filter>
-    </ClInclude>
-    <ClInclude Include="materialFactory.h">
-      <Filter>Header Files\materials</Filter>
-    </ClInclude>
-    <ClInclude Include="texture.h">
-      <Filter>Header Files\advancedFeatures</Filter>
-    </ClInclude>
-    <ClInclude Include="viewFrustrum.h">
-      <Filter>Header Files\core</Filter>
-    </ClInclude>
-    <ClInclude Include="camera.h">
-      <Filter>Header Files\core</Filter>
-    </ClInclude>
-    <ClInclude Include="scene.h">
-      <Filter>Header Files\core</Filter>
-    </ClInclude>
-    <ClInclude Include="depthCue.h">
-      <Filter>Header Files\advancedFeatures</Filter>
+    <ClInclude Include="color.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="shapes.h">
-      <Filter>Header Files\objects\shapes</Filter>
+      <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="aabb.h">
-      <Filter>Header Files\utility</Filter>
+    <ClInclude Include="lights.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="rendering.h">
-      <Filter>Header Files\core</Filter>
+    <ClInclude Include="camera.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="scene.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="texture.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="bvh.h">
+      <Filter>Header Files\advanced features</Filter>
+    </ClInclude>
+    <ClInclude Include="depthCue.h">
+      <Filter>Header Files\advanced features</Filter>
     </ClInclude>
     <ClInclude Include="fileManager.h">
-      <Filter>Header Files\utility</Filter>
+      <Filter>Header Files\advanced features</Filter>
     </ClInclude>
-    <ClInclude Include="shading.h">
-      <Filter>Header Files\core</Filter>
+    <ClInclude Include="aabb.h">
+      <Filter>Header Files\advanced features</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="mesh.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="imageSize.h">
-      <Filter>Header Files\utility</Filter>
-    </ClCompile>
-    <ClCompile Include="shapeFactory.cpp">
-      <Filter>Source Files\Factory</Filter>
-    </ClCompile>
-    <ClCompile Include="lightFactory.cpp">
-      <Filter>Source Files\Factory</Filter>
-    </ClCompile>
-    <ClCompile Include="materialFactory.cpp">
-      <Filter>Source Files\Factory</Filter>
-    </ClCompile>
-    <ClCompile Include="fileManager.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="bvh.cpp">
-      <Filter>Source Files\advancedFeatures</Filter>
-    </ClCompile>
-    <ClCompile Include="texture.cpp">
-      <Filter>Source Files\advancedFeatures</Filter>
-    </ClCompile>
-    <ClCompile Include="shapes.cpp">
-      <Filter>Source Files\objects</Filter>
-    </ClCompile>
-    <ClCompile Include="lights.cpp">
-      <Filter>Source Files\objects</Filter>
-    </ClCompile>
-    <ClCompile Include="depthCue.cpp">
-      <Filter>Source Files\advancedFeatures</Filter>
-    </ClCompile>
-    <ClCompile Include="rendering.cpp">
-      <Filter>Source Files\core</Filter>
-    </ClCompile>
-    <ClCompile Include="viewFrustrum.cpp">
-      <Filter>Source Files\core</Filter>
-    </ClCompile>
-    <ClCompile Include="camera.cpp">
-      <Filter>Source Files\core</Filter>
-    </ClCompile>
     <ClCompile Include="material.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="shading.cpp">
-      <Filter>Source Files\core</Filter>
+    <ClCompile Include="texture.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="camera.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="shapes.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="lights.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="bvh.cpp">
+      <Filter>Source Files\advanced features</Filter>
+    </ClCompile>
+    <ClCompile Include="depthCue.cpp">
+      <Filter>Source Files\advanced features</Filter>
+    </ClCompile>
+    <ClCompile Include="fileManager.cpp">
+      <Filter>Source Files\advanced features</Filter>
+    </ClCompile>
+    <ClCompile Include="color.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ray.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -170,5 +113,7 @@
   </ItemGroup>
   <ItemGroup>
     <Text Include="test.txt" />
+    <Text Include="wall.txt" />
+    <Text Include="teapot.txt" />
   </ItemGroup>
 </Project>

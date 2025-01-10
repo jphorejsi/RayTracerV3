@@ -3,12 +3,12 @@
 #include <fstream>
 #include "vec.h"
 #include "color.h"
-#include "ImageSize.h"
 
 class AbstractTexture {
 protected:
-    ImageSize imageSize;
-    int maxValue;
+    int height = 0; // cant be changed
+    int width = 0; // cant be changed
+    int maxValue = 0; // cant be changed
 
 public:
     // Virtual destructor
@@ -16,14 +16,14 @@ public:
 
     // Getters
     int getMaxValue() const { return this->maxValue; }
-    virtual const ImageSize& getImageSize() const { return imageSize; }
+    int getWidth() { return this->width; }
+    int getHeight() { return this->height; }
 };
 
 
 class Texture : public AbstractTexture {
 private:
-    int maxValue;
-    Color** textureArray;
+    Color** textureArray; // cant be changed
 
 public:
     // Constructor
@@ -31,17 +31,17 @@ public:
 
     // Destructor
     ~Texture() {
-        for (int i = 0; i < this->imageSize.getWidth(); i++) {
+        for (int i = 0; i < this->width; i++) {
             delete[] this->textureArray[i];
         }
         delete[] this->textureArray;
     }
 
     // Getters
-    const Color& getPixel(double u, double v) const;
+    const Color& getPixel(const Vec2 textureCoordinate) const;
 
     // Setters
-    void setPixel(double u, double v, const Color& color);
+    void setPixel(const Vec2 textureCoordinate, const Color color);
 };
 
 class NormalMap : public AbstractTexture {
@@ -54,7 +54,7 @@ public:
 
     // Destructor
     ~NormalMap() {
-        for (int i = 0; i < this->imageSize.getWidth(); i++) {
+        for (int i = 0; i < this->width; i++) {
             delete[] this->normalMapArray[i];
         }
         delete[] this->normalMapArray;

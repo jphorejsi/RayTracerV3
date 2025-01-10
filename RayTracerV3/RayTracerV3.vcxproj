@@ -133,38 +133,29 @@
     <ClInclude Include="depthCue.h" />
     <ClInclude Include="fileManager.h" />
     <ClInclude Include="bvh.h" />
-    <ClInclude Include="lightFactory.h" />
     <ClInclude Include="lights.h" />
-    <ClInclude Include="materialFactory.h" />
     <ClInclude Include="materials.h" />
+    <ClInclude Include="mesh.h" />
     <ClInclude Include="ray.h" />
-    <ClInclude Include="rendering.h" />
+    <ClInclude Include="renderer.h" />
     <ClInclude Include="scene.h" />
-    <ClInclude Include="shading.h" />
-    <ClInclude Include="shapeFactory.h" />
     <ClInclude Include="shapes.h" />
     <ClInclude Include="texture.h" />
     <ClInclude Include="vec.h" />
-    <ClInclude Include="vecFactory.h" />
-    <ClInclude Include="viewFrustrum.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="camera.cpp" />
+    <ClCompile Include="color.cpp" />
     <ClCompile Include="depthCue.cpp" />
     <ClCompile Include="fileManager.cpp" />
-    <ClCompile Include="imageSize.h" />
     <ClCompile Include="bvh.cpp" />
-    <ClCompile Include="lightFactory.cpp" />
     <ClCompile Include="lights.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="material.cpp" />
-    <ClCompile Include="materialFactory.cpp" />
-    <ClCompile Include="rendering.cpp" />
-    <ClCompile Include="shading.cpp" />
-    <ClCompile Include="shapeFactory.cpp" />
+    <ClCompile Include="ray.cpp" />
+    <ClCompile Include="renderer.cpp" />
     <ClCompile Include="shapes.cpp" />
     <ClCompile Include="texture.cpp" />
-    <ClCompile Include="viewFrustrum.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="brickwall.ppm" />
@@ -173,7 +164,9 @@
     <None Include="harbor.ppm" />
   </ItemGroup>
   <ItemGroup>
+    <Text Include="teapot.txt" />
     <Text Include="test.txt" />
+    <Text Include="wall.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

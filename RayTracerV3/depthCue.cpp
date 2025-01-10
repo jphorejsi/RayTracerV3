@@ -2,10 +2,10 @@
 
 #include<stdexcept>
 
-DepthCue::DepthCue(const Color& depthCue, double alphaMax, double alphaMin, double distanceMax, double distanceMin) {
-    if (depthCue.getR() < 0.0 || depthCue.getR() > 1.0 ||
-        depthCue.getG() < 0.0 || depthCue.getG() > 1.0 ||
-        depthCue.getB() < 0.0 || depthCue.getB() > 1.0) {
+DepthCue::DepthCue(const Color& depthCueColor, double alphaMax, double alphaMin, double distanceMax, double distanceMin) {
+    if (depthCueColor.getR() < 0.0 || depthCueColor.getR() > 1.0 ||
+        depthCueColor.getG() < 0.0 || depthCueColor.getG() > 1.0 ||
+        depthCueColor.getB() < 0.0 || depthCueColor.getB() > 1.0) {
         throw std::invalid_argument("Depth cue color values must be between 0 and 1");
     }
     if (alphaMax < 0.0 || alphaMax > 1.0) {
@@ -17,20 +17,20 @@ DepthCue::DepthCue(const Color& depthCue, double alphaMax, double alphaMin, doub
     if (distanceMax <= distanceMin) {
         throw std::invalid_argument("DistanceMax must be greater than DistanceMin");
     }
-    this->depthCue = depthCue;
+    this->depthCueColor = depthCueColor;
     this->alphaMax = alphaMax;
     this->alphaMin = alphaMin;
     this->distanceMax = distanceMax;
     this->distanceMin = distanceMin;
 }
 
-void DepthCue::setDepthCue(const Color& depthCue) {
-    if (depthCue.getR() < 0.0 || depthCue.getR() > 1.0 ||
-        depthCue.getG() < 0.0 || depthCue.getG() > 1.0 ||
-        depthCue.getB() < 0.0 || depthCue.getB() > 1.0) {
+void DepthCue::setDepthCueColor(const Color& depthCueColor) {
+    if (depthCueColor.getR() < 0.0 || depthCueColor.getR() > 1.0 ||
+        depthCueColor.getG() < 0.0 || depthCueColor.getG() > 1.0 ||
+        depthCueColor.getB() < 0.0 || depthCueColor.getB() > 1.0) {
         throw std::invalid_argument("Depth cue color values must be between 0 and 1");
     }
-    this->depthCue = depthCue;
+    this->depthCueColor = depthCueColor;
 }
 
 void DepthCue::setAlphaMax(double alphaMax) {
