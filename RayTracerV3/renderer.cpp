@@ -1,5 +1,7 @@
 #include "renderer.h"
 #include <stdexcept>
+#include <chrono> // For timing
+#include <iostream>
 
 Renderer::Renderer(int imageWidth, int imageHeight) {
     if (imageWidth < 1) {
@@ -16,30 +18,6 @@ Renderer::Renderer(int imageWidth, int imageHeight) {
     this->samples = samples;
 }
 
-const Shape* findClosestIntersectedShape(const Ray& ray, const Scene& scene, Vec3& intersectionPoint) {
-    const Shape* closestShape = nullptr;
-    double closestDistance = std::numeric_limits<double>::max();
-
-    // Get all intersected leaf nodes using the KDTree's method
-    std::vector<BVHNode*> intersectedNodes = scene.getBVHRoot()->findAllIntersectedLeafNodes(ray);
-
-    // Iterate through all intersected nodes and check for ray-shape intersections
-    for (const BVHNode* node : intersectedNodes) {
-        for (const Shape* shape : node->getShapes()) {  // Explicit type for shape
-            Vec3 currentIntersection;
-            if (shape->intersects(ray, currentIntersection)) {
-                double distance = (currentIntersection - ray.origin).length();
-                if (distance < closestDistance) {
-                    closestDistance = distance;
-                    closestShape = shape;
-                    intersectionPoint = currentIntersection;
-                }
-            }
-        }
-    }
-    return closestShape;
-}
-
 
 Color Renderer::traceRay(const Ray& ray, const Scene& scene, int maxDepth) {
     // Base case: Black if recursion limit reached
@@ -47,7 +25,7 @@ Color Renderer::traceRay(const Ray& ray, const Scene& scene, int maxDepth) {
 
     Vec3 intersectionPoint;
 
-    const Shape* closestShape = findClosestIntersectedShape(ray, scene, intersectionPoint);
+    const Shape* closestShape = scene.getBVHRoot()->findClosestIntersectedShape(ray, intersectionPoint);
     if (!closestShape) return scene.getBackgroundColor();  // No intersection
 
     return closestShape->getMaterial().shade(ray, intersectionPoint, scene, *closestShape);
@@ -55,6 +33,9 @@ Color Renderer::traceRay(const Ray& ray, const Scene& scene, int maxDepth) {
 
 void Renderer::render(Scene& scene, Camera& camera) {
     std::ofstream outFile("image.ppm");
+
+    // Start timing
+    auto start = std::chrono::high_resolution_clock::now();
 
     // Create viewing frustum
     camera.createFrustrum(imageWidth, imageHeight);
@@ -76,10 +57,6 @@ void Renderer::render(Scene& scene, Camera& camera) {
 
     for (int j = 0; j < imageHeight; j++) {
         for (int i = 0; i < imageWidth; i++) {
-            if (i != 233 || j != 212) {
-                continue;
-            }
-
             double accumulatedR = 0.0;
             double accumulatedG = 0.0;
             double accumulatedB = 0.0;
@@ -110,7 +87,6 @@ void Renderer::render(Scene& scene, Camera& camera) {
                 }
             }
 
-
             // Average the accumulated color
             accumulatedR /= static_cast<double>(samples);
             accumulatedG /= static_cast<double>(samples);
@@ -118,7 +94,15 @@ void Renderer::render(Scene& scene, Camera& camera) {
             Color output(accumulatedR, accumulatedG, accumulatedB);
 
             // Write pixel color to file
-            outFile << static_cast<int>(output.getR() * 255) << " " << static_cast<int>(output.getG() *255) << " " << static_cast<int>(output.getB() * 255) << "\n";
+            outFile << static_cast<int>(output.getR() * 255) << " " << static_cast<int>(output.getG() * 255) << " " << static_cast<int>(output.getB() * 255) << "\n";
         }
     }
+
+    // End timing
+    auto end = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+
+    // Print the time taken
+    std::cout << "Render completed in " << duration.count() << " milliseconds.\n";
 }
+

@@ -70,7 +70,7 @@ bool Triangle::intersects(const Ray& ray, Vec3& intersectionPoint) const {
     double discriminant = dot(normal, ray.getDirection());
     if (fabs(discriminant) < 1e-6f) return false;
 
-    double D = dot(normal, this->vertexA);
+    double D = dot(-normal, this->vertexA);
     double ray_t = -(dot(normal, ray.origin) + D) / discriminant;
     if (ray_t < 1e-5f) return false;
 

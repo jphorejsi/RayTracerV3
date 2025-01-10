@@ -72,48 +72,48 @@ public:
     }
 
 
-    //const Shape* findClosestIntersectedShape(const Ray& ray, Vec3& intersectionPoint) const {
-    //    const Shape* closestShape = nullptr;
-    //    double closestDistance = std::numeric_limits<double>::max();
+    const Shape* findClosestIntersectedShape(const Ray& ray, Vec3& intersectionPoint) const {
+        const Shape* closestShape = nullptr;
+        double closestDistance = std::numeric_limits<double>::max();
 
-    //    // Stack for BVH traversal
-    //    std::vector<const BVHNode*> stack;
-    //    stack.push_back(this);
+        // Stack for BVH traversal
+        std::vector<const BVHNode*> stack;
+        stack.push_back(this);
 
-    //    while (!stack.empty()) {
-    //        const BVHNode* currentNode = stack.back();
-    //        stack.pop_back();
+        while (!stack.empty()) {
+            const BVHNode* currentNode = stack.back();
+            stack.pop_back();
 
-    //        // Skip nodes that the ray does not intersect
-    //        if (!currentNode->aabb.intersects(ray)) {
-    //            continue;
-    //        }
+            // Skip nodes that the ray does not intersect
+            if (!currentNode->aabb.intersects(ray)) {
+                continue;
+            }
 
-    //        // If this is a leaf node, check its shapes for intersections
-    //        if (currentNode->left == nullptr && currentNode->right == nullptr) {
-    //            for (const Shape* shape : currentNode->getShapes()) {
-    //                Vec3 currentIntersection;
-    //                if (shape->intersects(ray, currentIntersection)) {
-    //                    double distance = (currentIntersection - ray.origin).length();
-    //                    if (distance < closestDistance) {
-    //                        closestDistance = distance;
-    //                        closestShape = shape;
-    //                        intersectionPoint = currentIntersection;
-    //                    }
-    //                }
-    //            }
-    //        }
-    //        else {
-    //            // Add child nodes to the stack for further traversal
-    //            if (currentNode->left != nullptr) {
-    //                stack.push_back(currentNode->left);
-    //            }
-    //            if (currentNode->right != nullptr) {
-    //                stack.push_back(currentNode->right);
-    //            }
-    //        }
-    //    }
+            // If this is a leaf node, check its shapes for intersections
+            if (currentNode->left == nullptr && currentNode->right == nullptr) {
+                for (const Shape* shape : currentNode->getShapes()) {
+                    Vec3 currentIntersection;
+                    if (shape->intersects(ray, currentIntersection)) {
+                        double distance = (currentIntersection - ray.origin).length();
+                        if (distance < closestDistance) {
+                            closestDistance = distance;
+                            closestShape = shape;
+                            intersectionPoint = currentIntersection;
+                        }
+                    }
+                }
+            }
+            else {
+                // Add child nodes to the stack for further traversal
+                if (currentNode->left != nullptr) {
+                    stack.push_back(currentNode->left);
+                }
+                if (currentNode->right != nullptr) {
+                    stack.push_back(currentNode->right);
+                }
+            }
+        }
 
-    //    return closestShape;
-    //}
+        return closestShape;
+    }
 };
