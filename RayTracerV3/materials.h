@@ -25,7 +25,8 @@ public:
     void setNormalMap(const std::shared_ptr<NormalMap>& normalMap) { this->normalMap = normalMap; }
 
     // Other methods
-    virtual Color shade(const Ray& ray, const Vec3& intersectionPoint, const Scene& scene, const Shape& shape) const = 0;
+    //virtual Color shade(const Ray& ray, const Vec3& intersectionPoint, const Scene& scene, const Shape& shape) const = 0; // TODO
+    virtual Color shade(const Ray& ray, const Vec3& intersectionPoint, const Scene& scene, const Shape& shape, int maxDepth) const = 0;
 };
 
 class BlinnPhong : public Material {
@@ -62,22 +63,25 @@ public:
     void setN(double n);
 
     // Overrides
-    Color shade(const Ray& ray, const Vec3& intersectionPoint, const Scene& scene, const Shape& shape) const override;
+    virtual Color shade(const Ray& ray, const Vec3& intersectionPoint, const Scene& scene, const Shape& shape, int maxDepth) const;
 
     //Color goraudShade()
 };
 
 
-//class ReflectiveBlinnPhong : public BlinnPhong {
-//private:
-//    double alpha = 1.0;
-//    double eta = 1.0;
-//
-//public:
-//    // Getters
-//    double getAlpha() const { return alpha; }
-//    double getEta() const { return eta; }
-//
-//    // Overrides
-//    bool scatter(const Ray& r_in, const Vec3 intersectionPoint, Color& attenuation, Ray& scattered);
-//};
+class ReflectiveBlinnPhong : public BlinnPhong {
+private:
+    double alpha = 1.0;
+    double eta = 1.0;
+
+public:
+    // Constructor
+    ReflectiveBlinnPhong(Color od, Color os, double ka, double kd, double ks, double n, double alpha, double eta) : BlinnPhong(od, os, ka, kd, ks, n), alpha(alpha), eta(eta) {}
+
+    // Getters
+    double getAlpha() const { return alpha; }
+    double getEta() const { return eta; }
+
+    // Overrides
+    virtual Color shade(const Ray& ray, const Vec3& intersectionPoint, const Scene& scene, const Shape& shape, int maxDepth) const;
+};

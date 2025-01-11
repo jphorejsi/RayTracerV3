@@ -164,6 +164,7 @@
     <None Include="harbor.ppm" />
   </ItemGroup>
   <ItemGroup>
+    <Text Include="floor.txt" />
     <Text Include="teapot.txt" />
     <Text Include="wall.txt" />
   </ItemGroup>

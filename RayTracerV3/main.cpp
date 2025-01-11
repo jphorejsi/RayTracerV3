@@ -108,7 +108,39 @@ void static teapot() {
 	system.render(scene, cam);
 }
 
+void static reflective() {
+	Scene scene(Color(0.5, 0.7, 0.9)); // another value of 1 for both reflection files
+	Camera cam(Vec3(0, 5, 0), Vec3(0, 1, 0), Vec3(0, 0, 1), 45);
+	Renderer system(1080, 1080);
+
+	AbstractLight* light1 = new DirectionalLight(Vec3(0, -1, 0), Color(1, 1, 1));
+	scene.addLight(light1);
+
+	std::shared_ptr<Material> material1 = std::make_shared<ReflectiveBlinnPhong>(Color(1, 1, 1), Color(1, 1, 1), 0.2, 0.4, 0.6, 60, 0.2, 1.5);
+
+	Shape* sphere1 = new Sphere(Vec3(1.25, 8, 15), 1, material1);
+	scene.addShape(sphere1);
+
+	Shape* sphere2 = new Sphere(Vec3(0, 6, 15), 1, material1);
+	scene.addShape(sphere2);
+
+	Shape* sphere3 = new Sphere(Vec3(1.5, 4, 15), 1, material1);
+	scene.addShape(sphere3);
+
+	std::shared_ptr<Material> material2 = std::make_shared<ReflectiveBlinnPhong>(Color(1, 1, 1), Color(1, 1, 1), 0.2, 0.4, 0.6, 60, 1, 0);
+
+	Shape* sphere4 = new Sphere(Vec3(-1.5, 4, 15), 1, material2);
+	scene.addShape(sphere4);
+
+	std::shared_ptr<Material> material3 = std::make_shared<ReflectiveBlinnPhong>(Color(1, 1, 1), Color(1, 1, 1), 0.2, 0.8, 0, 20, 1, 0);
+
+	Mesh mesh1("floor.txt", material3);
+	scene.addMesh(mesh1);
+
+	system.render(scene, cam);
+}
+
 int main() {
-	teapot();
+	reflective();
 }
 

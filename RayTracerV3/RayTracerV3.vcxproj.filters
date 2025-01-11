@@ -112,8 +112,8 @@
     <None Include="earthtexture.ppm" />
   </ItemGroup>
   <ItemGroup>
-    <Text Include="test.txt" />
     <Text Include="wall.txt" />
     <Text Include="teapot.txt" />
+    <Text Include="floor.txt" />
   </ItemGroup>
 </Project>

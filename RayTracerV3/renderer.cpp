@@ -28,7 +28,7 @@ Color Renderer::traceRay(const Ray& ray, const Scene& scene, int maxDepth) {
     const Shape* closestShape = scene.getBVHRoot()->findClosestIntersectedShape(ray, intersectionPoint);
     if (!closestShape) return scene.getBackgroundColor();  // No intersection
 
-    return closestShape->getMaterial().shade(ray, intersectionPoint, scene, *closestShape);
+    return closestShape->getMaterial().shade(ray, intersectionPoint, scene, *closestShape, maxDepth);
 }
 
 void Renderer::render(Scene& scene, Camera& camera) {

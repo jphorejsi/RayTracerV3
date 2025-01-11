@@ -17,7 +17,7 @@ public:
     Renderer(int imageWidth, int imageHeight);
 
     // Other methods
-    Color traceRay(const Ray& ray, const Scene& scene, int maxDepth);
+    static Color traceRay(const Ray& ray, const Scene& scene, int maxDepth);
     void render(Scene& scene, Camera& camera);
 };
 

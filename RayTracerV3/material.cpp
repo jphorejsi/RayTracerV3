@@ -2,6 +2,7 @@
 #include "scene.h"
 #include "shapes.h"
 #include <stdexcept>
+#include "renderer.h"
 
 // Constructor definition (no default arguments here)
 BlinnPhong::BlinnPhong(Color od, Color os, double ka, double kd, double ks, double n) {
@@ -62,7 +63,7 @@ void BlinnPhong::setN(double n) {
 }
 
 
-Color BlinnPhong::shade(const Ray& ray, const Vec3& intersectionPoint, const Scene& scene, const Shape& shape) const {
+Color BlinnPhong::shade(const Ray& ray, const Vec3& intersectionPoint, const Scene& scene, const Shape& shape, int maxDepth) const {
     // Initialize diffuse and specular
     Color diffuse(0, 0, 0);
     Color specular(0, 0, 0);
@@ -114,3 +115,61 @@ Color BlinnPhong::shade(const Ray& ray, const Vec3& intersectionPoint, const Sce
 //    }
 //    this->eta = eta;
 //}
+
+
+
+Color ReflectiveBlinnPhong::shade(const Ray& ray, const Vec3& intersectionPoint, const Scene& scene, const Shape& shape, int maxDepth) const {
+    // Calculate normal and check if entering or exiting
+    Vec3 normal = shape.getNormal(intersectionPoint);
+    Vec3 incident = ray.getDirection().normal() * -1;
+    bool entering = dot(incident, normal) > 0;
+    if (!entering) normal = -normal;
+
+    // Default refractive indices
+    double etaI = 1.0;  // Assume air for the outside medium
+    double etaT = entering ? this->getEta() : 1.0;
+    double etaRatio = etaI / etaT;
+
+    // Compute Fresnel reflectance (Schlick's approximation)
+    double cosThetaI = dot(incident, normal);
+    double F0 = pow((etaT - etaI) / (etaT + etaI), 2);
+    double Fr = F0 + (1 - F0) * pow(1 - cosThetaI, 5);
+
+
+
+    Color ambient = this->getOd(shape.getTextureCoordinate(intersectionPoint)) * this->getKa();
+    Color diffuse(0, 0, 0);
+    Color specular(0, 0, 0);
+
+    for (const AbstractLight* light : scene.getLights()) {
+        double shadowFactor = light->calculateShadowFactor(intersectionPoint, scene);
+        diffuse += light->calculateDiffuse(*this, intersectionPoint, normal, shape.getTextureCoordinate(intersectionPoint)) * shadowFactor;
+        specular += light->calculateSpecular(*this, intersectionPoint, normal, ray.getDirection()) * shadowFactor;
+    }
+
+
+
+
+    // Reflection
+    Color reflection(0, 0, 0);
+    if (this->getKs() > 0.0) {
+        Vec3 reflectionDirection = normal * 2 * cosThetaI - incident;
+        Ray reflectionRay(intersectionPoint, reflectionDirection);
+        reflection = Renderer::traceRay(reflectionRay, scene, maxDepth - 1) * Fr;
+    }
+
+    // Refraction
+    Color refraction(0, 0, 0);
+    if (this->getAlpha() < 1.0) {
+        double discriminant = 1 - etaRatio * etaRatio * (1 - cosThetaI * cosThetaI);
+        if (discriminant > 0) {
+            Vec3 refractionDirection = ((normal * -sqrt(discriminant)) + ((normal * cosThetaI) - incident) * etaRatio).normal();
+            Ray refractionRay(intersectionPoint, refractionDirection);
+            refraction = Renderer::traceRay(refractionRay, scene, maxDepth - 1) * (1 - Fr) * (1 - this->getAlpha());
+        }
+    }
+
+    // Combine illumination, reflection, and refraction
+    return ambient + diffuse + specular + reflection + refraction;
+}
+
