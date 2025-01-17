@@ -6,10 +6,10 @@
 #include "texture.h"
 #include "ray.h"
 #include "color.h"
-#include "aabb.h"
 #include <vector>
 #include <fstream>
 #include <sstream>
+#include "bvh.h"
 
 // Abstract base class for shapes
 class Shape {
@@ -33,7 +33,7 @@ public:
     // Pure virtual methods
     virtual bool intersects(const Ray& ray, Vec3& intersectionPoint) const = 0;
     virtual Vec2 getTextureCoordinate(const Vec3& intersectionPoint) const = 0;
-    virtual Vec3 getNormal(const Vec3& intersectionPoint) const = 0;
+    virtual Vec3 getNormal(const Vec3& intersectionPoint, Vec2 textureCoordinates) const = 0;
     virtual Vec3 getCentroid() const = 0;
 };
 
@@ -61,7 +61,7 @@ public:
     // Override methods
     bool intersects(const Ray& ray, Vec3& intersectionPoint) const override;
     Vec2 getTextureCoordinate(const Vec3& intersectionPoint) const override;
-    Vec3 getNormal(const Vec3& intersectionPoint) const override;
+    Vec3 getNormal(const Vec3& intersectionPoint, Vec2 textureCoordinates) const override;
     Vec3 getCentroid() const override { return position; }
 };
 
@@ -110,7 +110,7 @@ public:
     // Override methods
     bool intersects(const Ray& ray, Vec3& intersectionPoint) const override;
     Vec2 getTextureCoordinate(const Vec3& intersectionPoint) const override;
-    Vec3 getNormal(const Vec3& intersectionPoint) const override;
+    Vec3 getNormal(const Vec3& intersectionPoint, Vec2 textureCoordinates) const override;
     Vec3 getCentroid() const override {
         return (vertexA + vertexB + vertexC) / 3.0f;
     }
@@ -120,7 +120,20 @@ public:
 };
 
 
-//class Cylinder : public Shape {
-//
-//
-//};
+class Mesh {
+private:
+    std::vector<Vec3> vertices;
+    std::vector<Vec3> vertexNormals;
+    std::vector<Vec2> textureCoordinates;
+    std::vector<Triangle> faces;
+
+public:
+    // Constructor
+    Mesh(const std::string& filename, const std::shared_ptr<Material>& material);
+
+    // Getters
+    const std::vector<Triangle> getFaces() const;
+
+    // Other methods
+    void processFace(std::string& line, const std::shared_ptr<Material>& material);
+};

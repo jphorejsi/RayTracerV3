@@ -1,6 +1,7 @@
 #pragma once
 #include "vec.h"
 
+
 class Camera {
 private:
     // Camera variables

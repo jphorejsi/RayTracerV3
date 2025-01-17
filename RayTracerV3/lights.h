@@ -1,9 +1,9 @@
 #pragma once
-
 #include "vec.h"
 #include "color.h"
 #include "materials.h"
 
+// Forward declaration of scene (scene includes lights)
 class Scene;
 
 // Abstract base class for lights and illumination sources with color attribute

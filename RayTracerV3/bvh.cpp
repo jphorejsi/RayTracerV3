@@ -1,39 +1,53 @@
 #include "bvh.h"
 #include <algorithm>
 #include <array>
+#include "shapes.h"
 
-// Determine if ray intersects AABB
+// AABB methods
+void AABB::expand(const AABB& other) {
+    minBounds = Vec3::min(this->minBounds, other.minBounds);
+    maxBounds = Vec3::max(maxBounds, other.maxBounds);
+}
+
+
+double AABB::surfaceArea() const {
+    Vec3 size = maxBounds - minBounds;
+    return 2.0f * (size.x * size.y + size.y * size.z + size.z * size.x);
+}
+
+
 bool AABB::intersects(const Ray& ray) const {
-    double invDirX = 1.0 / ray.getDirection().x;
-    double invDirY = 1.0 / ray.getDirection().y;
-    double invDirZ = 1.0 / ray.getDirection().z;
-
-    double tMin = (this->minBounds.x - ray.origin.x) * invDirX;
-    double tMax = (this->maxBounds.x - ray.origin.x) * invDirX;
+    double tMin = (minBounds.x - ray.origin.x) / ray.getDirection().x;
+    double tMax = (maxBounds.x - ray.origin.x) / ray.getDirection().x;
 
     if (tMin > tMax) std::swap(tMin, tMax);
 
-    double tyMin = (this->minBounds.y - ray.origin.y) * invDirY;
-    double tyMax = (this->maxBounds.y - ray.origin.y) * invDirY;
+    double tyMin = (minBounds.y - ray.origin.y) / ray.getDirection().y;
+    double tyMax = (maxBounds.y - ray.origin.y) / ray.getDirection().y;
 
     if (tyMin > tyMax) std::swap(tyMin, tyMax);
 
-    if ((tMin > tyMax) || (tyMin > tMax)) return false;
+    if ((tMin > tyMax) || (tyMin > tMax))
+        return false;
 
     if (tyMin > tMin) tMin = tyMin;
     if (tyMax < tMax) tMax = tyMax;
 
-    double tzMin = (this->minBounds.z - ray.origin.z) * invDirZ;
-    double tzMax = (this->maxBounds.z - ray.origin.z) * invDirZ;
+    double tzMin = (minBounds.z - ray.origin.z) / ray.getDirection().z;
+    double tzMax = (maxBounds.z - ray.origin.z) / ray.getDirection().z;
 
     if (tzMin > tzMax) std::swap(tzMin, tzMax);
 
-    if ((tMin > tzMax) || (tzMin > tMax)) return false;
+    if ((tMin > tzMax) || (tzMin > tMax))
+        return false;
 
-    return true;
+    if (tzMin > tMin) tMin = tzMin;
+    if (tzMax < tMax) tMax = tzMax;
+
+    return tMax > 0;
 }
 
-
+// BVH methods
 void BVHNode::buildBVH(std::vector<Shape*>& shapes, const int maxShapesPerLeaf) {
     // Compute the bounding box for all shapes
     this->aabb = AABB();
@@ -188,4 +202,85 @@ BVHNode* BVHNode::findLastIntersectedNode(const Ray& ray) const {
 
     // If neither subtree is intersected, return the current node (as it's intersected)
     return const_cast<BVHNode*>(this);
+}
+
+
+std::vector<BVHNode*> BVHNode::findAllIntersectedLeafNodes(const Ray& ray) const {
+    std::vector<BVHNode*> intersectedLeafNodes;
+
+    // Stack for iterative traversal (to avoid recursive overhead)
+    std::vector<const BVHNode*> stack;
+    stack.push_back(this);
+
+    while (!stack.empty()) {
+        const BVHNode* currentNode = stack.back();
+        stack.pop_back();
+
+        // Skip if the current node's AABB is not intersected by the ray
+        if (!currentNode->aabb.intersects(ray)) {
+            continue;
+        }
+
+        // If this is a leaf node, add it to the list
+        if (currentNode->left == nullptr && currentNode->right == nullptr) {
+            intersectedLeafNodes.push_back(const_cast<BVHNode*>(currentNode));
+        }
+        else {
+            // Otherwise, add child nodes to the stack for further traversal
+            if (currentNode->left != nullptr) {
+                stack.push_back(currentNode->left);
+            }
+            if (currentNode->right != nullptr) {
+                stack.push_back(currentNode->right);
+            }
+        }
+    }
+
+    return intersectedLeafNodes;
+}
+
+
+const Shape* BVHNode::findClosestIntersectedShape(const Ray& ray, Vec3& intersectionPoint) const {
+    const Shape* closestShape = nullptr;
+    double closestDistance = std::numeric_limits<double>::max();
+
+    // Stack for BVH traversal
+    std::vector<const BVHNode*> stack;
+    stack.push_back(this);
+
+    while (!stack.empty()) {
+        const BVHNode* currentNode = stack.back();
+        stack.pop_back();
+
+        // Skip nodes that the ray does not intersect
+        if (!currentNode->aabb.intersects(ray)) {
+            continue;
+        }
+
+        // If this is a leaf node, check its shapes for intersections
+        if (currentNode->left == nullptr && currentNode->right == nullptr) {
+            for (const Shape* shape : currentNode->getShapes()) {
+                Vec3 currentIntersection;
+                if (shape->intersects(ray, currentIntersection)) {
+                    double distance = (currentIntersection - ray.origin).length();
+                    if (distance < closestDistance) {
+                        closestDistance = distance;
+                        closestShape = shape;
+                        intersectionPoint = currentIntersection;
+                    }
+                }
+            }
+        }
+        else {
+            // Add child nodes to the stack for further traversal
+            if (currentNode->left != nullptr) {
+                stack.push_back(currentNode->left);
+            }
+            if (currentNode->right != nullptr) {
+                stack.push_back(currentNode->right);
+            }
+        }
+    }
+
+    return closestShape;
 }

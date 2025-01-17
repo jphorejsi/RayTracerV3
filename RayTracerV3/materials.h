@@ -4,14 +4,15 @@
 #include "ray.h"
 #include "texture.h"
 
-// Forward declaration
+// Forward declaration Scene includes shapes which include materials
 class Scene;
-class Shape;
+class Shape; 
 
 class Material {
 protected:
     std::shared_ptr<Texture> texture;
     std::shared_ptr<NormalMap> normalMap;
+
 public:
     virtual ~Material() = default;
 
@@ -25,16 +26,16 @@ public:
     void setNormalMap(const std::shared_ptr<NormalMap>& normalMap) { this->normalMap = normalMap; }
 
     // Other methods
-    //virtual Color shade(const Ray& ray, const Vec3& intersectionPoint, const Scene& scene, const Shape& shape) const = 0; // TODO
     virtual Color shade(const Ray& ray, const Vec3& intersectionPoint, const Scene& scene, const Shape& shape, int maxDepth) const = 0;
 };
 
 class BlinnPhong : public Material {
 private:
-    double ka; // Ambient coefficient between 0 and 1
-    double kd; // Diffuse coefficient between 0 and 1
-    double ks; // Specular coefficient between 0 and 1
-    double n;  // Shininess exponent greater than 1
+    double ka;
+    double kd;
+    double ks;
+    double n;
+
 public:
     Color od;  // Diffuse color
     Color os;  // Specular color
@@ -43,18 +44,11 @@ public:
     BlinnPhong(Color od, Color os, double ka, double kd, double ks, double n);
 
     // Getters
-    Color getOd(Vec2 textureCoordinate) const {
-        if (this->getTexture()) {
-            return this->texture->getPixel(textureCoordinate);
-        }
-        else return od;
-    }
-
+    Color getOd(Vec2 textureCoordinate) const;
     double getKa() const { return ka; }
     double getKd() const { return kd; }
     double getKs() const { return ks; }
     double getN() const { return n; }
-
 
     // Setters
     void setKa(double ka);
@@ -64,23 +58,25 @@ public:
 
     // Overrides
     virtual Color shade(const Ray& ray, const Vec3& intersectionPoint, const Scene& scene, const Shape& shape, int maxDepth) const;
-
-    //Color goraudShade()
 };
 
 
 class ReflectiveBlinnPhong : public BlinnPhong {
 private:
-    double alpha = 1.0;
-    double eta = 1.0;
+    double alpha = 1.0; // Transparency
+    double eta = 1.0;   // Index of refraction
 
 public:
     // Constructor
-    ReflectiveBlinnPhong(Color od, Color os, double ka, double kd, double ks, double n, double alpha, double eta) : BlinnPhong(od, os, ka, kd, ks, n), alpha(alpha), eta(eta) {}
+    ReflectiveBlinnPhong(Color od, Color os, double ka, double kd, double ks, double n, double alpha, double eta);
 
     // Getters
     double getAlpha() const { return alpha; }
     double getEta() const { return eta; }
+
+    // Setters
+    void setAlpha(double alpha);
+    void setEta(double eta);
 
     // Overrides
     virtual Color shade(const Ray& ray, const Vec3& intersectionPoint, const Scene& scene, const Shape& shape, int maxDepth) const;

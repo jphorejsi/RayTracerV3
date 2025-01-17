@@ -10,7 +10,21 @@ private:
 public:
     // Constructors
     Color() : r(0.0), g(0.0), b(0.0) {}
-    Color(double r, double g, double b);
+
+    Color(double r, double g, double b) {
+        if (r < 0.0 || r > 1.0) {
+            throw std::invalid_argument("Red component must be between 0.0 and 1.0.");
+        }
+        if (g < 0.0 || g > 1.0) {
+            throw std::invalid_argument("Green component must be between 0.0 and 1.0.");
+        }
+        if (b < 0.0 || b > 1.0) {
+            throw std::invalid_argument("Blue component must be between 0.0 and 1.0.");
+        }
+        this->r = r;
+        this->g = g;
+        this->b = b;
+    }
 
     // Getters
     double getR() const { return this->r; }
@@ -18,9 +32,26 @@ public:
     double getB() const { return this->b; }
 
     // Setters
-    void setR(double red);
-    void setG(double green);
-    void setB(double blue);
+    void setR(double r) {
+        if (r < 0.0 || r > 1.0) {
+            throw std::invalid_argument("Red component must be between 0.0 and 1.0.");
+        }
+        this->r = r;
+    }
+
+    void setG(double g) {
+        if (g < 0.0 || g > 1.0) {
+            throw std::invalid_argument("Green component must be between 0.0 and 1.0.");
+        }
+        this->g = g;
+    }
+
+    void setB(double b) {
+        if (b < 0.0 || b > 1.0) {
+            throw std::invalid_argument("Blue component must be between 0.0 and 1.0.");
+        }
+        this->b = b;
+    }
 
     // Operator overloads as member functions
     Color& operator+=(const Color& color){

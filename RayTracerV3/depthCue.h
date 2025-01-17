@@ -1,6 +1,7 @@
 #pragma once
 #include "color.h"
 
+
 class DepthCue {
 private:
     Color depthCueColor;

@@ -1,12 +1,9 @@
 #pragma once
 
 #include <vector>
-
 #include "color.h"
 #include "shapes.h"
 #include "lights.h"
-#include "mesh.h"
-
 #include "bvh.h"
 #include "depthCue.h"
 
@@ -36,6 +33,9 @@ public:
     const std::vector<AbstractLight*>& getLights() const { return this->lights; }
     const BVHNode* getBVHRoot() const { return this->BVHRoot; }
     const DepthCue* getDepthCue() const { return this->depthCue; }
+
+    // Setters
+    void setDepthCue(DepthCue* depthCue) { this->depthCue = depthCue; }
 
     // Other methods
     void addShape(Shape* shape) {

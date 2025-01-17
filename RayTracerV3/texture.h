@@ -1,9 +1,9 @@
 #pragma once
-
 #include <fstream>
 #include "vec.h"
 #include "color.h"
 
+// Base class for ppm based textures
 class AbstractTexture {
 protected:
     int height = 0; // cant be changed
@@ -44,6 +44,7 @@ public:
     void setPixel(const Vec2 textureCoordinate, const Color color);
 };
 
+
 class NormalMap : public AbstractTexture {
 private:
     Vec3** normalMapArray;
@@ -60,8 +61,9 @@ public:
         delete[] this->normalMapArray;
     }
 
-    // Overridden methods
-    const Vec3& getNormal(double u, double v) const;
+    // Getters
+    const Vec3& getNormal(Vec2 textureCoordinate) const;
 
-    void setNormal(double u, double v, const Vec3& normal);
+    // Settrers
+    void setNormal(Vec2 textureCoordinate, const Vec3& normal);
 };

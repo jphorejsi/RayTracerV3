@@ -10,6 +10,11 @@ public:
 	Vec2(double x = 0.0, double y = 0.0) : x(x), y(y) {}
 };
 
+inline Vec2 operator-(const Vec2& u, const Vec2& v) {
+    return Vec2(u.x - v.x, u.y - v.y);
+}
+
+
 class Vec3 {
 public:
     double x, y, z;
@@ -103,47 +108,3 @@ inline Vec3 reflect(const Vec3& v, const Vec3& n) {
 inline Vec3 cross(const Vec3& u, const Vec3& v) {
     return Vec3(u.y * v.z - u.z * v.y, u.z * v.x - u.x * v.z, u.x * v.y - u.y * v.x);
 }
-
-
-
-
-// Other methods
-//Vec3 transform(const Vec3& baseNormal) const {
-//    // Normalize the base normal
-//    Vec3 normalizedBaseNormal = baseNormal.normal();
-
-//    // Check for degenerate baseNormal
-//    if (normalizedBaseNormal.length() == 0.0) {
-//        throw std::runtime_error("Error: Base normal is zero-length.");
-//    }
-
-//    // Calculate the tangent vector
-//    Vec3 tangent;
-//    if (std::abs(normalizedBaseNormal.y) < 1e-6) {
-//        tangent = Vec3(0, -normalizedBaseNormal.z, normalizedBaseNormal.y);
-//    }
-//    else {
-//        tangent = Vec3(normalizedBaseNormal.z, 0, -normalizedBaseNormal.x);
-//    }
-
-//    if (tangent.length() == 0.0) {
-//        throw std::runtime_error("Error: Degenerate tangent vector.");
-//    }
-//    tangent = tangent.normal();
-
-//    // Calculate the bitangent vector
-//    Vec3 bitangent = cross(normalizedBaseNormal, tangent);
-//    if (bitangent.length() == 0.0) {
-//        throw std::runtime_error("Error: Degenerate bitangent vector.");
-//    }
-//    bitangent = bitangent.normal();
-
-//    // Transform the vector from tangent space to world space
-//    Vec3 transformed(
-//        this->x * tangent.x + this->y * bitangent.x + this->z * normalizedBaseNormal.x,
-//        this->x * tangent.y + this->y * bitangent.y + this->z * normalizedBaseNormal.y,
-//        this->x * tangent.z + this->y * bitangent.z + this->z * normalizedBaseNormal.z
-//    );
-
-//    return transformed.normal(); // Normalize the output for safety
-//}

@@ -57,13 +57,7 @@
     <ClInclude Include="fileManager.h">
       <Filter>Header Files\advanced features</Filter>
     </ClInclude>
-    <ClInclude Include="aabb.h">
-      <Filter>Header Files\advanced features</Filter>
-    </ClInclude>
     <ClInclude Include="renderer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="mesh.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -95,13 +89,7 @@
     <ClCompile Include="fileManager.cpp">
       <Filter>Source Files\advanced features</Filter>
     </ClCompile>
-    <ClCompile Include="color.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="renderer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ray.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -5,129 +5,133 @@
 #include <sstream>
 #include <vector>
 
+// Texture constructor
 Texture::Texture(const std::string& filename) {
-    // Open filename
+    // Open the file
     std::ifstream textureFile(filename, std::ios::binary);
     if (!textureFile.is_open()) {
         throw std::runtime_error("Error: Unable to open texture file: " + filename);
     }
-    std::string format;
-    int width, height, maxValue;
 
     // Read the PPM header
-    if (!(textureFile >> format >> width >> height >> maxValue)) {
-        throw std::runtime_error("Error: Failed to read texture PPM header information");
+    std::string format;
+    if (!(textureFile >> format >> this->width >> this->height >> this->maxValue)) {
+        throw std::runtime_error("Error: Failed to read texture PPM header information.");
     }
+
     if (format != "P3") {
         throw std::runtime_error("Error: Unsupported PPM format. Only P3 format is supported.");
     }
-    if (width <= 0 || height <= 0) {
+
+    if (this->width <= 0 || this->height <= 0) {
         throw std::runtime_error("Error: Texture dimensions must be greater than zero.");
     }
 
-    // Initialize member variables
-    this->width = width;
-    this->height = height;
-    this->maxValue = maxValue;
-    this->textureArray = new Color * [width];
+    // Initialize the 2D array
+    textureArray = new Color * [this->width];
     for (int i = 0; i < width; ++i) {
-        this->textureArray[i] = new Color[height];
+        textureArray[i] = new Color[this->height];
     }
 
-
-    // Read the pixel data
-    for (int j = 0; j < height; ++j) {
-        for (int i = 0; i < width; ++i) {
+    // Read pixel data
+    for (int j = 0; j < this->height; ++j) {
+        for (int i = 0; i < this->width; ++i) {
             double r, g, b;
             if (!(textureFile >> r >> g >> b)) {
                 throw std::runtime_error("Error: Failed to read pixel data from texture file.");
             }
+
+            // Map the RGB values to [0, 1]
             Color color(r / maxValue, g / maxValue, b / maxValue);
+
             this->textureArray[i][j] = color;
         }
     }
 }
 
+// Texture getters
 const Color& Texture::getPixel(Vec2 textureCoordinate) const {
-    if (textureCoordinate.x < 0.0 || textureCoordinate.x > 1.0 || textureCoordinate.y < 0.0 || textureCoordinate.y >= 1.0) {
+    if (textureCoordinate.x < 0.0 || textureCoordinate.x > 1.0 || textureCoordinate.y < 0.0 || textureCoordinate.y > 1.0) {
         throw std::out_of_range("Error: Pixel coordinates are out of bounds for texture");
     }
     int x = static_cast<int>(textureCoordinate.x * (this->width - 1));
-    int y = static_cast<int>(textureCoordinate.y * (this->height - 1));
-    Color color = this->textureArray[x][y];
-    return color;
+    int y = static_cast<int>((1.0 - textureCoordinate.y) * (this->height - 1)); // Flip y for bottom-left origin
+    return this->textureArray[x][y];
 }
 
+// Texture setters
 void Texture::setPixel(const Vec2 textureCoordinate, const Color color) {
-    if (textureCoordinate.x < 0.0 || textureCoordinate.x > 1.0 || textureCoordinate.y < 0.0 || textureCoordinate.y >= 1.0) {
+    if (textureCoordinate.x < 0.0 || textureCoordinate.x > 1.0 || textureCoordinate.y < 0.0 || textureCoordinate.y > 1.0) {
         throw std::out_of_range("Error: Pixel coordinates are out of bounds for texture");
     }
     int x = static_cast<int>(textureCoordinate.x * (this->width - 1));
-    int y = static_cast<int>(textureCoordinate.y * (this->height - 1));
+    int y = static_cast<int>((1.0 - textureCoordinate.y) * (this->height - 1)); // Flip y for bottom-left origin
     this->textureArray[x][y] = color;
 }
 
-
+// NormalMap constructor
 NormalMap::NormalMap(const std::string& filename) {
-        // Open filename
-        std::ifstream textureFile(filename, std::ios::binary);
-        if (!textureFile.is_open()) {
-            throw std::runtime_error("Error: Unable to open texture file: " + filename);
-        }
-        std::string format;
-        int width, height, maxValue;
+    // Open the file
+    std::ifstream textureFile(filename, std::ios::binary);
+    if (!textureFile.is_open()) {
+        throw std::runtime_error("Error: Unable to open normal map file: " + filename);
+    }
 
-        // Read the PPM header
-        if (!(textureFile >> format >> width >> height >> maxValue)) {
-            throw std::runtime_error("Error: Failed to read texture PPM header information");
-        }
-        if (format != "P3") {
-            throw std::runtime_error("Error: Unsupported PPM format. Only P3 format is supported.");
-        }
-        if (width <= 0 || height <= 0) {
-            throw std::runtime_error("Error: Texture dimensions must be greater than zero.");
-        }
+    // Read the PPM header
+    std::string format;
+    if (!(textureFile >> format >> this->width >> this->height >> this->maxValue)) {
+        throw std::runtime_error("Error: Failed to read normal map PPM header information.");
+    }
 
-        // Initialize member variables
-        this->width = width;
-        this->height = height;
-        this->maxValue = maxValue;
-        this->normalMapArray = new Vec3 * [width];
-        for (int i = 0; i < width; ++i) {
-            this->normalMapArray[i] = new Vec3[height];
-        }
+    if (format != "P3") {
+        throw std::runtime_error("Error: Unsupported PPM format. Only P3 format is supported.");
+    }
 
-        // Read the pixel data
-        for (int j = 0; j < height; ++j) {
-            for (int i = 0; i < width; ++i) {
-                double x, y, z;
-                if (!(textureFile >> x >> y >> z)) {
-                    throw std::runtime_error("Error: Failed to read pixel data from texture file.");
-                }
-                Vec3 normalVector(x / maxValue, y / maxValue, z / maxValue);
-                double u = static_cast<double>(i) / (width - 1);
-                double v = static_cast<double>(j) / (height - 1);
-                this->setNormal(u, v, normalVector); // Use normalized coordinates
+    if (this->width <= 0 || this->height <= 0) {
+        throw std::runtime_error("Error: Normal map dimensions must be greater than zero.");
+    }
+
+    // Initialize the 2D array
+    normalMapArray = new Vec3 * [this->width];
+    for (int i = 0; i < this->width; ++i) {
+        normalMapArray[i] = new Vec3[this->height];
+    }
+
+    // Read pixel data
+    for (int j = 0; j < this->height; ++j) {
+        for (int i = 0; i < this->width; ++i) {
+            double r, g, b;
+            if (!(textureFile >> r >> g >> b)) {
+                throw std::runtime_error("Error: Failed to read pixel data from normal map file.");
             }
+
+            // Map the RGB values from [0, maxValue] to [-1, 1]
+            Vec3 normalVector((r / maxValue) * 2.0 - 1.0, (g / maxValue) * 2.0 - 1.0, (b / maxValue) * 2.0 - 1.0);
+
+            // Normalize the normal vector
+            normalVector = normalVector.normal();
+
+            this->normalMapArray[i][j] = normalVector;
         }
     }
-
-
-const Vec3& NormalMap::getNormal(double u, double v) const {
-    if (u < 0.0 || u > 1.0 || v < 0.0 || v > 1.0) {
-        throw std::out_of_range("Error: Normal map coordinates are out of bounds for normal map");
-    }
-    int x = static_cast<int>(u * (this->width - 1));
-    int y = static_cast<int>(v * (this->height - 1));
-    return this->normalMapArray[x][y];
 }
 
-
-void NormalMap::setNormal(double u, double v, const Vec3& normal) {
-    if (u < 0.0 || u > 1.0 || v < 0.0 || v > 1.0) {
-        throw std::out_of_range("Error: Normalized coordinates are out of bounds for normal map");
+// NormalMap getters
+const Vec3& NormalMap::getNormal(Vec2 textureCoordinate) const {
+    if (textureCoordinate.x < 0.0 || textureCoordinate.x > 1.0 || textureCoordinate.y < 0.0 || textureCoordinate.y > 1.0) {
+        throw std::out_of_range("Error: Pixel coordinates are out of bounds for texture");
     }
-    int x = static_cast<int>(u * (this->width - 1));
-    int y = static_cast<int>(v * (this->height - 1));
-    this->normalMapArray[x][y] = normal.normal(); // Ensure the normal vector is normalized
+    int x = static_cast<int>(textureCoordinate.x * (this->width - 1));
+    int y = static_cast<int>((1.0 - textureCoordinate.y) * (this->height - 1)); // Flip y for bottom-left origin
+    return this->normalMapArray[x][y];;
+}
+
+// NormalMap setters
+void NormalMap::setNormal(Vec2 textureCoordinate, const Vec3& normal) {
+    if (textureCoordinate.x < 0.0 || textureCoordinate.x > 1.0 || textureCoordinate.y < 0.0 || textureCoordinate.y > 1.0) {
+        throw std::out_of_range("Error: Pixel coordinates are out of bounds for texture");
+    }
+    int x = static_cast<int>(textureCoordinate.x * (this->width - 1));
+    int y = static_cast<int>((1.0 - textureCoordinate.y) * (this->height - 1)); // Flip y for bottom-left origin
+    this->normalMapArray[x][y] = normal.normal();
 }

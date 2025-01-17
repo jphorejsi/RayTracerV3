@@ -127,7 +127,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="aabb.h" />
     <ClInclude Include="camera.h" />
     <ClInclude Include="color.h" />
     <ClInclude Include="depthCue.h" />
@@ -135,7 +134,6 @@
     <ClInclude Include="bvh.h" />
     <ClInclude Include="lights.h" />
     <ClInclude Include="materials.h" />
-    <ClInclude Include="mesh.h" />
     <ClInclude Include="ray.h" />
     <ClInclude Include="renderer.h" />
     <ClInclude Include="scene.h" />
@@ -145,14 +143,12 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="camera.cpp" />
-    <ClCompile Include="color.cpp" />
     <ClCompile Include="depthCue.cpp" />
     <ClCompile Include="fileManager.cpp" />
     <ClCompile Include="bvh.cpp" />
     <ClCompile Include="lights.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="material.cpp" />
-    <ClCompile Include="ray.cpp" />
     <ClCompile Include="renderer.cpp" />
     <ClCompile Include="shapes.cpp" />
     <ClCompile Include="texture.cpp" />
