@@ -48,6 +48,9 @@ Vec2 Sphere::getTextureCoordinate(const Vec3& intersectionPoint) const {
     double u = 0.5 + (atan2(localPoint.y, localPoint.x) / (2 * 3.1415927));
     double v = 0.5 - (asin(localPoint.z) / 3.1415927);
 
+    // Invert the v coordinate
+    v = 1.0 - v;
+
     return Vec2(u, v);
 }
 
@@ -130,7 +133,7 @@ Vec3 Triangle::getNormal(const Vec3& intersectionPoint, Vec2 textureCoordinates)
         Vec2 deltaUV1 = *textureCoordinateB - *textureCoordinateA;
         Vec2 deltaUV2 = *textureCoordinateC - *textureCoordinateA;
 
-        float f = 1.0f / (deltaUV1.x * deltaUV2.y - deltaUV2.x * deltaUV1.y);
+        double f = 1.0f / (deltaUV1.x * deltaUV2.y - deltaUV2.x * deltaUV1.y);
 
         // Tangent and bitangent calculation
         Vec3 tangent;
@@ -192,6 +195,88 @@ Vec3 Triangle::getBarycentricCoordinates(const Vec3& intersectionPoint) const {
     double alpha = 1.0 - beta - gamma;             // α = 1 - β - γ
 
     return Vec3(alpha, beta, gamma); // Return barycentric coordinates
+}
+
+
+void Triangle::setVertexANormal(Vec3* normal) { // TODO
+    if (normal) {
+        if (normal->length() == 0.0) {
+            throw std::runtime_error("Vertex normal unit length is 0.");
+        }
+        // Delete the existing vertex normal to prevent memory leaks
+        delete this->vertexANormal;
+        // Allocate a new Vec3 for vertexANormal
+        this->vertexANormal = new Vec3(normal->normal());
+    }
+    else {
+        // Allow removal of the vertex normal
+        delete this->vertexANormal;
+        this->vertexANormal = nullptr;
+    }
+}
+
+
+void Triangle::setVertexBNormal(Vec3* normal) {
+    if (normal) {
+        if (normal->length() == 0.0) {
+            throw std::runtime_error("Vertex normal unit length is 0.");
+        }
+        // Delete the existing vertex normal to prevent memory leaks
+        delete this->vertexBNormal;
+        // Allocate a new Vec3 for vertexBNormal
+        this->vertexBNormal = new Vec3(normal->normal());
+    }
+    else {
+        // Allow removal of the vertex normal
+        delete this->vertexBNormal;
+        this->vertexBNormal = nullptr;
+    }
+}
+
+
+void Triangle::setVertexCNormal(Vec3* normal) {
+    if (normal) {
+        if (normal->length() == 0.0) {
+            throw std::runtime_error("Vertex normal unit length is 0.");
+        }
+        // Delete the existing vertex normal to prevent memory leaks
+        delete this->vertexCNormal;
+        // Allocate a new Vec3 for vertexCNormal
+        this->vertexCNormal = new Vec3(normal->normal());
+    }
+    else {
+        // Allow removal of the vertex normal
+        delete this->vertexCNormal;
+        this->vertexCNormal = nullptr;
+    }
+}
+
+
+void Triangle::setTextureCoordinateA(Vec2* coord) {
+    if (coord) {
+        if (coord->x < 0.0 || coord->x > 1.0 || coord->y < 0.0 || coord->y > 1.0) {
+            throw std::runtime_error("Texture coordinate outside range 0 - 1.");
+        }
+    }
+    this->textureCoordinateA = coord;
+}
+
+void Triangle::setTextureCoordinateB(Vec2* coord) {
+    if (coord) {
+        if (coord->x < 0.0 || coord->x > 1.0 || coord->y < 0.0 || coord->y > 1.0) {
+            throw std::runtime_error("Texture coordinate outside range 0 - 1.");
+        }
+    }
+    this->textureCoordinateB = coord;
+}
+
+void Triangle::setTextureCoordinateC(Vec2* coord) {
+    if (coord) {
+        if (coord->x < 0.0 || coord->x > 1.0 || coord->y < 0.0 || coord->y > 1.0) {
+            throw std::runtime_error("Texture coordinate outside range 0 - 1.");
+        }
+    }
+    this->textureCoordinateC = coord;
 }
 
 // Mesh constructor

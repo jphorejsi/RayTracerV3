@@ -5,9 +5,9 @@
 class Camera {
 private:
     // Camera variables
-    Vec3 upDirection;
-    Vec3 viewDirection;
-    double horizontalFOV;
+    Vec3 upDirection = Vec3(0, 1, 0);
+    Vec3 viewDirection = Vec3(0, 0, -1);
+    double horizontalFOV = 60;
 
     // View frustum variables
     double VFWidth = 0.0;
@@ -18,6 +18,7 @@ public:
     Vec3 eyePosition;
 
     // Constructors
+    Camera() = default;
     Camera(const Vec3& eyePosition, const Vec3& upDirection, const Vec3& viewDirection, double horizontalFOV);
 
     // Getters for Camera Variables

@@ -6,22 +6,19 @@
 #include "camera.h"
 
 class Renderer {
-    int imageWidth;
-    int imageHeight;
+    int imageWidth = 256;
+    int imageHeight = 256;
     int samples = 1;
     int maxDepth = 10;
 
 public:
     // Constructor
+    Renderer() = default;
     Renderer(int imageWidth, int imageHeight);
 
     // Setters
-    void setSamples(int samples) { 
-        if (samples < 1) {
-            return;
-        }
-        else this->samples = samples;
-    }
+    void setSize(int imageWidth, int imageHeight);
+    void setSamples(int samples);
 
     // Other methods
     static Color traceRay(const Ray& ray, const Scene& scene, int maxDepth);

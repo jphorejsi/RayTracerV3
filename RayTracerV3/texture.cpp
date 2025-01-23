@@ -1,4 +1,4 @@
-#include "texture.h"
+#include "textures.h"
 #include "color.h"
 #include <iostream>
 #include <fstream>

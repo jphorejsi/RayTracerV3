@@ -138,7 +138,7 @@
     <ClInclude Include="renderer.h" />
     <ClInclude Include="scene.h" />
     <ClInclude Include="shapes.h" />
-    <ClInclude Include="texture.h" />
+    <ClInclude Include="textures.h" />
     <ClInclude Include="vec.h" />
   </ItemGroup>
   <ItemGroup>
@@ -162,6 +162,7 @@
   <ItemGroup>
     <Text Include="floor.txt" />
     <Text Include="teapot.txt" />
+    <Text Include="test.txt" />
     <Text Include="wall.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

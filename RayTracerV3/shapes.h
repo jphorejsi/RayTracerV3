@@ -3,7 +3,7 @@
 #include <memory> // For std::shared_ptr
 #include "vec.h"
 #include "materials.h"
-#include "texture.h"
+#include "textures.h"
 #include "ray.h"
 #include "color.h"
 #include <vector>
@@ -100,12 +100,12 @@ public:
     }
 
     // Setters for normals and texture coordinates
-    void setVertexANormal(Vec3* normal) { vertexANormal = normal; }
-    void setVertexBNormal(Vec3* normal) { vertexBNormal = normal; }
-    void setVertexCNormal(Vec3* normal) { vertexCNormal = normal; }
-    void setTextureCoordinateA(Vec2* coord) { textureCoordinateA = coord; }
-    void setTextureCoordinateB(Vec2* coord) { textureCoordinateB = coord; }
-    void setTextureCoordinateC(Vec2* coord) { textureCoordinateC = coord; }
+    void setVertexANormal(Vec3* normal);
+    void setVertexBNormal(Vec3* normal);
+    void setVertexCNormal(Vec3* normal);
+    void setTextureCoordinateA(Vec2* coord);
+    void setTextureCoordinateB(Vec2* coord);
+    void setTextureCoordinateC(Vec2* coord);
 
     // Override methods
     bool intersects(const Ray& ray, Vec3& intersectionPoint) const override;

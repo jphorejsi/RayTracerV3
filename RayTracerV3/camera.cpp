@@ -12,12 +12,12 @@ Camera::Camera(const Vec3& eyePosition, const Vec3& upDirection, const Vec3& vie
     if (upDirection.length() == 0.0) {
         throw std::invalid_argument("Up direction vector cannot be zero.");
     }
-
     this->eyePosition = eyePosition;
     this->upDirection = upDirection.normal(); // Normalize the up direction
     this->viewDirection = viewDirection.normal(); // Normalize the view direction
     this->horizontalFOV = horizontalFOV;
 }
+
 
 void Camera::setUpDirection(const Vec3 upDir) {
     if (upDir.length() == 0.0) {
@@ -26,6 +26,7 @@ void Camera::setUpDirection(const Vec3 upDir) {
     this->upDirection = upDir.normal(); // Normalize before setting
 }
 
+
 void Camera::setViewDirection(const Vec3 viewDir) {
     if (viewDir.length() == 0.0) {
         throw std::invalid_argument("View direction vector cannot be zero.");
@@ -33,12 +34,14 @@ void Camera::setViewDirection(const Vec3 viewDir) {
     this->viewDirection = viewDir.normal(); // Normalize before setting
 }
 
+
 void Camera::setHorizontalFOV(double fov) {
     if (fov <= 0.0 || fov >= 180.0) {
         throw std::invalid_argument("Horizontal FOV must be between 0 and 180 degrees (exclusive).");
     }
     this->horizontalFOV = fov;
 }
+
 
 void Camera::createFrustrum(int imageWidth, int imageHeight) {
     // Calculate the aspect ratio

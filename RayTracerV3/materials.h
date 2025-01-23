@@ -2,7 +2,7 @@
 #include <memory>
 #include "Color.h"
 #include "ray.h"
-#include "texture.h"
+#include "textures.h"
 
 // Forward declaration Scene includes shapes which include materials
 class Scene;

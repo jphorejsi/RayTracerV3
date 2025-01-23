@@ -1,6 +1,8 @@
 #include "scene.h"
 #include "camera.h"
 #include "renderer.h"
+#include "fileManager.h"
+#include <crtdbg.h>
 
 void static basicLighting() {
 	Scene scene(Color(0.1, 0.1, 0.1));
@@ -73,7 +75,7 @@ void static earthAA() {
 	Camera cam(Vec3(2, -6, 1), Vec3(0, 0, 1), Vec3(-1, 3, -0.5), 50);
 	Renderer system(512, 512);
 
-	system.s
+	system.setSamples(10);
 
 	AbstractLight* light1 = new DirectionalLight(Vec3(0, 1, -1), Color(1, 1, 1));
 	scene.addLight(light1);
@@ -88,7 +90,7 @@ void static earthAA() {
 	system.render(scene, cam);
 }
 
-void static normalMap() { // TODO
+void static normalMap() {
 	Scene scene(Color(0.1, 0.1, 0.1));
 	Camera cam(Vec3(0, 0, 2), Vec3(0, 1, 0), Vec3(0, 0, -1), 60);
 	Renderer system(1000, 1000);
@@ -210,7 +212,19 @@ void static depthcue() {
 	system.render(scene, cam);
 }
 
+void static fileRead(std::string filename) {
+	Scene scene;
+	Camera cam;
+	Renderer system;
+
+	FileReader fr;
+	fr.readFile(filename, cam, scene, system);
+	
+	system.render(scene, cam);
+}
+
 int main() {
-	depthcue();
+	teapot();
+	return 0;
 }
 

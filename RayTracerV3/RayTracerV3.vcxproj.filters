@@ -45,7 +45,7 @@
     <ClInclude Include="scene.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="texture.h">
+    <ClInclude Include="textures.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="bvh.h">
@@ -103,5 +103,6 @@
     <Text Include="wall.txt" />
     <Text Include="teapot.txt" />
     <Text Include="floor.txt" />
+    <Text Include="test.txt" />
   </ItemGroup>
 </Project>

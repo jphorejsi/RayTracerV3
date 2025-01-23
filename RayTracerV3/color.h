@@ -5,12 +5,13 @@
 // Color class to represent RGB color values
 class Color {
 private:
-    double r, g, b;  // RGB components restricted to 0 1
+    double r = 0.0; // RGB components restricted to 0 1
+    double g = 0.0;
+    double b = 0.0;
 
 public:
     // Constructors
-    Color() : r(0.0), g(0.0), b(0.0) {}
-
+    Color() = default;
     Color(double r, double g, double b) {
         if (r < 0.0 || r > 1.0) {
             throw std::invalid_argument("Red component must be between 0.0 and 1.0.");

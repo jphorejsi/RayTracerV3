@@ -17,6 +17,7 @@ private:
 
 public:
     // Constructors
+    Scene() = default;
     Scene(const Color& backgroundColor) : backgroundColor(backgroundColor) {};
 
     // Destructor
@@ -36,6 +37,7 @@ public:
 
     // Setters
     void setDepthCue(DepthCue* depthCue) { this->depthCue = depthCue; }
+    void setBackgroundColor(Color backgroundColor) { this->backgroundColor = backgroundColor; }
 
     // Other methods
     void addShape(Shape* shape) {
