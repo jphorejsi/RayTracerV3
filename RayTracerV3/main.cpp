@@ -224,7 +224,6 @@ void static fileRead(std::string filename) {
 }
 
 int main() {
-	teapot();
-	return 0;
+	fileRead("input.txt");
 }
 

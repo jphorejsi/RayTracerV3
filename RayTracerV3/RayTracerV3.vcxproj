@@ -162,7 +162,7 @@
   <ItemGroup>
     <Text Include="floor.txt" />
     <Text Include="teapot.txt" />
-    <Text Include="test.txt" />
+    <Text Include="input.txt" />
     <Text Include="wall.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
