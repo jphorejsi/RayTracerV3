@@ -1,4 +1,4 @@
-To use this raytracer modify the input.txt file using the possible keywords provided, some keywords are required for rendering. Details can be found at https://jphorejsi.myportfolio.com/rt
+To use this raytracer modify the input.txt file using the possible keywords provided and run the solution image will be generated as output.ppm, some keywords are required for rendering. Details can be found at https://jphorejsi.myportfolio.com/rt
 
 Keywords and Values Essential for Rendering eye x y z (camera position) viewdir x y z (direction camera is facing) updir x y z (camera's up direction) hfov (horizontal fov value) imsize x y (rendered image's resolution) bkgcolor r g b (scene's background color) Materials and Textures mtlcolor Odr Odg Odb Osr Osg Osb Ka Kd Ks n (object defuse color, object specular color, ambient , diffuse, and specular coefficients, shininess exponent) for a reflective material mtlcolor Odr Odg Odb Osr Osg Osb ka kd ks n α η (opacity, index of refraction) texture name.ppm (name of texture file in .ppm p3 format) Shapes material needs to be specified before adding any shape in input file
 
